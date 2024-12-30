@@ -1,0 +1,267 @@
+/* General styles */
+body {
+    margin: 0;
+    font-family: montserrat, sans-serif;
+}
+
+header {
+    background-color: #333;
+    color: #fff;
+    padding: 10px 20px;
+    position: relative;
+}
+
+.logo {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.logo img {
+    height: 40px; /* Adjust the size as needed */
+    max-width: 100%;
+}
+.category-products {
+    margin: 20px;
+}
+
+.product-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.product-item {
+    width: 200px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.product-item img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+}
+
+.product-item h2 {
+    font-size: 18px;
+    margin: 10px 0;
+}
+
+.product-item p {
+    font-size: 16px;
+    margin: 5px 0;
+}
+
+.product-item a {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 8px 16px;
+    background-color: #28a745;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+}
+
+.product-item a:hover {
+    background-color: #218838;
+}
+
+.nav-toggle {
+    display: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #fff;
+    background: #333;
+    padding: 10px;
+    border: none;
+}
+
+nav {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.main-nav,
+.categories-nav {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    flex-direction: row;
+}
+
+.main-nav li,
+.categories-nav li {
+    margin: 5px 0;
+}
+
+.main-nav a,
+.categories-nav a {
+    color: #fff;
+    text-decoration: none;
+    padding: 10px;
+}
+
+.categories-nav {
+    margin-top: 10px; /* Space between pages and categories nav */
+}
+
+.category-item {
+    position: relative;
+    display: inline-block;
+}
+
+.category-item a {
+    color: #fff;
+    text-decoration: none;
+    padding: 10px;
+    display: block;
+}
+
+.subcategories-list {
+    display: none;
+    position: absolute;
+    background-color: #444;
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    top: 100%;
+    left: 0;
+    min-width: 200px;
+    z-index: 1;
+}
+
+.subcategories-list li {
+    border-bottom: 1px solid #555;
+}
+
+.subcategories-list a {
+    color: #fff;
+    text-decoration: none;
+    padding: 10px;
+    display: block;
+}
+
+.subcategories-list a:hover {
+    background-color: #555;
+}
+
+.category-item:hover .subcategories-list {
+    display: block;
+}
+
+/* Side Menu Styles */
+.side-menu {
+    position: fixed;
+    top: 0;
+    left: -250px;
+    width: 250px;
+    height: 100%;
+    background-color: #333;
+    color: #fff;
+    transition: left 0.3s;
+    z-index: 1000;
+}
+
+.side-menu.show {
+    left: 0;
+}
+
+.side-menu .closebtn {
+    font-size: 30px;
+    cursor: pointer;
+    padding: 10px;
+}
+
+.side-menu .profile {
+    text-align: center;
+    margin: 20px 0;
+}
+
+.side-menu .profile img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+}
+
+.side-menu ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.side-menu li {
+    border-bottom: 1px solid #444;
+}
+
+.side-menu a {
+    color: #fff;
+    text-decoration: none;
+    padding: 10px;
+    display: block;
+}
+
+.side-menu a:hover {
+    background-color: #555;
+}
+
+/* Mobile Styles */
+@media (max-width: 768px) {
+    .main-nav, .categories-nav {
+        display: none; /* Hide default nav items */
+    }
+
+    .nav-toggle {
+        display: block; /* Show menu toggle on small screens */
+    }
+
+    .side-menu {
+        width: 100%;
+        left: -100%; /* Initially hide the side menu */
+    }
+
+    .side-menu.show {
+        left: 0; /* Show side menu when toggled */
+    }
+}
+
+/* Small screens */
+@media (max-width: 480px) {
+    .logo img {
+        height: 30px; /* Adjust logo size */
+    }
+
+    .nav-toggle {
+        font-size: 20px;
+    }
+
+    .side-menu .profile img {
+        width: 80px;
+        height: 80px;
+    }
+
+    .subcategories-list {
+        min-width: 150px; /* Adjust subcategories list width for smaller screens */
+    }
+}
+
+.profile img {
+    width: 100px; /* Adjust size as needed */
+    height: 100px;
+    border-radius: 50%; /* Make it circular */
+    object-fit: cover; /* Ensure the image covers the container */
+    display: block; /* Ensure the image is displayed */
+    margin: 0 auto; /* Center the image */
+}
+
+/* Mobile view adjustments */
+@media (max-width: 600px) {
+    .profile img {
+        width: 80px; /* Adjust size for mobile view */
+        height: 80px;
+    }
+}

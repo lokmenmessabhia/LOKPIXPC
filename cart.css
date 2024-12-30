@@ -1,0 +1,142 @@
+/* Basic reset */
+* {
+    font-family: montserrat, sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: montserrat, sans-serif;
+}
+
+main {
+    padding: 20px;
+    max-width: 1200px;
+    margin: auto;
+}
+
+h1 {
+    margin-bottom: 20px;
+}
+
+/* Table Styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+thead th {
+    background-color: #007bff;
+    color: #fff;
+    padding: 12px;
+    text-align: left;
+    font-size: 1.1rem;
+}
+
+tbody td {
+    padding: 12px;
+    border-bottom: 1px solid #ddd;
+    font-size: 1rem;
+    color: #333;
+}
+
+tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+tbody tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Input Styling */
+input[type="number"] {
+    width: 60px;
+    text-align: center;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+/* Actions */
+.actions {
+    margin-top: 20px;
+    text-align: right;
+}
+
+.checkout-button {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+.checkout-button:hover {
+    background-color: #0056b3;
+}
+
+/* Total */
+.total {
+    margin-top: 20px;
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #333;
+}
+
+button {
+    font-family: montserrat, sans-serif;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+button:hover {
+    background-color: #0056b3;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Additional Button Styles */
+button.secondary {
+    background-color: #6c757d;
+    color: #fff;
+}
+
+button.secondary:hover {
+    background-color: #5a6268;
+}
+
+button.success {
+    background-color: #28a745;
+    color: #fff;
+}
+
+button.success:hover {
+    background-color: #218838;
+}
+
+button.danger {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+button.danger:hover {
+    background-color: #c82333;
+}

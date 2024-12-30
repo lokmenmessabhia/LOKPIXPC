@@ -1,0 +1,202 @@
+/* General Body Styling */
+body {
+    font-family: 'Montserrat', sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #f4f4f4;
+}
+
+/* Container for the Build Your PC section */
+.build-pc-container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Heading Styling */
+.build-pc-container h1 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+/* Form and Summary Layout */
+.form-and-summary {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+/* Form Styling */
+#build-pc-form {
+    flex: 1;
+    margin-right: 20px;
+}
+
+/* Component Styling */
+.component {
+    margin-bottom: 20px;
+}
+
+.component label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #555;
+}
+
+.component select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+/* Product Info Styling */
+.product-info {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.product-photo {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-right: 15px;
+}
+
+.product-details {
+    flex: 1;
+}
+
+.more-info-btn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px;
+    font-size: 14px;
+}
+
+.more-info-btn:hover {
+    background-color: #0056b3;
+}
+
+/* Checkout Container (Summary Container) */
+.summary-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: #f9f9f9;
+    padding: 20px;
+    box-shadow: 0 -5px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.summary-container label,
+.summary-container input,
+.summary-container select,
+.summary-container button {
+    width: 90%;
+    margin-bottom: 10px;
+}
+
+/* Total Price Styling */
+.total {
+    margin-top: 20px;
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #333;
+}
+
+/* Build Button Styling */
+#build-button {
+    background-color: green;
+    color: white;
+    border: none;
+    padding: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    text-align: center;
+    width: 90%;
+}
+
+#build-button:hover {
+    background-color: darkgreen;
+}
+
+/* Modal Popup Styling */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    text-align: center;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .form-and-summary {
+        flex-direction: column;
+    }
+
+    #build-pc-form {
+        margin-right: 0;
+    }
+
+    .summary-container {
+        padding: 15px;
+        box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .summary-container label,
+    .summary-container input,
+    .summary-container select,
+    .summary-container button {
+        width: 100%;
+    }
+
+    #build-button {
+        font-size: 16px;
+    }
+}
