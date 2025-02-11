@@ -570,7 +570,7 @@ try {
                 <p><?php 
                     // Query to calculate total stock value (stock * price for each product)
                     $stmt = $pdo->query('SELECT SUM(stock * price) FROM products');
-                    echo "$" . number_format($stmt->fetchColumn(), 2); 
+                    echo "   DZD" . number_format($stmt->fetchColumn(), 2); 
                 ?> Total Value</p>
             </div>
 
@@ -605,7 +605,7 @@ try {
             <?php if (isset($_SESSION['admin_role']) && $_SESSION['admin_role'] === 'superadmin'): ?>
                 <div class="card" style="color: green;">
                     <h3>Total Profit</h3>
-                    <p>$<?php echo htmlspecialchars(number_format($total_profit, 2)); ?></p>
+                    <p><?php echo htmlspecialchars(number_format($total_profit, 2)); ?>   DZDs</p>
                 </div>
             <?php endif; ?>
         </div>

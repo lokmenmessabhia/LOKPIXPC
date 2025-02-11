@@ -190,7 +190,7 @@ if (!empty($searchQuery)) {
                                         ?>
                                     </div>
                         <h3 class="product-name"><?php echo htmlspecialchars($product['name']); ?></h3>
-                        <p class="product-price">$<?php echo number_format($product['price'], 2); ?></p>
+                        <p class="product-price"><?php echo number_format($product['price'], 2); ?>   DZD</p>
                         <p class="product-category">
                             <?php 
                             echo htmlspecialchars($product['category_name']);

@@ -266,7 +266,7 @@ echo "<h1 class='h11' style='font-family: 'Poppins', sans-serif;'>Products in " 
                             </div>
                             <h3><?php echo htmlspecialchars($product['name']); ?></h3>
                             <p><?php echo htmlspecialchars($product['description']); ?></p>
-                            <div class="price">$<?php echo number_format($product['price'], 2); ?></div>
+                            <div class="price"><?php echo number_format($product['price'], 2); ?>   DZD</div>
                             <?php
                             $stockClass = '';
                             if ($product['stock'] <= 0) {

@@ -4,6 +4,29 @@ include 'db_connect.php'; // Ensure this path is correct
 
 // Check if user is logged in and is an admin
 
+$isAdmin = false; // Default to false
+if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
+    try {
+        $stmt = $pdo->prepare("SELECT * FROM admins WHERE email = ?");
+        $stmt->execute([$_SESSION['email']]);
+        $admin = $stmt->fetch();
+
+        if ($admin) {
+            $isAdmin = true; // Set true if email exists in the admins table
+            $_SESSION['admin_id'] = $admin['id']; // Store admin ID in session
+            $_SESSION['admin_role'] = $admin['role']; // Store admin role in session
+        }
+    } catch (PDOException $e) {
+        echo "Error: Unable to verify admin status. " . $e->getMessage();
+    }
+}
+
+// Check if the user is logged in and is an admin
+if (!$isAdmin) {
+    header('Location: login.php');
+    exit;
+}
+
 // Handle validation and deletion
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['validate_order'])) {
@@ -95,7 +118,7 @@ try {
                         <td><?php echo htmlspecialchars($order['address']); ?></td>
                         <td><?php echo htmlspecialchars($order['wilaya_id']); ?></td>
                         <td><?php echo htmlspecialchars($order['delivery_type']); ?></td>
-                        <td>$<?php echo htmlspecialchars($order['total_price']); ?></td>
+                        <td><?php echo htmlspecialchars($order['total_price']); ?>   DZD</td>
                         <td><?php echo htmlspecialchars($order['order_date']); ?></td>
                         <td>
     <?php if ($order['status'] == 'pending') : ?>

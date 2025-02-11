@@ -5,6 +5,29 @@ include 'db_connect.php';
 require_once('fpdf/fpdf.php'); // Ensure you have the FPDF library
 require_once('phpqrcode/qrlib.php'); // Use require_once to avoid multiple inclusions
 
+$isAdmin = false; // Default to false
+if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
+    try {
+        $stmt = $pdo->prepare("SELECT * FROM admins WHERE email = ?");
+        $stmt->execute([$_SESSION['email']]);
+        $admin = $stmt->fetch();
+
+        if ($admin) {
+            $isAdmin = true; // Set true if email exists in the admins table
+            $_SESSION['admin_id'] = $admin['id']; // Store admin ID in session
+            $_SESSION['admin_role'] = $admin['role']; // Store admin role in session
+        }
+    } catch (PDOException $e) {
+        echo "Error: Unable to verify admin status. " . $e->getMessage();
+    }
+}
+
+// Check if the user is logged in and is an admin
+if (!$isAdmin) {
+    header('Location: login.php');
+    exit;
+}
+
 
 // Ensure order_id is provided in the query string
 if (!isset($_GET['order_id']) || empty($_GET['order_id'])) {

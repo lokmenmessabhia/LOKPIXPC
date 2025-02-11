@@ -220,7 +220,7 @@ if (isset($_GET['id'])) {
                                     </div>
                                     <h3><?php echo htmlspecialchars($product['name']); ?></h3>
                                     <p><?php echo htmlspecialchars($product['description']); ?></p>
-                                    <p class="price">$<?php echo htmlspecialchars($product['price']); ?></p>
+                                    <p class="price"><?php echo htmlspecialchars($product['price']); ?>    DZD</p>
                                     <?php
                                     $stockLevel = intval($product['stock']);
                                     if ($stockLevel <= 0) {

@@ -1390,7 +1390,7 @@ $related_products = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
             <div class="product-info">
                 <h1><?php echo htmlspecialchars($product['name']); ?></h1>
-                <p class="price">$<?php echo htmlspecialchars($product['price']); ?></p>
+                <p class="price"><?php echo htmlspecialchars($product['price']); ?>   DZD  </p>
                 <p><?php echo htmlspecialchars($product['description']); ?></p>
 
                 <?php if ($product['stock'] == 0): ?>
@@ -1475,8 +1475,7 @@ $related_products = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <p class="random-product-name">
                                 <?php echo htmlspecialchars($random_product['name']); ?>
                             </p>
-                            <p class="random-product-price">
-                                $<?php echo htmlspecialchars($random_product['price']); ?>
+                            <p class="random-product-price"><?php echo htmlspecialchars($random_product['price']); ?>   DZD
                             </p>
                         </div>
                     </a>

@@ -97,7 +97,7 @@ try {
                         <td><?php echo htmlspecialchars($product['id']); ?></td>
                         <td><?php echo htmlspecialchars($product['name']); ?></td>
                         <td><?php echo htmlspecialchars($product['description']); ?></td>
-                        <td><?php echo htmlspecialchars($product['price']); ?></td>
+                        <td><?php echo htmlspecialchars($product['price']); ?>   DZD</td>
                         <td><?php echo htmlspecialchars($product['stock']); ?></td>
                         <td>
                             <!-- View product details (Non-editable) -->

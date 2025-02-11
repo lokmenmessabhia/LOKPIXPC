@@ -17,7 +17,7 @@ function fetchSubcategories($categoryId) {
 function fetchProductsBySubcategory($subcategoryIds) {
     global $pdo;
     $ids = implode(',', array_map('intval', $subcategoryIds));
-    $stmt = $pdo->prepare("SELECT * FROM products WHERE subcategory_id IN ($ids) AND category_id IN (SELECT id FROM categories WHERE name IN ('Components', 'Peripherals', 'Storage Devices'))");
+    $stmt = $pdo->prepare("SELECT * FROM products WHERE subcategory_id IN ($ids) AND category_id IN (SELECT id FROM categories WHERE name IN ('PC Components', 'Peripherals'))");
     $stmt->execute();
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
@@ -116,7 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $telegram_token = '7322742533:AAEEYMpmOGhkwuOyfU-6Y4c6UtjK09ti9vE';
-        $chat_id = '2110723601';
+        $chat_id = '-1002458122628';
         $telegram_url = "https://api.telegram.org/bot$telegram_token/sendMessage";
 
         $data = [
@@ -764,6 +764,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         font-family: 'Poppins', sans-serif;
         font-weight: 400;
     }
+    /* Modal Styles */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1000; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0, 0, 0, 0.5); /* Black with opacity */
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: 15% auto; /* 15% from the top and centered */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%; /* Could be more or less, depending on screen size */
+    max-width: 500px; /* Maximum width */
+    text-align: center;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+}
 </style>
 
 <div class="container">
@@ -783,7 +821,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <?php foreach ($productsBySubcategory[$subcategory['id']] as $product): ?>
                                         <option value="<?php echo htmlspecialchars($product['id']); ?>" 
                                                 data-name="<?php echo htmlspecialchars($product['name']); ?>" 
-                                                data-price="<?php echo htmlspecialchars($product['price']); ?>" 
+                                                data-price="<?php echo htmlspecialchars($product['price']); ?>   DZD" 
                                                 data-description="<?php echo htmlspecialchars($product['description']); ?>" 
                                                 data-image="<?php 
                                                     $stmt = $pdo->prepare("SELECT image_url FROM product_images WHERE product_id = :product_id");
@@ -848,7 +886,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <select name="wilaya" id="wilaya" required>
                             <option value="" disabled selected>Choose your Wilaya</option>
                             <?php 
-                            $stmt = $pdo->query("SELECT * FROM wilayas ORDER BY name ASC");
+                            $stmt = $pdo->query("SELECT * FROM wilayas ORDER BY ID");
                             while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                                 echo '<option value="' . htmlspecialchars($row['id']) . '">' 
                                      . htmlspecialchars($row['name']) . '</option>';
@@ -870,7 +908,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
 
             <button type="submit" class="submit-button">Place Order</button>
+                    <!-- Popup Modal -->
+<div id="orderConfirmationModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <p>Order has been sent! Please wait for confirmation or a call.</p>
+    </div>
+</div>
         </form>
+
     </div>
 </div>
 
@@ -916,7 +962,7 @@ function showProductDetails(select, subcategoryId) {
             <img id="product-image-${subcategoryId}" src="${image}" alt="${name}">
             <div class="product-info">
                 <p id="product-name-${subcategoryId}">Name: ${name}</p>
-                <p id="product-price-${subcategoryId}">Price: $${price}</p>
+                <p id="product-price-${subcategoryId}">Price:${price}</p>
                 <p id="product-description-${subcategoryId}">Description: ${description}</p>
                 <button type="button" id="product-details-button-${subcategoryId}" onclick="redirectToProduct('${subcategoryId}')">Details</button>
             </div>
@@ -938,7 +984,7 @@ function updateTotalPrice() {
         chosenProductIds.push(product.id);
     });
     
-    document.getElementById('total-price').textContent = `$${total.toFixed(2)}`;
+    document.getElementById('total-price').textContent = `${total.toFixed(2)}   DZD`;
     document.getElementById('hidden-total-price').value = total.toFixed(2);
     document.getElementById('hidden-chosen-parts').value = JSON.stringify(chosenProductIds);
     
@@ -986,6 +1032,33 @@ function resetSelections() {
         image.style.display = 'none';
     });
 }
+// Get the modal
+const modal = document.getElementById('orderConfirmationModal');
+
+// Get the close button
+const closeBtn = document.querySelector('.close');
+
+// Function to display the modal
+function displayPopup(message) {
+    const modalContent = modal.querySelector('p');
+    modalContent.textContent = message; // Update the message if needed
+    modal.style.display = 'block';
+}
+
+// Function to close the modal
+function closeModal() {
+    modal.style.display = 'none';
+}
+
+// Close the modal when the close button is clicked
+closeBtn.addEventListener('click', closeModal);
+
+// Close the modal when clicking outside the modal
+window.addEventListener('click', (event) => {
+    if (event.target === modal) {
+        closeModal();
+    }
+});
 </script>
 <?php
 include 'footer.php';

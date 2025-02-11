@@ -540,7 +540,7 @@ try {
                             ?>
                         </div>
                         <h3><?php echo htmlspecialchars($product['name']); ?></h3>
-                        <p>$<?php echo htmlspecialchars($product['price']); ?></p>
+                        <p><?php echo htmlspecialchars($product['price']); ?>   DZD</p>
 
                         <?php if ($product['stock'] == 0): ?>
                             <p style="color: red;">Out of Stock</p>

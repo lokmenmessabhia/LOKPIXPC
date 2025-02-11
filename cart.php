@@ -614,7 +614,7 @@ main {
             <img src="<?php echo htmlspecialchars($item['image_url']); ?>" alt="<?php echo htmlspecialchars($item['name']); ?>">
             <div class="info">
                 <h2><?php echo htmlspecialchars($item['name']); ?></h2>
-                <p>Price: $<?php echo htmlspecialchars($item['price']); ?></p>
+                <p>Price: <?php echo htmlspecialchars($item['price']); ?>   DZD</p>
                 <p>
                     Quantity:
                     <input type="number" name="quantity[<?php echo htmlspecialchars($item['id']); ?>]" 
@@ -629,7 +629,7 @@ main {
             </div>
         </div>
     <?php endforeach; ?>
-    <div class="total">Total Price: $<?php echo number_format($total_price, 2); ?></div>
+    <div class="total">Total Price: <?php echo number_format($total_price, 2); ?>   DZD</div>
     <div class="actions">
         <a href="checkout.php" class="checkout-button">Proceed to Checkout</a>
     </div>
