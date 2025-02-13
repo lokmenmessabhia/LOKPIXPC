@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 11, 2025 at 03:32 PM
+-- Generation Time: Feb 13, 2025 at 10:24 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -152,13 +152,6 @@ CREATE TABLE `features` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `features`
---
-
-INSERT INTO `features` (`id`, `title`, `description`, `photo`, `created_at`) VALUES
-(4, 'Group projet', 'Jdkdkd', '1000000570.jpg', '2025-02-10 10:35:44');
-
 -- --------------------------------------------------------
 
 --
@@ -195,7 +188,11 @@ INSERT INTO `notifications` (`id`, `admin_id`, `message`, `is_read`, `created_at
 (17, 10, 'New order placed by user ID: 2 with total price: 115000', 1, '2025-02-10 10:19:02'),
 (18, 2, 'New order placed by user ID: 2 with total price: 115000', 1, '2025-02-10 10:19:02'),
 (19, 10, 'New order placed by user ID: 2 with total price: 60000', 1, '2025-02-10 10:32:29'),
-(20, 2, 'New order placed by user ID: 2 with total price: 60000', 1, '2025-02-10 10:32:29');
+(20, 2, 'New order placed by user ID: 2 with total price: 60000', 1, '2025-02-10 10:32:29'),
+(21, 10, 'New order placed by user ID: 1 with total price: 152000', 1, '2025-02-11 14:37:34'),
+(22, 2, 'New order placed by user ID: 1 with total price: 152000', 1, '2025-02-11 14:37:34'),
+(23, 10, 'New order placed by user ID: 1 with total price: 60000', 1, '2025-02-11 14:40:30'),
+(24, 2, 'New order placed by user ID: 1 with total price: 60000', 1, '2025-02-11 14:40:30');
 
 -- --------------------------------------------------------
 
@@ -226,7 +223,9 @@ INSERT INTO `orders` (`id`, `email`, `phone`, `address`, `delivery_type`, `total
 (40, 'lokmen15.messabhia@gmail.com', '0657415715', 'besbessa', 'Express', 152000.00, '2024-12-30 15:03:47', 'validated', '98127ef5e0323993bb6e08f7f0214a61', 1, 1, 'Yfhh'),
 (41, 'lokmen16.messabhia@gmail.com', '0657415715', '28 logement madjerda', 'Express', 230000.00, '2025-01-29 17:05:26', '', 'ad45d4a959b99d6e7226203d376824da', 2, 17, NULL),
 (42, 'lokmen16.messabhia@gmail.com', '0657415715', '7XM4+RCM, Ex Rue Victor Hugo, Souk-Ahras', 'Standard', 115000.00, '2025-02-10 10:19:02', '', '2e5c45b926f465a939bc4e94aeb96810', 2, 5, NULL),
-(43, 'lokmen16.messabhia@gmail.com', '0657415715', '7XM4+RCM, Ex Rue Victor Hugo, Souk-Ahras', 'Standard', 60000.00, '2025-02-10 10:32:29', '', '0663b6298c49d821078b6b085798f9b7', 2, 5, NULL);
+(43, 'lokmen16.messabhia@gmail.com', '0657415715', '7XM4+RCM, Ex Rue Victor Hugo, Souk-Ahras', 'Standard', 60000.00, '2025-02-10 10:32:29', '', '0663b6298c49d821078b6b085798f9b7', 2, 5, NULL),
+(44, 'lokmen15.messabhia@gmail.com', '0657415715', '7XM4+RCM, Ex Rue Victor Hugo, Souk-Ahras', 'Express', 152000.00, '2025-02-11 14:37:33', '', '103d4dfeb67e046cc7e844ad33bdfd81', 1, 41, NULL),
+(45, 'lokmen15.messabhia@gmail.com', '0657415715', '7XM4+RCM, Ex Rue Victor Hugo, Souk-Ahras', 'Express', 60000.00, '2025-02-11 14:40:28', '', '8ca4d2864bd7da3115f92f0972a65fe0', 1, 17, NULL);
 
 -- --------------------------------------------------------
 
@@ -249,7 +248,9 @@ INSERT INTO `order_details` (`id`, `order_id`, `product_id`, `quantity`) VALUES
 (24, 40, 15, 1),
 (25, 41, 11, 2),
 (26, 42, 11, 1),
-(27, 43, 10, 1);
+(27, 43, 10, 1),
+(28, 44, 15, 1),
+(29, 45, 10, 1);
 
 -- --------------------------------------------------------
 
@@ -275,11 +276,11 @@ CREATE TABLE `products` (
 --
 
 INSERT INTO `products` (`id`, `name`, `description`, `price`, `buying_price`, `stock`, `category_id`, `created_at`, `updated_at`, `subcategory_id`) VALUES
-(10, 'AMD Ryzen 7 5800X', 'A high-performance 8-core, 16-thread unlocked desktop processor designed for gaming and content creation.', 60000.00, 50000.00, 24, 1, '2024-12-30 13:40:48', '2025-02-10 10:32:29', 2),
+(10, 'AMD Ryzen 7 5800X', 'A high-performance 8-core, 16-thread unlocked desktop processor designed for gaming and content creation.', 60000.00, 50000.00, 23, 1, '2024-12-30 13:40:48', '2025-02-11 14:40:29', 2),
 (11, 'Intel Core i9-13900K', 'A 13th Gen Intel Core desktop processor featuring 24 cores (8 Performance-cores and 16 Efficient-cores) and 32 threads, optimized for gaming and productivity.', 115000.00, 92000.00, 7, 1, '2024-12-30 13:46:42', '2025-02-10 10:19:02', 2),
 (12, 'AMD Ryzen 5 5600G', 'A 6-core, 12-thread processor with integrated Radeon graphics, suitable for gaming and general computing.', 45000.00, 37000.00, 12, 1, '2024-12-30 13:48:56', '2024-12-30 13:48:56', 2),
 (14, 'NVIDIA GeForce RTX 4070 Ti', 'A high-end graphics card offering advanced ray tracing and AI capabilities for gaming and creative applications.', 114000.00, 99000.00, 8, 1, '2024-12-30 13:52:04', '2024-12-30 13:52:04', 3),
-(15, 'AMD Radeon RX 7900 XTX', 'A flagship GPU delivering exceptional performance for gaming and professional workloads.', 152000.00, 130000.00, 4, 1, '2024-12-30 13:54:27', '2024-12-30 15:03:47', 3),
+(15, 'AMD Radeon RX 7900 XTX', 'A flagship GPU delivering exceptional performance for gaming and professional workloads.', 152000.00, 130000.00, 3, 1, '2024-12-30 13:54:27', '2025-02-11 14:37:34', 3),
 (16, 'ASUS ROG Strix RTX 3080', 'A premium graphics card from ASUS\'s Republic of Gamers lineup, featuring advanced cooling and overclocking capabilities.', 108000.00, 80000.00, 4, 1, '2024-12-30 13:59:29', '2024-12-31 21:24:07', 3),
 (17, 'ASUS TUF Gaming X570-PLUS (Wi-Fi)', 'A durable motherboard designed for gaming, supporting AMD Ryzen processors and featuring Wi-Fi connectivity.', 41000.00, 37000.00, 6, 1, '2024-12-30 14:05:21', '2024-12-30 14:05:21', 1),
 (18, 'MSI MPG Z790 Edge', 'A high-performance motherboard designed for Intel processors, offering advanced features for gaming and overclocking.', 49000.00, 40000.00, 10, 1, '2024-12-30 14:08:06', '2024-12-30 14:08:06', 1),
@@ -351,6 +352,39 @@ INSERT INTO `product_images` (`id`, `product_id`, `image_url`, `is_primary`, `di
 (44, 37, '6772b28ce60d2_7311-lg-ultragear-27gp850-b-27-led-nanoips-qhd-165hz-g-sync-compatible-8c8bfa12-6f86-4764-a40b-3e7bfae9d278.webp', 1, 1, '2024-12-30 14:47:40'),
 (45, 37, '6772b28ce702b_my-11134207-7r98y-ll4vmuxzsrp00e.jpeg', 0, 2, '2024-12-30 14:47:40'),
 (46, 38, '6772b36990ad3_20201217110844_37a1b847.jpeg', 1, 1, '2024-12-30 14:51:21');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `recycle_requests`
+--
+
+CREATE TABLE `recycle_requests` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `phone` varchar(20) NOT NULL,
+  `category_id` int(11) NOT NULL,
+  `subcategory_id` int(11) NOT NULL,
+  `component_condition` enum('Working','Not working','Damaged') NOT NULL,
+  `photo` varchar(255) NOT NULL,
+  `pickup_option` enum('dropoff','pickup') NOT NULL,
+  `submitted_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `recycle_requests`
+--
+
+INSERT INTO `recycle_requests` (`id`, `user_id`, `email`, `phone`, `category_id`, `subcategory_id`, `component_condition`, `photo`, `pickup_option`, `submitted_at`) VALUES
+(34, 1, '', '', 7, 31, 'Not working', 'uploads/1739411267_8026ec45bae921b1f548f839c7913356.jpg', 'pickup', '2025-02-13 01:47:47'),
+(35, 1, '', '', 9, 36, 'Damaged', 'uploads/1739411364_461194354_530955023214781_3963059509599525035_n.png', 'pickup', '2025-02-13 01:49:24'),
+(36, 1, '', '', 3, 18, 'Damaged', 'uploads/1739411405_458614250_508180308646981_3060937892217739441_n.jpg', 'pickup', '2025-02-13 01:50:05'),
+(37, 1, '', '', 7, 32, 'Damaged', 'uploads/1739411429_450475248_122111832476369213_1750195489027992483_n.jpg', 'pickup', '2025-02-13 01:50:29'),
+(38, 1, 'lokmen15.messabhia@gmail.com', '065723215', 5, 24, 'Damaged', 'uploads/1739411458_4-3.png', 'pickup', '2025-02-13 01:50:58'),
+(39, 1, 'lokmen15.messabhia@gmail.com', '06573123123414115', 10, 39, 'Damaged', 'uploads/1739411535_1.jpeg', 'dropoff', '2025-02-13 01:52:15'),
+(40, 1, 'lokmen15.messabhia@gmail.com', '06574157sdad21315', 1, 8, 'Not working', 'uploads/1739411570_61339.jpg', 'pickup', '2025-02-13 01:52:50'),
+(41, 1, 'lokmen15.messabhia@gmail.com', '0657415716', 1, 9, 'Working', 'uploads/1739438637_image_processing20211202-20943-rzq131 (2) (13).png', 'dropoff', '2025-02-13 09:23:57');
 
 -- --------------------------------------------------------
 
@@ -636,6 +670,15 @@ ALTER TABLE `product_images`
   ADD KEY `product_id` (`product_id`);
 
 --
+-- Indexes for table `recycle_requests`
+--
+ALTER TABLE `recycle_requests`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`),
+  ADD KEY `category_id` (`category_id`),
+  ADD KEY `subcategory_id` (`subcategory_id`);
+
+--
 -- Indexes for table `slider_photos`
 --
 ALTER TABLE `slider_photos`
@@ -712,19 +755,19 @@ ALTER TABLE `features`
 -- AUTO_INCREMENT for table `notifications`
 --
 ALTER TABLE `notifications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=44;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=46;
 
 --
 -- AUTO_INCREMENT for table `order_details`
 --
 ALTER TABLE `order_details`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
 
 --
 -- AUTO_INCREMENT for table `products`
@@ -737,6 +780,12 @@ ALTER TABLE `products`
 --
 ALTER TABLE `product_images`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=47;
+
+--
+-- AUTO_INCREMENT for table `recycle_requests`
+--
+ALTER TABLE `recycle_requests`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
 
 --
 -- AUTO_INCREMENT for table `slider_photos`
@@ -803,6 +852,14 @@ ALTER TABLE `products`
 --
 ALTER TABLE `product_images`
   ADD CONSTRAINT `product_images_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `recycle_requests`
+--
+ALTER TABLE `recycle_requests`
+  ADD CONSTRAINT `recycle_requests_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
+  ADD CONSTRAINT `recycle_requests_ibfk_2` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`),
+  ADD CONSTRAINT `recycle_requests_ibfk_3` FOREIGN KEY (`subcategory_id`) REFERENCES `subcategories` (`id`);
 
 --
 -- Constraints for table `subcategories`
