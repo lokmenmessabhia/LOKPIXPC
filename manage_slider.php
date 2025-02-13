@@ -65,128 +65,264 @@ try {
     <title>Manage Slider Photos</title>
     <link rel="stylesheet" href="dashboard.css">
     <style>
-        /* Styles for the manage slider page */
-        <style>
-    /* Styles for the manage slider page */
-    body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        padding: 0;
-    }
+        /* Modern CSS Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    main {
-        padding: 20px;
-        max-width: 800px;
-        margin: auto;
-    }
+        :root {
+            --primary-gradient: linear-gradient(135deg, #6366f1, #3b82f6);
+            --secondary-gradient: linear-gradient(135deg, #f43f5e, #ec4899);
+            --surface-color: #ffffff;
+            --background-color: #f8fafc;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+        }
 
-    h1 {
-        text-align: center;
-        margin-bottom: 20px;
-    }
+        body {
+            font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+            line-height: 1.6;
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
 
-    form {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-        margin-bottom: 20px;
-    }
-
-    label {
-        font-weight: bold;
-    }
-
-    input[type="text"], input[type="file"] {
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-    }
-
-    button {
-        background-color: #007bff;
-        color: #fff;
-        border: none;
-        padding: 10px;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 16px;
-    }
-
-    button:hover {
-        background-color: #0056b3;
-    }
-
-    .slider-list {
-        list-style: none;
-        padding: 0;
-    }
-
-    .slider-list li {
-        margin-bottom: 20px;
-        border: 1px solid #ddd;
-        padding: 10px;
-        border-radius: 5px;
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        background-color: #f9f9f9;
-    }
-
-    .slider-list img {
-        max-width: 150px; /* Adjust the width as needed */
-        max-height: 100px; /* Adjust the height as needed */
-        object-fit: cover; /* Ensures the image covers the dimensions without distortion */
-        border-radius: 5px;
-    }
-
-    .slider-list .caption {
-        flex: 1;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
-    .slider-list .actions {
-        display: flex;
-        flex-direction: column;
-        gap: 5px;
-    }
-
-    .slider-list .actions a {
-        color: #dc3545;
-        text-decoration: none;
-    }
-
-
+        /* Header Styles */
         header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #343a40;
-    color: #ffffff;
-    padding: 15px 20px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-}
+            background: var(--primary-gradient);
+            color: white;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-header h1 {
-    font-size: 1.8em;
-    margin: 0;
-}
+        header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-bottom: 0.5rem;
+        }
 
-header a {
-    color: #ffffff;
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-}
+        header a {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
 
-header a img {
-    margin-right: 10px;
-}
+        header a:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Main Content Styles */
+        .content {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        /* Form Styles */
+        form {
+            background: var(--surface-color);
+            padding: 2.5rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        form:hover {
+            transform: translateY(-5px);
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background-color: #f8fafc;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+            background-color: white;
+        }
+
+        /* Button Styles */
+        button {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.2);
+            display: inline-block;
+            margin-right: 0.5rem;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        /* Smaller Button */
+        .small-button {
+            padding: 0.3rem 0.8rem;
+            font-size: 0.75rem;
+        }
 
       
-       
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            header {
+                padding: 1.5rem;
+            }
+            
+            .content {
+                padding: 0 1rem;
+            }
+            
+            form {
+                padding: 1.5rem;
+            }
+            
+            button {
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+        }
+
+        /* Glass Morphism Effects */
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+
+        /* Slider List Styles */
+        .slider-list {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .slider-list li {
+            background: var(--surface-color);
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: transform 0.3s ease;
+            width: 150px; /* Adjust the width to make the photos smaller */
+        }
+
+        .slider-list li:hover {
+            transform: translateY(-5px);
+        }
+
+        .slider-list img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .slider-list .caption {
+            padding: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        .slider-list .actions {
+            padding: 0.5rem;
+            text-align: center;
+        }
+
+        .slider-list .actions a {
+            color: var(--primary-gradient);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .slider-list .actions a:hover {
+            color: var(--secondary-gradient);
+        }
     </style>
 </head>
 <body>
@@ -227,9 +363,8 @@ header a img {
             <?php endforeach; ?>
         </ul>
     </main>
-
-    <footer>
-        <p>&copy; 2024 Lokpix. All rights reserved.</p>
-    </footer>
+<?php 
+include 'footer.php';
+?>
 </body>
 </html>

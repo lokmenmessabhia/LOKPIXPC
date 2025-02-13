@@ -218,237 +218,209 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Recycling Requests</title>
     <style>
-        /* General styles */
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+       /* Modern CSS Reset */
+       * {
             margin: 0;
             padding: 0;
-            background-color: #f0f2f5;
-            color: #1a1a1a;
+            box-sizing: border-box;
         }
 
-        /* Header styles */
+        :root {
+            --primary-gradient: linear-gradient(135deg, #6366f1, #3b82f6);
+            --secondary-gradient: linear-gradient(135deg, #f43f5e, #ec4899);
+            --surface-color: #ffffff;
+            --background-color: #f8fafc;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+            line-height: 1.6;
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        /* Header Styles */
         header {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            background: var(--primary-gradient);
             color: white;
-            padding: 1.5rem 2rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         header h1 {
-            margin: 0;
-            font-size: 1.8rem;
-            font-weight: 600;
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-bottom: 0.5rem;
         }
 
-        /* Content area styles */
+        header a {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        header a:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Main Content Styles */
         .content {
-            padding: 2rem;
-            max-width: 1400px;
-            margin: 0 auto;
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+            animation: fadeIn 0.5s ease-out;
         }
 
-        /* Section headings */
-        h2, h3 {
-            color: #1e3c72;
-            margin-bottom: 1.5rem;
-            font-weight: 600;
-        }
-
-        h2 {
-            font-size: 1.8rem;
-            border-bottom: 2px solid #e0e0e0;
-            padding-bottom: 0.5rem;
-        }
-
-        h3 {
-            font-size: 1.4rem;
-            margin-top: 2rem;
-        }
-
-        /* Table styles */
+        /* Table Styles */
         table {
             width: 100%;
             border-collapse: separate;
             border-spacing: 0;
-            background-color: white;
-            margin-bottom: 2rem;
-            border-radius: 10px;
+            background: var(--surface-color);
+            border-radius: 16px;
             overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
         }
 
         th, td {
-            padding: 1rem;
+            padding: 1.25rem;
             text-align: left;
-            border-bottom: 1px solid #eef2f7;
         }
 
         th {
-            background: #f8fafc;
-            color: #1e3c72;
+            background-color: #f1f5f9;
             font-weight: 600;
-            font-size: 0.9rem;
+            color: var(--text-primary);
             text-transform: uppercase;
+            font-size: 0.85rem;
             letter-spacing: 0.5px;
         }
 
-        tr:hover {
+        tr:not(:last-child) td {
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        tr td {
+            transition: all 0.3s ease;
+        }
+
+        tr:hover td {
             background-color: #f8fafc;
-            transition: background-color 0.2s ease;
         }
 
-        /* Button styles */
+        /* Button Styles */
         button {
-            padding: 0.6rem 1.2rem;
-            margin: 0 4px;
+            background: var(--primary-gradient);
+            color: white;
+            padding: 0.5rem 1rem;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 0.9rem;
-            font-weight: 500;
-            transition: all 0.2s ease;
-        }
-
-        button[name="validate_request"] {
-            background-color: #10B981;
-            color: white;
-        }
-
-        button[name="delete_request"] {
-            background-color: #EF4444;
-            color: white;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.2);
+            display: inline-block;
+            margin-right: 0.5rem;
         }
 
         button:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.3);
         }
 
-        button:active {
-            transform: translateY(0);
+        /* Smaller Button */
+        .small-button {
+            padding: 0.3rem 0.8rem;
+            font-size: 0.75rem;
         }
 
-        /* Image styles */
-        img {
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+       
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        /* Back button link */
-        header a {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            color: white;
-            text-decoration: none;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            background-color: rgba(255,255,255,0.1);
-            transition: all 0.2s ease;
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
         }
 
-        header a:hover {
-            background-color: rgba(255,255,255,0.2);
-            transform: translateY(-1px);
-        }
-
-        header a img {
-            width: 24px;
-            height: 24px;
-        }
-
-        /* Header container */
-        .header-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        /* Status badge */
-        .status-badge {
-            padding: 0.4rem 0.8rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 500;
-        }
-
-        .status-pending {
-            background-color: #FEF3C7;
-            color: #92400E;
-        }
-
-        .status-validated {
-            background-color: #D1FAE5;
-            color: #065F46;
-        }
-
-        /* Responsive design */
-        @media (max-width: 1024px) {
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            header {
+                padding: 1.5rem;
+            }
+            
             .content {
-                padding: 1rem;
+                padding: 0 1rem;
             }
             
             table {
                 display: block;
                 overflow-x: auto;
-                white-space: nowrap;
             }
-
-            th, td {
-                padding: 0.8rem;
-            }
-
+            
             button {
-                padding: 0.5rem 1rem;
+                width: 100%;
+                margin-bottom: 0.5rem;
             }
         }
 
-        @media (max-width: 768px) {
-            header {
-                padding: 1rem;
-            }
-
-            header h1 {
-                font-size: 1.4rem;
-            }
-
-            .header-container {
-                flex-direction: column;
-                gap: 1rem;
-            }
+        /* Glass Morphism Effects */
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
-        /* Modal styles */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.9);
-            justify-content: center;
-            align-items: center;
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
         }
 
-        .modal-content {
-            max-width: 90%;
-            max-height: 90vh;
-            object-fit: contain;
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
         }
 
-        .close {
-            position: absolute;
-            top: 15px;
-            right: 35px;
-            color: #f1f1f1;
-            font-size: 40px;
-            font-weight: bold;
-            cursor: pointer;
+        ::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
         }
     </style>
 </head>
@@ -587,3 +559,6 @@ try {
     </script>
 </body>
 </html>
+<?php
+include 'footer.php';
+?>
