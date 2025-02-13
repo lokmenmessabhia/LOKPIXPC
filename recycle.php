@@ -248,22 +248,30 @@ try {
         .info-banner { 
             background: #fff3cd; 
             border-left: 5px solid #ffc107; 
-            padding: 20px 25px;
+            padding: 15px 20px;
             border-radius: 8px;
             margin-bottom: 20px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
         }
         .info-banner h2 { 
             color: #856404; 
-            margin-top: 0;
-            font-size: 1.4rem;
+            margin: 0 0 10px 0;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         .info-banner ul { 
             color: #856404; 
-            margin-bottom: 0;
+            margin: 0;
             padding-left: 20px;
+            font-size: 0.95rem;
         }
         .info-banner li {
-            margin-bottom: 8px;
+            margin-bottom: 6px;
+            line-height: 1.4;
         }
         #exchangeDetails {
             background: #f8f9fa;
@@ -394,11 +402,304 @@ try {
             color: #666;
             margin-top: 5px;
         }
+
+        /* Partners Section Styles */
+        .partners-section {
+            padding: 40px;
+            margin-bottom: 30px;
+            background: linear-gradient(to bottom, #ffffff, #f8f9fa);
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .partners-section h2 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 2.2rem;
+            position: relative;
+            padding-bottom: 15px;
+        }
+
+        .partners-section h2:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: #28a745;
+            border-radius: 2px;
+        }
+
+        .partners-section > p {
+            text-align: center;
+            color: #666;
+            margin-bottom: 40px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.8;
+        }
+
+        .associations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .association-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .association-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+        }
+
+        .association-card img {
+            width: 140px;
+            height: 140px;
+            object-fit: contain;
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .association-card:hover img {
+            transform: scale(1.05);
+        }
+
+        .association-card h3 {
+            color: #28a745;
+            margin: 15px 0;
+            font-size: 1.2rem;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        /* Special styling for golden partner */
+        .association-card.golden-partner {
+            border: 2px solid #FFD700;
+            background: linear-gradient(135deg, #fff8e7, #ffffff);
+            position: relative;
+        }
+
+        .association-card.golden-partner::before {
+            content: '★ Golden Partner';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #FFD700;
+            color: #000;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .association-card.golden-partner h3 {
+            color: #B8860B;
+        }
+
+        .association-card p {
+            color: #666;
+            text-align: center;
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .partners-section {
+                padding: 20px;
+            }
+
+            .partners-section h2 {
+                font-size: 1.8rem;
+            }
+
+            .associations-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+
+            .association-card {
+                padding: 15px;
+            }
+
+            .association-card img {
+                width: 100px;
+                height: 100px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .associations-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .association-card.golden-partner::before {
+                font-size: 0.7rem;
+                padding: 3px 8px;
+            }
+        }
+
+        /* Mobile Responsive Styles */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            /* Form adjustments */
+            .form-wrapper {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .form-section {
+                padding: 15px;
+            }
+            
+            /* Info banner adjustments */
+            .info-banner {
+                padding: 12px 15px;
+                margin: 15px 10px;
+            }
+            
+            .info-banner h2 {
+                font-size: 1.1rem;
+            }
+            
+            .info-banner ul {
+                font-size: 0.9rem;
+                padding-left: 15px;
+            }
+            
+            .info-banner li {
+                margin-bottom: 5px;
+            }
+            
+            /* Partners section adjustments */
+            .partners-section {
+                padding: 20px 15px;
+            }
+            
+            .associations-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .association-card {
+                padding: 15px;
+            }
+            
+            .association-card img {
+                width: 100px;
+                height: 100px;
+            }
+            
+            /* Popup adjustments */
+            .popup-content {
+                padding: 20px;
+                width: 95%;
+                margin: 10px;
+            }
+            
+            .popup h3 {
+                font-size: 20px;
+            }
+            
+            /* Form elements adjustments */
+            input, select {
+                font-size: 16px; /* Prevents zoom on iOS */
+                padding: 8px 10px;
+            }
+            
+            .submit-btn {
+                padding: 10px 20px;
+            }
+            
+            /* Header adjustments (if header.php exists) */
+            header {
+                padding: 10px;
+            }
+            
+            /* Navigation adjustments */
+            nav {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            nav a {
+                margin: 5px 0;
+            }
+        }
+
+        /* Small mobile devices */
+        @media (max-width: 480px) {
+            .info-banner h2 {
+                font-size: 1.1rem;
+            }
+            
+            .form-section h3 {
+                font-size: 1.2rem;
+            }
+            
+            .popup-content {
+                padding: 15px;
+            }
+            
+            .popup h3 {
+                font-size: 18px;
+            }
+            
+            /* Adjust button sizes */
+            .confirm-btn, .cancel-btn {
+                width: 100%;
+                margin: 5px 0;
+            }
+            
+            /* Stack buttons in popups */
+            .popup .confirm-btn,
+            .popup .cancel-btn {
+                display: block;
+                margin: 10px 0;
+            }
+            
+            /* Adjust form group spacing */
+            .form-group {
+                margin-bottom: 15px;
+            }
+            
+            /* Make price calculation more readable */
+            #priceCalculation p {
+                font-size: 14px;
+            }
+        }
+
+        /* Fix for iOS input zoom */
+        @media screen and (-webkit-min-device-pixel-ratio: 0) { 
+            select,
+            textarea,
+            input {
+                font-size: 16px !important;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-
         <div id="successPopup" class="popup" style="display: none;">
             <div class="popup-content">
                 <h3>✅ Success!</h3>
@@ -408,8 +709,41 @@ try {
                 <button onclick="closeSuccessPopup()" class="confirm-btn">Continue</button>
             </div>
         </div>
+
+        <!-- Update the partners section HTML -->
+        <div class="partners-section">
+            <h2>Our Recycling Partners</h2>
+            <p>We work with certified recycling partners and environmental organizations to ensure proper handling and disposal of electronic waste.</p>
+            
+            <div class="associations-grid">
+                <div class="association-card">
+                    <img src="https://wastedoccenter.and.dz/logo.png" alt="AND Logo">
+                    <h3>AND (Agence Nationale des Déchets)</h3>
+                    <p>National Waste Management Agency</p>
+                </div>
+                
+                <div class="association-card">
+                    <img src="https://onedd.org/wp-content/uploads/2023/05/CNFE.png" alt="CNFE Logo">
+                    <h3>CNFE</h3>
+                    <p>National Conservatory for Environmental Training</p>
+                </div>
+
+                <div class="association-card golden-partner">
+                    <img src="https://www.univ-annaba.dz/wp-content/uploads/2021/04/Logo@2x.png" alt="UBMA Logo">
+                    <h3>Université Badji Mokhtar Annaba</h3>
+                    <p>Leading Research & Innovation Partner</p>
+                </div>
+
+                <div class="association-card">
+                    <img src="https://academy-ce.info/wp-content/uploads/2024/04/step-logos-march-18.png" alt="StEP Logo">
+                    <h3>StEP Initiative</h3>
+                    <p>Solving the E-Waste Problem</p>
+                </div>
+            </div>
+        </div>
+
         <div class="info-banner">
-            <h2>⚠️ Important Information - Please Read</h2>
+            <h2>⚠️ Important Information</h2>
             <ul>
                 <li>All items submitted for recycling will be properly disposed of or refurbished.</li>
                 <li>Once submitted, items cannot be returned.</li>
