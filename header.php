@@ -541,6 +541,7 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
             <li><a href="sign-up.php"><i class="fas fa-user-plus fa-sm"></i> Sign Up</a></li>
         <?php endif; ?>
         <li><a href="buildyourpc.php" style="background-color: #218838;"><i class="fas fa-desktop fa-sm"></i> Build Your PC</a></li>
+        <li><a href="recycle.php" style="background-color: #218838;color:white;font-weight: bold;"><i class="fa fa-recycle"style="font-size:22px"></i> Recycle</a></li>
     </ul>
         <ul class="categories-nav">
             <?php foreach ($categories as $category): ?>
@@ -593,6 +594,9 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
         
         <li><a href="buildyourpc.php" class="build-pc-button">
             <i class="fas fa-desktop fa-sm"></i> Build Your PC
+        </a></li>
+        <li><a href="Recycle.php" class="build-pc-button">
+            <i class="fa fa-recycle"></i> Recycle
         </a></li>
     </ul>
 </div>
