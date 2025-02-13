@@ -11,8 +11,6 @@ require 'PHPMailer/src/Exception.php';
 require 'PHPMailer/src/PHPMailer.php';
 require 'PHPMailer/src/SMTP.php';
 
-
-
 // Handle form submission
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (!isset($_SESSION['userid'])) die("Error: You must be logged in.");
@@ -46,11 +44,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         // Insert into database
         $stmt = $pdo->prepare("
             INSERT INTO recycle_requests 
-            (user_id, email, phone, category_id, subcategory_id, component_condition, photo, pickup_option)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            (user_id, email, phone, category_id, subcategory_id, component_condition, photo, pickup_option, purchase_year)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
         $stmt->execute([$user_id, $data['email'], $data['phone'], $data['category_id'], 
-                       $data['subcategory_id'], $data['condition'], $photo_path, $data['pickup']]);
+                       $data['subcategory_id'], $data['condition'], $photo_path, $data['pickup'], $_POST['purchase_year']]);
 
         // Send Telegram notification
         $telegram_config = [
@@ -83,18 +81,24 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             if ($component) {
                 $final_price = $component['price'] - $trade_value;
                 $store_component_info = "\n💱 *Selected Component:* {$component['name']}" .
-                                      "\n💰 *Component Price:* \${$component['price']}" .
-                                      "\n🔄 *Trade-in Value:* \${$trade_value}" .
-                                      "\n💵 *Final Price:* \${$final_price}";
+                                      "\n💵 *Component Price:* {$component['price']} DZD" .
+                                      "\n🔄 *Trade-in Value:* {$trade_value} DZD" .
+                                      "\n💵 *Final Price:* {$final_price} DZD";
             }
         }
+
+        // Get category and subcategory names
+        $category_name = $pdo->query("SELECT name FROM categories WHERE id = {$data['category_id']}")->fetchColumn();
+        $subcategory_name = $pdo->query("SELECT name FROM subcategories WHERE id = {$data['subcategory_id']}")->fetchColumn();
 
         $message = "♻️ *New Recycle Request*\n\n" .
                   "👤 *User ID:* $user_id\n" .
                   "📧 *Email:* {$data['email']}\n" .
                   "📞 *Phone:* {$data['phone']}\n" .
-                  "📦 *Category ID:* {$data['category_id']}\n" .
-                  "📂 *Subcategory ID:* {$data['subcategory_id']}\n" .
+                  "📦 *Category:* {$category_name}\n" .
+                  "📂 *Subcategory:* {$subcategory_name}\n" .
+                  "🔧 *Part Name:* {$_POST['part_name']}\n" .
+                  "📅 *Purchase Year:* {$_POST['purchase_year']}\n" .
                   "✅ *Condition:* {$data['condition']}\n" .
                   "🚚 *Delivery Option:* {$data['pickup']}\n" .
                   "🔄 *Exchange Option:* $exchange_option" .
@@ -124,10 +128,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
         curl_close($curl);
 
-        // Get category and subcategory names
-        $category_name = $pdo->query("SELECT name FROM categories WHERE id = {$data['category_id']}")->fetchColumn();
-        $subcategory_name = $pdo->query("SELECT name FROM subcategories WHERE id = {$data['subcategory_id']}")->fetchColumn();
-        
         // Create a new PHPMailer instance
         $mail = new PHPMailer(true);
 
@@ -292,11 +292,14 @@ try {
         ORDER BY c.name, s.name
     ")->fetchAll();
     $store_components = $pdo->query("
-        SELECT p.*, c.name as category_name, s.name as subcategory_name
+        SELECT p.*, c.name as category_name, s.name as subcategory_name,
+               CONCAT('uploads/products/', pi.image_url) as product_image
         FROM products p
         JOIN categories c ON p.category_id = c.id
         JOIN subcategories s ON p.subcategory_id = s.id
+        LEFT JOIN product_images pi ON p.id = pi.product_id 
         WHERE c.name IN ('PC Components', 'Networking', 'Peripherals')
+          AND (pi.is_primary = 1 OR pi.is_primary IS NULL)
         ORDER BY c.name, s.name, p.name
     ")->fetchAll();
 } catch (PDOException $e) {
@@ -355,7 +358,7 @@ try {
             width: 100%; 
             padding: 10px 12px; 
             border: 1px solid #ddd; 
-            border-radius: 6px;
+            border-radius: 6px; 
             font-size: 14px;
             transition: border-color 0.3s;
         }
@@ -830,6 +833,45 @@ try {
                 font-size: 16px !important;
             }
         }
+
+        .product-details {
+            margin-top: 20px;
+            padding: 15px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .product-image {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .product-image img {
+            max-width: 200px;
+            max-height: 200px;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        .product-info {
+            padding: 10px;
+        }
+
+        .product-info h4 {
+            color: #28a745;
+            margin: 0 0 10px 0;
+        }
+
+        .product-info p {
+            margin: 5px 0;
+            color: #666;
+        }
+
+        .product-info p:last-child {
+            font-weight: bold;
+            color: #28a745;
+        }
     </style>
 </head>
 <body>
@@ -920,6 +962,28 @@ try {
                     </div>
 
                     <div class="form-group">
+                        <label>Part Name:</label>
+                        <input type="text" 
+                               name="part_name" 
+                               placeholder="Enter the exact model/name of your part (e.g., RTX 3080, Intel i7-12700K)"
+                               required>
+                        <small>Please enter the specific model name for accurate price estimation</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Purchase Year:</label>
+                        <select name="purchase_year" required>
+                            <option value="">Select Year</option>
+                            <?php 
+                            $currentYear = date('Y');
+                            for ($year = $currentYear; $year >= 2000; $year--) {
+                                echo "<option value=\"$year\">$year</option>";
+                            }
+                            ?>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
                         <label>Condition:</label>
                         <select name="condition" required>
                             <option value="Working">Working</option>
@@ -962,16 +1026,31 @@ try {
 
                         <div class="form-group">
                             <label>Store Component:</label>
-                            <select name="store_component" onchange="calculatePrice()">
+                            <select name="store_component" onchange="showProductDetails(this.value)">
                                 <option value="">Select Component</option>
                                 <?php foreach ($store_components as $comp): ?>
                                     <option value="<?= $comp['id'] ?>" 
                                             data-price="<?= $comp['price'] ?>"
-                                            data-subcategory="<?= $comp['subcategory_id'] ?>">
-                                        <?= htmlspecialchars("{$comp['name']} - \${$comp['price']}") ?>
+                                            data-subcategory="<?= $comp['subcategory_id'] ?>"
+                                            data-name="<?= htmlspecialchars($comp['name']) ?>"
+                                            data-description="<?= htmlspecialchars($comp['description']) ?>"
+                                            data-image="<?= htmlspecialchars($comp['product_image'] ?? 'images/default-product.png') ?>">
+                                        <?= htmlspecialchars("{$comp['name']} - {$comp['price']} DZD") ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>
+                            
+                            <!-- Moved product details here -->
+                            <div id="productDetails" class="product-details" style="display: none;">
+                                <div class="product-image">
+                                    <img src="" alt="Product Image" id="productImage">
+                                </div>
+                                <div class="product-info">
+                                    <h4 id="productName"></h4>
+                                    <p id="productDescription"></p>
+                                    <p id="productPrice"></p>
+                                </div>
+                            </div>
                         </div>
 
                         <div id="priceCalculation"></div>
@@ -1058,9 +1137,9 @@ try {
             const difference = storePrice - tradeValue;
 
             document.getElementById('priceCalculation').innerHTML = `
-                <p>Trade-in Value: $${tradeValue.toFixed(2)}</p>
-                <p>Store Price: $${storePrice}</p>
-                <p>Amount to Pay: $${difference.toFixed(2)}</p>
+                <p>Trade-in Value: ${tradeValue.toFixed(2)} DZD</p>
+                <p>Store Price: ${storePrice} DZD</p>
+                <p>Amount to Pay: ${difference.toFixed(2)} DZD</p>
             `;
         }
 
@@ -1129,9 +1208,10 @@ try {
         function updateStoreComponents(subcategoryId) {
             const storeComponentSelect = document.querySelector('[name="store_component"]');
             const options = storeComponentSelect.getElementsByTagName('option');
+            const productDetails = document.getElementById('productDetails');
             
             for (let option of options) {
-                if (option.value === "") { // Skip the placeholder option
+                if (option.value === "") {
                     continue;
                 }
                 if (option.getAttribute('data-subcategory') === subcategoryId) {
@@ -1140,9 +1220,9 @@ try {
                     option.style.display = 'none';
                 }
             }
-            // Reset store component selection
+            
             storeComponentSelect.value = '';
-            // Clear price calculation
+            productDetails.style.display = 'none';
             document.getElementById('priceCalculation').innerHTML = '';
         }
 
@@ -1154,6 +1234,26 @@ try {
         function closeSuccessPopup() {
             document.getElementById('successPopup').style.display = 'none';
             window.location.href = 'recycle.php';
+        }
+
+        function showProductDetails(componentId) {
+            const select = document.querySelector('[name="store_component"]');
+            const option = select.options[select.selectedIndex];
+            const productDetails = document.getElementById('productDetails');
+            
+            if (!componentId) {
+                productDetails.style.display = 'none';
+                return;
+            }
+
+            // Update product details
+            document.getElementById('productImage').src = option.dataset.image;
+            document.getElementById('productName').textContent = option.dataset.name;
+            document.getElementById('productDescription').textContent = option.dataset.description;
+            document.getElementById('productPrice').textContent = `Price: ${option.dataset.price} DZD`;
+            
+            productDetails.style.display = 'block';
+            calculatePrice(); // Update price calculation
         }
     </script>
 </body>

@@ -17,7 +17,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
           <head>
               <meta charset="UTF-8">
               <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <title>Access Denied - Lokpix</title>
+              <title>Access Denied - EcoTech</title>
           </head>
           <body>
               <p>You must be logged in to access this page. <a href="login.php">Log in here</a>.</p>
@@ -68,7 +68,7 @@ include 'header.php';
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Contact Us - Lokpix</title>
+    <title>Contact Us - EcoTech</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <style>

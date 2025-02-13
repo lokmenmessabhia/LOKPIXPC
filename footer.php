@@ -166,10 +166,10 @@ try {
     <div class="containerr">
         <div class="row">
             <div class="footer-col">
-                <img src="logo (2).png" alt="Company Logo" class="footer-logo">
+                <img src="logo (1).png" alt="Company Logo" class="footer-logo">
             </div>
             <div class="footer-col">
-                <h4>company</h4>
+                <h4>EcoTech</h4>
                 <ul>
                     <li><a href="about.php">about us</a></li>
                     <li><a href="contact.php">Contact us</a></li>

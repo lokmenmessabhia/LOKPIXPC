@@ -125,7 +125,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
+    <title>EcoTech Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
@@ -528,7 +528,7 @@ try {
 </div>
 <div class="overlay"></div>
 <div class="sidebar">
-    <h1>Dashboard</h1>
+    <h1>EcoTech</h1>
     <nav>
         <div class="menu-icon" id="menuIcon">...</div> <!-- Three dots icon -->
         <?php if (isset($_SESSION['admin_role']) && $_SESSION['admin_role'] === 'superadmin'): ?>

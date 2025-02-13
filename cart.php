@@ -114,21 +114,24 @@ foreach ($_SESSION['cart'] as $product_id => $quantity) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cart</title>
+    <title>EcoTech - Cart</title>
     
     <style>
+        /* Import Poppins font */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
         /* Reset and base styles */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
         }
 
         body {
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            font-family: 'Montserrat', sans-serif;
             background-color: #f5f5f5;
         }
 
@@ -233,116 +236,14 @@ foreach ($_SESSION['cart'] as $product_id => $quantity) {
         .total { font-size: 1.5rem; font-weight: bold; margin-top: 20px; }
         /* Basic reset */
 * {
-    font-family: montserrat, sans-serif;
+    font-family: 'Poppins', sans-serif;
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
 body {
-    font-family: montserrat, sans-serif;
-}
-
-main {
-    padding: 20px;
-    max-width: 1200px;
-    margin: auto;
-}
-
-h1 {
-    margin-bottom: 20px;
-}
-
-/* Table Styling */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 20px;
-    background-color: #fff;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-    overflow: hidden;
-}
-
-thead th {
-    background-color: #007bff;
-    color: #fff;
-    padding: 12px;
-    text-align: left;
-    font-size: 1.1rem;
-}
-
-tbody td {
-    padding: 12px;
-    border-bottom: 1px solid #ddd;
-    font-size: 1rem;
-    color: #333;
-}
-
-tbody tr:nth-child(even) {
-    background-color: #f9f9f9;
-}
-
-tbody tr:hover {
-    background-color: #f1f1f1;
-}
-
-/* Input Styling */
-input[type="number"] {
-    width: 60px;
-    text-align: center;
-    padding: 5px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-/* Actions */
-.actions {
-    margin-top: 20px;
-    text-align: right;
-}
-
-.checkout-button {
-    display: inline-block;
-    padding: 10px 20px;
-    background-color: #007bff;
-    color: #fff;
-    text-decoration: none;
-    border-radius: 5px;
-    font-weight: bold;
-    font-size: 1rem;
-}
-
-.checkout-button:hover {
-    background-color: #0056b3;
-}
-
-footer {
-    background-color: #333; /* Adjust to your preferred color */
-    
-    position:fixed;
-    
-    bottom: 0;
-    width: 100%;
-     /* Ensure it stays on top of other elements if needed */
-}
-/* Total */
-.total {
-    margin-top: 20px;
-    font-size: 1.2em;
-    font-weight: bold;
-    color: #333;
-}
-
-/* Basic reset */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'Poppins', sans-serif;
     background-color: #f5f5f5;
     color: #333;
 }
@@ -409,7 +310,7 @@ input[type="number"] {
 
 /* Button Styling */
 button, .checkout-button {
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'Poppins', sans-serif;
     padding: 10px 20px;
     background-color: #007bff;
     color: #fff;

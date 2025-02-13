@@ -83,7 +83,7 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-    <link rel="icon" type="image/x-icon" href="logo (2).png">
+    <link rel="icon" type="image/x-icon" href="logo (1).png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -132,7 +132,7 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
         }
     
         .logo img {
-            height: 50px;
+            height: 70px;
             border-radius: 12px;
             transition: transform 0.3s ease;
         }
@@ -500,7 +500,7 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
 
 <header>
     <div class="logo">
-        <a href="index.php"><img src="logo (2).png" alt="Logo"></a>
+        <a href="index.php"><img src="logo (1).png" alt="EcoTech Logo"></a>
         <span class="nav-toggle" onclick="toggleMenu()">☰</span>
     </div>
     

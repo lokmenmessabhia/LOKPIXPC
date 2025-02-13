@@ -444,27 +444,38 @@ include 'header.php';
 </div>
 
                     <div class="about-text">
-                        <h1>About Lokpix</h1>
-                        <p>Welcome to Lokpix, your number one source for all things related to computers and technology. We are dedicated to giving you the very best of computer hardware, software, and accessories, with a focus on quality, customer service, and uniqueness.</p>
+                        <h1>About EcoTech</h1>
+                        <p>Welcome to EcoTech, your premier destination for sustainable technology solutions and responsible electronics recycling. We are dedicated to providing high-quality computer hardware, software, and accessories while promoting environmental responsibility through our recycling initiatives.</p>
                         
                         <h2>Our Story</h2>
-                        <p>Founded in 2024, Lokpix has come a long way from its beginnings as a small local store. When we first started out, our passion for providing top-tier computer products at competitive prices drove us to do tons of research so that Lokpix can offer you the best products on the market. We now serve customers all over the region and are thrilled that we're able to turn our passion into our own website.</p>
+                        <p>Founded in 2024, EcoTech emerged from a vision to combine technology retail with environmental stewardship. What began as a small local store has evolved into a comprehensive platform that not only offers top-tier computer products but also leads the way in electronics recycling and sustainability efforts in our region.</p>
                         
                         <h2>Our Mission</h2>
-                        <p>Our mission is to make the latest and greatest in computing technology accessible to everyone. Whether you're a seasoned gamer, a professional, or a tech enthusiast, we have the right products and expertise to help you get the most out of your technology.</p>
+                        <p>Our dual mission is to make cutting-edge technology accessible while promoting responsible electronics disposal and recycling. We believe in creating a sustainable future where technology and environmental consciousness go hand in hand.</p>
 
-                        <h2>Why Choose Lokpix?</h2>
+                        <h2>Our Recycling Initiative</h2>
+                        <p>At EcoTech, we're committed to reducing electronic waste through our comprehensive recycling program:</p>
                         <ul>
-                            <li>Wide selection of top brands in computer hardware and accessories.</li>
-                            <li>Expert customer support to help you make informed purchasing decisions.</li>
-                            <li>Competitive pricing with regular discounts and promotions.</li>
-                            <li>Fast and reliable shipping options.</li>
+                            <li>Free electronics recycling drop-off service for all customers</li>
+                            <li>Proper disposal of hazardous materials found in electronics</li>
+                            <li>Data destruction and privacy protection services</li>
+                            <li>Trade-in programs for upgrading to newer, energy-efficient devices</li>
+                            <li>Educational resources on sustainable technology practices</li>
+                        </ul>
+
+                        <h2>Why Choose EcoTech?</h2>
+                        <ul>
+                            <li>Environmentally conscious technology solutions and products</li>
+                            <li>Expert guidance on sustainable tech choices</li>
+                            <li>Competitive pricing with eco-friendly options</li>
+                            <li>Responsible recycling services for old electronics</li>
+                            <li>Community-focused environmental initiatives</li>
                         </ul>
 
                         <h2>Our Team</h2>
-                        <p>Our team is made up of passionate tech enthusiasts who are always on the lookout for the latest trends in the industry. We believe in staying ahead of the curve and continuously improving our offerings to provide you with the best possible shopping experience.</p>
+                        <p>Our team consists of both tech enthusiasts and environmental specialists who are passionate about creating a sustainable future. We stay current with both technological advances and environmental best practices to provide you with the most sustainable solutions possible.</p>
 
-                        <p>We hope you enjoy our products as much as we enjoy offering them to you. If you have any questions or comments, please don't hesitate to contact us.</p>
+                        <p>We're committed to making a positive impact on both technology and the environment. If you have any questions about our products or recycling services, please don't hesitate to contact us.</p>
                     </div>
                 </div>
             </section>

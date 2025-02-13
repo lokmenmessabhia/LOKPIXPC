@@ -806,8 +806,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <div class="container">
     <div class="categories">
+        <div class="main-title">EcoTech PC Builder</div>
         <?php foreach ($subcategoryOrder as $categoryName => $subcategories): ?>
-            <div class="main-title"><?php echo htmlspecialchars($categoryName); ?></div>
             <form>
                 <?php foreach ($subcategories as $subcategory): ?>
                     <div class="subcategory">
@@ -853,7 +853,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <div class="contact-form">
         <form method="POST" action="" class="form-style" id="orderForm">
-            <h2 class="main-title">Contact Information</h2>
+            <h2 class="main-title">EcoTech Contact Information</h2>
             
             <div class="form-group">
                 <label for="email">Email</label>
