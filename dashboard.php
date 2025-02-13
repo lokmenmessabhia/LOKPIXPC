@@ -537,6 +537,7 @@ try {
         <a href="add_feature.php" data-page="features">Features</a>
         <a href="dashboard_products.php" data-page="products">Products</a>
         <a href="orders.php" data-page="orders">Orders</a>
+        <a href="manage_recycle.php" data-page="recycle">Recycling</a>
         <a href="manage_slider.php" data-page="slider">Slider</a>
     </nav>
     <nav>

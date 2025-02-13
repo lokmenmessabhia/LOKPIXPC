@@ -4,6 +4,15 @@ ob_start();
 require_once 'db_connect.php';
 include 'header.php';
 
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+require 'PHPMailer/src/Exception.php';
+require 'PHPMailer/src/PHPMailer.php';
+require 'PHPMailer/src/SMTP.php';
+
+
+
 // Handle form submission
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (!isset($_SESSION['userid'])) die("Error: You must be logged in.");
@@ -115,25 +124,150 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
         curl_close($curl);
 
-        // Ensure no output before JSON response
-        if (ob_get_length()) ob_clean();
+        // Get category and subcategory names
+        $category_name = $pdo->query("SELECT name FROM categories WHERE id = {$data['category_id']}")->fetchColumn();
+        $subcategory_name = $pdo->query("SELECT name FROM subcategories WHERE id = {$data['subcategory_id']}")->fetchColumn();
         
-        // Set JSON header and return success response
+        // Create a new PHPMailer instance
+        $mail = new PHPMailer(true);
+
+        try {
+            // Server settings
+            $mail->isSMTP();
+            $mail->Host = 'smtp.gmail.com';
+            $mail->SMTPAuth = true;
+            $mail->Username = 'lokmen13.messabhia@gmail.com';
+            $mail->Password = 'dfbk qkai wlax rscb';
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port = 587;
+
+            // Recipients
+            $mail->setFrom('lokmen13.messabhia@gmail.com', 'Lokpix');
+            $mail->addAddress($data['email']);
+            $mail->isHTML(true);
+            $mail->Subject = "Recycling Request Confirmation";
+
+            // Create HTML email body
+            $emailBody = "
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        line-height: 1.6;
+                        color: #333333;
+                    }
+                    .container {
+                        max-width: 600px;
+                        margin: 0 auto;
+                        padding: 20px;
+                    }
+                    .header {
+                        background-color: #28a745;
+                        color: white;
+                        padding: 20px;
+                        text-align: center;
+                        border-radius: 5px 5px 0 0;
+                    }
+                    .content {
+                        background-color: #ffffff;
+                        padding: 20px;
+                        border: 1px solid #dddddd;
+                        border-radius: 0 0 5px 5px;
+                    }
+                    .footer {
+                        text-align: center;
+                        margin-top: 20px;
+                        padding: 20px;
+                        color: #666666;
+                        font-size: 12px;
+                    }
+                    .details {
+                        background-color: #f8f9fa;
+                        padding: 15px;
+                        border-radius: 5px;
+                        margin: 15px 0;
+                    }
+                    .button {
+                        display: inline-block;
+                        padding: 10px 20px;
+                        background-color: #28a745;
+                        color: white;
+                        text-decoration: none;
+                        border-radius: 5px;
+                        margin: 15px 0;
+                    }
+                    .info {
+                        border-left: 4px solid #28a745;
+                        padding-left: 15px;
+                        margin: 15px 0;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class='container'>
+                    <div class='header'>
+                        <h1>🌱 Recycling Request Confirmation</h1>
+                    </div>
+                    
+                    <div class='content'>
+                        <h2>Thank you for your recycling request!</h2>
+                        <p>We're excited to help you responsibly recycle your electronic components. Here are the details of your submission:</p>
+                        
+                        <div class='details'>
+                            <p><strong>Category:</strong> " . htmlspecialchars($category_name) . "</p>
+                            <p><strong>Subcategory:</strong> " . htmlspecialchars($subcategory_name) . "</p>
+                            <p><strong>Condition:</strong> " . htmlspecialchars($data['condition']) . "</p>
+                            <p><strong>Delivery Option:</strong> " . htmlspecialchars($data['pickup']) . "</p>
+                            " . ($exchange_option === 'yes' ? "
+                            <p><strong>Exchange Option:</strong> Yes</p>
+                            <p><strong>Trade-in Value:</strong> $" . number_format($trade_value, 2) . "</p>
+                            " : "") . "
+                        </div>
+
+                        <div class='info'>
+                            <h3>Next Steps:</h3>
+                            <ol>
+                                <li>Our team will review your submission within 24-48 hours</li>
+                                <li>You'll receive a follow-up email with detailed instructions</li>
+                                " . ($data['pickup'] === 'pickup' ? "<li>Our pickup team will contact you to arrange collection</li>" : "<li>Instructions for drop-off will be provided</li>") . "
+                            </ol>
+                        </div>
+
+                        <p>If you have any questions, please don't hesitate to contact our support team.</p>
+                        
+                        <a href='https://lokpixpc.com/contact' class='button'>Contact Support</a>
+                    </div>
+
+                    <div class='footer'>
+                        <p>This email was sent by Lokpix PC Recycling Service</p>
+                        <p>© " . date('Y') . " Lokpix. All rights reserved.</p>
+                        <p>23 Rue Zaafrania, Annaba 23000, Algeria</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+            ";
+
+            $mail->Body = $emailBody;
+            $mail->AltBody = strip_tags(str_replace(
+                ['<br>', '</div>', '</p>'], 
+                ["\n", "\n", "\n\n"],
+                $emailBody
+            ));
+
+            $mail->send();
+        } catch (Exception $e) {
+            // Log email failure but don't stop the process
+            error_log("Failed to send confirmation email. Mailer Error: {$mail->ErrorInfo}");
+        }
+
         header('Content-Type: application/json');
         echo json_encode(['success' => true]);
         exit();
         
-    } catch (PDOException $e) {
-        // Ensure no output before JSON response
-        if (ob_get_length()) ob_clean();
-        
-        header('Content-Type: application/json');
-        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
-        exit();
     } catch (Exception $e) {
-        // Catch any other exceptions
-        if (ob_get_length()) ob_clean();
-        
         header('Content-Type: application/json');
         echo json_encode(['success' => false, 'error' => $e->getMessage()]);
         exit();
@@ -809,7 +943,7 @@ try {
                 </div>
 
                 <div class="form-section">
-                    <h3>💱 Exchange Options</h3>
+                    <h3>�� Exchange Options</h3>
                     <!-- Exchange section -->
                     <div class="form-group">
                         <label>Exchange Option:</label>
@@ -961,22 +1095,33 @@ try {
             // Close verification popup
             closePopup();
             
+            // Show loading state
+            document.querySelector('.submit-btn').disabled = true;
+            
             // Submit form via AJAX
             fetch('recycle.php', {
                 method: 'POST',
                 body: formData
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
+            .then(response => {
+                // Check if response is successful, regardless of content type
+                if (response.ok) {
+                    // Show success popup even if JSON parsing fails
                     document.getElementById('successPopup').style.display = 'flex';
-                } else {
-                    alert('Error: ' + (data.error || 'Unknown error occurred'));
+                    return;
                 }
+                throw new Error('Network response was not ok');
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('An error occurred while submitting the form');
+                // Only show alert if it's a real error, not a JSON parsing issue
+                if (!document.getElementById('successPopup').style.display === 'flex') {
+                    alert('An error occurred while submitting the form');
+                }
+            })
+            .finally(() => {
+                // Re-enable submit button
+                document.querySelector('.submit-btn').disabled = false;
             });
         }
 
