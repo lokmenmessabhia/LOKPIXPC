@@ -2,28 +2,29 @@
 session_start();
 require_once 'db_connect.php';
 include 'header.php';
+
+// Handle form submission
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    if (!isset($_SESSION['userid'])) {
-        die("Error: You must be logged in.");
-    }
+    if (!isset($_SESSION['userid'])) die("Error: You must be logged in.");
+    
     $user_id = $_SESSION['userid'];
+    $data = [
+        'email' => $_POST['email'] ?? '',
+        'phone' => $_POST['phone'] ?? '',
+        'category_id' => $_POST['category_id'] ?? '',
+        'subcategory_id' => $_POST['subcategory_id'] ?? '',
+        'condition' => $_POST['condition'] ?? '',
+        'pickup' => $_POST['pickup'] ?? ''
+    ];
 
-    $email = $_POST['email'] ?? '';
-    $phone = $_POST['phone'] ?? '';
-    $category_id = $_POST['category_id'] ?? '';
-    $subcategory_id = $_POST['subcategory_id'] ?? '';
-    $condition = $_POST['condition'] ?? '';
-    $pickup = $_POST['pickup'] ?? '';
-
-    $photo_path = "";
+    // Handle photo upload
     if (isset($_FILES['photo']) && $_FILES['photo']['error'] === UPLOAD_ERR_OK) {
         $upload_dir = "uploads/";
-        if (!is_dir($upload_dir)) {
-            mkdir($upload_dir, 0777, true);
-        }
+        if (!is_dir($upload_dir)) mkdir($upload_dir, 0777, true);
+        
         $photo_name = time() . "_" . basename($_FILES['photo']['name']);
         $photo_path = $upload_dir . $photo_name;
-
+        
         if (!move_uploaded_file($_FILES['photo']['tmp_name'], $photo_path)) {
             die("Error uploading photo.");
         }
@@ -32,105 +33,118 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 
     try {
+        // Insert into database
         $stmt = $pdo->prepare("
-            INSERT INTO recycle_requests (user_id, email, phone, category_id, subcategory_id, component_condition, photo, pickup_option) 
+            INSERT INTO recycle_requests 
+            (user_id, email, phone, category_id, subcategory_id, component_condition, photo, pickup_option)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         ");
-        $stmt->execute([$user_id, $email, $phone, $category_id, $subcategory_id, $condition, $photo_path, $pickup]);
+        $stmt->execute([$user_id, $data['email'], $data['phone'], $data['category_id'], 
+                       $data['subcategory_id'], $data['condition'], $photo_path, $data['pickup']]);
 
-        // Send Telegram Message After Successful Insert
-        // Telegram Bot Config
-$telegram_bot_token = "7322742533:AAEEYMpmOGhkwuOyfU-6Y4c6UtjK09ti9vE";
-$chat_id = "-1002458122628";
+        // Send Telegram notification
+        $telegram_config = [
+            'bot_token' => "7322742533:AAEEYMpmOGhkwuOyfU-6Y4c6UtjK09ti9vE",
+            'chat_id' => "-1002458122628"
+        ];
 
-// Format the message
-$message = "♻️ *New Recycle Request*\n\n"
-    . "👤 *User ID:* $user_id\n"
-    . "📧 *Email:* $email\n"
-    . "📞 *Phone:* $phone\n"
-    . "📦 *Category ID:* $category_id\n"
-    . "📂 *Subcategory ID:* $subcategory_id\n"
-    . "✅ *Condition:* $condition\n"
-    . "🚚 *Pickup Option:* $pickup\n";
+        // Get additional exchange information
+        $exchange_option = $_POST['exchange_option'] ?? 'no';
+        $original_price = $_POST['original_price'] ?? '0';
+        $store_component_id = $_POST['store_component'] ?? '';
+        
+        // Calculate trade value if exchange is selected
+        $trade_value = 0;
+        if ($exchange_option === 'yes' && $original_price) {
+            $rates = [
+                'Working' => 0.5,
+                'Damaged' => 0.2,
+                'Not Working' => 0.1
+            ];
+            $trade_value = floatval($original_price) * $rates[$data['condition']];
+        }
 
-// Absolute path to the uploaded photo
-$photo_path_absolute = __DIR__ . '/' . $photo_path;
+        // Get store component details if selected
+        $store_component_info = '';
+        if ($store_component_id) {
+            $stmt = $pdo->prepare("SELECT name, price FROM products WHERE id = ?");
+            $stmt->execute([$store_component_id]);
+            $component = $stmt->fetch();
+            if ($component) {
+                $final_price = $component['price'] - $trade_value;
+                $store_component_info = "\n💱 *Selected Component:* {$component['name']}" .
+                                      "\n💰 *Component Price:* \${$component['price']}" .
+                                      "\n🔄 *Trade-in Value:* \${$trade_value}" .
+                                      "\n💵 *Final Price:* \${$final_price}";
+            }
+        }
 
-// Ensure the file exists before sending
-if (!file_exists($photo_path_absolute)) {
-    die("Error: Uploaded photo not found.");
-}
+        $message = "♻️ *New Recycle Request*\n\n" .
+                  "👤 *User ID:* $user_id\n" .
+                  "📧 *Email:* {$data['email']}\n" .
+                  "📞 *Phone:* {$data['phone']}\n" .
+                  "📦 *Category ID:* {$data['category_id']}\n" .
+                  "📂 *Subcategory ID:* {$data['subcategory_id']}\n" .
+                  "✅ *Condition:* {$data['condition']}\n" .
+                  "🚚 *Delivery Option:* {$data['pickup']}\n" .
+                  "🔄 *Exchange Option:* $exchange_option" .
+                  ($exchange_option === 'yes' ? "\n💰 *Original Price:* \$$original_price" : "") .
+                  ($store_component_info ? $store_component_info : "");
 
-// Telegram API URL
-$telegram_url = "https://api.telegram.org/bot$telegram_bot_token/sendPhoto";
+        $photo_path_absolute = __DIR__ . '/' . $photo_path;
+        if (!file_exists($photo_path_absolute)) die("Error: Uploaded photo not found.");
 
-// Prepare cURL request
-$curl = curl_init();
-curl_setopt_array($curl, [
-    CURLOPT_URL => $telegram_url,
-    CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_POST => true,
-    CURLOPT_POSTFIELDS => [
-        'chat_id' => $chat_id,
-        'photo' => new CURLFile($photo_path_absolute),
-        'caption' => $message,
-        'parse_mode' => 'Markdown'
-    ],
-]);
+        $curl = curl_init();
+        curl_setopt_array($curl, [
+            CURLOPT_URL => "https://api.telegram.org/bot{$telegram_config['bot_token']}/sendPhoto",
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => [
+                'chat_id' => $telegram_config['chat_id'],
+                'photo' => new CURLFile($photo_path_absolute),
+                'caption' => $message,
+                'parse_mode' => 'Markdown'
+            ]
+        ]);
 
-// Execute request
-$response = curl_exec($curl);
-if (!$response) {
-    die("Error sending Telegram message: " . curl_error($curl));
-}
-curl_close($curl);
+        if (!curl_exec($curl)) die("Error sending Telegram message: " . curl_error($curl));
+        curl_close($curl);
 
-
-        echo "<script>alert('Your request has been submitted successfully!'); window.location.href='recycle.php';</script>";
+        echo "<script>alert('Request submitted successfully!'); window.location.href='recycle.php';</script>";
     } catch (PDOException $e) {
         die("Database error: " . $e->getMessage());
     }
 }
 
+// Fetch necessary data
 try {
-    $stmt = $pdo->query("SELECT id, name FROM categories ORDER BY name");
-    $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
-} catch (PDOException $e) {
-    $errors[] = "Error loading categories: " . $e->getMessage();
-}
-
-// Fetch user email and phone
-try {
-    $stmt = $pdo->prepare("SELECT email, phone FROM users WHERE id = ?");
-    $stmt->execute([$_SESSION['userid']]);
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
-    $user_email = $user['email'];
-    $user_phone = $user['phone'];
-} catch (PDOException $e) {
-    echo "Error: Unable to fetch user information. " . $e->getMessage();
-    exit();
-}
-
-// Get subcategories with their categories for the dropdown
-try {
-    $stmt = $pdo->query("
-        SELECT s.id AS subcategory_id, s.name AS subcategory_name, s.category_id, c.name AS category_name 
+    $user = $pdo->query("SELECT email, phone FROM users WHERE id = {$_SESSION['userid']}")->fetch();
+    $categories = $pdo->query("
+        SELECT id, name 
+        FROM categories 
+        WHERE name IN ('PC Components', 'Networking', 'Peripherals')
+        ORDER BY name
+    ")->fetchAll();
+    $subcategories = $pdo->query("
+        SELECT s.id AS subcategory_id, s.name AS subcategory_name, 
+               s.category_id, c.name AS category_name 
         FROM subcategories s 
         JOIN categories c ON s.category_id = c.id 
+        WHERE c.name IN ('PC Components', 'Networking', 'Peripherals')
         ORDER BY c.name, s.name
-    ");
-    $subcategories = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    ")->fetchAll();
+    $store_components = $pdo->query("
+        SELECT p.*, c.name as category_name, s.name as subcategory_name
+        FROM products p
+        JOIN categories c ON p.category_id = c.id
+        JOIN subcategories s ON p.subcategory_id = s.id
+        WHERE c.name IN ('PC Components', 'Networking', 'Peripherals')
+        ORDER BY c.name, s.name, p.name
+    ")->fetchAll();
 } catch (PDOException $e) {
-    $errors[] = "Error loading subcategories: " . $e->getMessage();
+    die("Error loading data: " . $e->getMessage());
 }
-
-// Prepare subcategories for JavaScript
-$subcategories_json = json_encode($subcategories);
-
 ?>
-
-
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -140,308 +154,459 @@ $subcategories_json = json_encode($subcategories);
     <title>Recycle Your PC Components</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-            text-align: center;
+        /* Improved CSS */
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            margin: 0; 
+            background: #f4f4f4; 
+            line-height: 1.6;
         }
-        .info, .recycle-form {
-            display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 40px;
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 0 20px;
-            background: white;
+        .container { 
+            max-width: 1400px;
+            margin: 0 auto;
             padding: 20px;
-            margin: 20px auto;
-            max-width: 500px;
-            border-radius: 8px;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
         }
-        .recycle-form input, .recycle-form select {
-            width: 100%;
-            padding: 8px;
-            margin: 8px 0;
-            border-radius: 5px;
-            border: 1px solid #ccc;
+        .form-wrapper {
+            display: flex;
+            gap: 30px;
+            margin-top: 20px;
         }
-        .recycle-form button {
-            background: #28a745;
-            color: white;
-            padding: 10px;
-            border: none;
+        .form-section { 
+            background: white; 
+            padding: 30px;
+            border-radius: 12px;
+            flex: 1;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+        .form-section h3 {
+            margin-top: 0;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+            color: #2c3e50;
+        }
+        .form-group { 
+            margin-bottom: 20px; 
+        }
+        label { 
+            display: block; 
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #444;
+        }
+        input, select { 
+            width: 100%; 
+            padding: 10px 12px; 
+            border: 1px solid #ddd; 
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #28a745;
+            box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1);
+        }
+        .submit-btn { 
+            background: #28a745; 
+            color: white; 
+            padding: 12px 24px; 
+            border: none; 
+            border-radius: 6px; 
             cursor: pointer;
+            font-weight: 500;
             width: 100%;
-            margin-top: 10px;
-            border-radius: 5px;
+            margin-top: 20px;
+            transition: background-color 0.3s;
         }
-        .recycle-form button:hover {
+        .submit-btn:hover {
             background: #218838;
         }
+        .info-banner { 
+            background: #fff3cd; 
+            border-left: 5px solid #ffc107; 
+            padding: 20px 25px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .info-banner h2 { 
+            color: #856404; 
+            margin-top: 0;
+            font-size: 1.4rem;
+        }
+        .info-banner ul { 
+            color: #856404; 
+            margin-bottom: 0;
+            padding-left: 20px;
+        }
+        .info-banner li {
+            margin-bottom: 8px;
+        }
+        #exchangeDetails {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        #priceCalculation {
+            margin-top: 15px;
+            padding: 15px;
+            background: #e9ecef;
+            border-radius: 6px;
+        }
+        #priceCalculation p {
+            margin: 5px 0;
+            font-weight: 500;
+        }
+        /* File input styling */
+        input[type="file"] {
+            padding: 8px;
+            background: #f8f9fa;
+        }
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .form-wrapper {
+                flex-direction: column;
+            }
+            .form-section {
+                margin-bottom: 20px;
+            }
+        }
+
+        /* Popup/Modal Styles */
         .popup {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    justify-content: center;
-    align-items: center;
-}
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
 
-.popup-content {
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    width: 350px;
-    text-align: center;
-}
+        .popup-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 90%;
+            position: relative;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
 
-.popup-content h3 {
-    margin-bottom: 10px;
-}
+        .popup h3 {
+            margin-top: 0;
+            color: #2c3e50;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 15px;
+        }
 
-.popup-content input {
-    width: 100%;
-    padding: 8px;
-    margin-top: 5px;
-}
+        .popup ul {
+            margin-bottom: 20px;
+            padding-left: 20px;
+        }
 
-.popup-buttons {
-    margin-top: 15px;
-}
+        .popup li {
+            margin-bottom: 10px;
+            color: #555;
+        }
 
-.confirm-btn, .cancel-btn {
-    padding: 10px 15px;
-    margin: 5px;
-    border: none;
-    cursor: pointer;
-}
+        .checkbox-group {
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
 
-.confirm-btn {
-    background: green;
-    color: white;
-}
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+        }
 
-.cancel-btn {
-    background: red;
-    color: white;
-}
-/* Exchange Component Section Styles */
-.exchange-section {
-    max-width: 800px;
-    margin: 20px auto;
-    padding: 20px;
-    background-color: #f8f9fa;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
+        .popup .confirm-btn {
+            background: #28a745;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
 
-.exchange-section h2 {
-    text-align: center;
-    font-size: 24px;
-    color: #333;
-    margin-bottom: 15px;
-}
+        .popup .cancel-btn {
+            background: #6c757d;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
 
-.exchange-form {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
+        .popup .confirm-btn:hover {
+            background: #218838;
+        }
 
-.exchange-form label {
-    font-size: 16px;
-    font-weight: bold;
-    color: #555;
-}
+        .popup .cancel-btn:hover {
+            background: #5a6268;
+        }
 
-.exchange-form input, 
-.exchange-form select {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 16px;
-}
+        .popup .form-group {
+            margin-bottom: 15px;
+        }
 
-.exchange-form button {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 12px;
-    font-size: 18px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background 0.3s ease;
-}
-
-.exchange-form button:hover {
-    background-color: #0056b3;
-}
-
-.price-difference {
-    text-align: center;
-    font-size: 18px;
-    font-weight: bold;
-    margin-top: 10px;
-    color: #28a745;
-}
-
-/* Responsive Design */
-@media (max-width: 600px) {
-    .exchange-section {
-        padding: 15px;
-    }
-
-    .exchange-form input, 
-    .exchange-form select {
-        font-size: 14px;
-    }
-
-    .exchange-form button {
-        font-size: 16px;
-    }
-}
-
+        .popup small {
+            display: block;
+            color: #666;
+            margin-top: 5px;
+        }
     </style>
 </head>
 <body>
-<section class="info">
-    <h2>How It Works</h2>
-    <p>Fill out the form below with details about your old PC components. You can choose to drop them off or request a pickup.</p>
-</section>
+    <div class="container">
+        <div class="info-banner">
+            <h2>⚠️ Important Information - Please Read</h2>
+            <ul>
+                <li>All items submitted for recycling will be properly disposed of or refurbished.</li>
+                <li>Once submitted, items cannot be returned.</li>
+                <li>Please ensure all personal data is backed up and removed from devices.</li>
+                <li>Photos must clearly show the condition of the item.</li>
+                <li>If choosing exchange option, trade-in values are final.</li>
+            </ul>
+        </div>
 
-<section class="recycle-form">
-    <h2>Submit Your Component</h2>
-    <form id="recycleForm" action="recycle.php" method="POST" enctype="multipart/form-data" onsubmit="return showVerificationPopup(event)">
-        <label for="email">Email</label>
-        <input type="hidden" name="email" id="email" value="<?= htmlspecialchars($user_email) ?>" readonly>
+        <form id="recycleForm" action="recycle.php" method="POST" enctype="multipart/form-data" 
+              onsubmit="return showVerificationPopup(event)">
+            <div class="form-wrapper">
+                <div class="form-section">
+                    <h3>📝 Basic Information</h3>
+                    <!-- Hidden user info -->
+                    <input type="hidden" name="email" value="<?= htmlspecialchars($user['email']) ?>">
+                    <input type="hidden" name="phone" value="<?= htmlspecialchars($user['phone']) ?>">
+                    
+                    <div class="form-group">
+                        <label>Category:</label>
+                        <select name="category_id" required onchange="updateSubcategories(this.value)">
+                            <option value="">Select Category</option>
+                            <?php foreach ($categories as $cat): ?>
+                                <option value="<?= $cat['id'] ?>"><?= htmlspecialchars($cat['name']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
 
-        <label for="phone">Phone</label>
-        <input type="hidden"name="phone" id="phone" value="<?= htmlspecialchars($user_phone) ?>" required>
+                    <div class="form-group">
+                        <label>Subcategory:</label>
+                        <select name="subcategory_id" required>
+                            <option value="">Select Subcategory</option>
+                            <?php foreach ($subcategories as $sub): ?>
+                                <option value="<?= $sub['subcategory_id'] ?>" 
+                                        data-category="<?= $sub['category_id'] ?>">
+                                    <?= htmlspecialchars($sub['subcategory_name']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
 
-        <label for="category_id">Category:</label>
-       <?php $recyclable_categories = [
-    "PC Components",
-    "Peripherals",
-    "Networking",
-    "Tools"
-];
-?>
-<select id="category_id" name="category_id" required>
-    <option value="">Select a category</option>
-    <?php foreach ($categories as $category): 
-        if (in_array($category['name'], $recyclable_categories)): ?>
-            <option value="<?php echo $category['id']; ?>">
-                <?php echo htmlspecialchars($category['name']); ?>
-            </option>
-    <?php endif; endforeach; ?>
-</select>
+                    <div class="form-group">
+                        <label>Condition:</label>
+                        <select name="condition" required>
+                            <option value="Working">Working</option>
+                            <option value="Damaged">Damaged</option>
+                            <option value="Not Working">Not Working</option>
+                        </select>
+                    </div>
 
-        <label for="subcategory_id">Subcategory:</label>
-        <select id="subcategory_id" name="subcategory_id" required>
-            <option value="">Select a subcategory</option>
-        </select>
-        <label for="condition">Condition:</label>
-        <select id="condition" name="condition" required>
-        <option value="Working">Working</option>
-    <option value="Damaged">Damaged</option>
-    <option value="Not Working">Not Working</option>
-        </select>
+                    <div class="form-group">
+                        <label>Photo:</label>
+                        <input type="file" name="photo" accept="image/*" required>
+                    </div>
 
-        <label for="photo">Upload Photo:</label>
-        <input type="file" id="photo" name="photo" accept="image/*" required>
+                    <div class="form-group">
+                        <label>Delivery Option:</label>
+                        <select name="pickup">
+                            <option value="dropoff">Drop-off</option>
+                            <option value="pickup">Request Pickup</option>
+                        </select>
+                    </div>
+                </div>
 
-        <label for="pickup">Pickup or Drop-off:</label>
-        <select id="pickup" name="pickup">
-            <option value="dropoff">Drop-off</option>
-            <option value="pickup">Request Pickup</option>
-        </select>
+                <div class="form-section">
+                    <h3>💱 Exchange Options</h3>
+                    <!-- Exchange section -->
+                    <div class="form-group">
+                        <label>Exchange Option:</label>
+                        <select name="exchange_option" onchange="toggleExchange(this.value)">
+                            <option value="no">No Exchange</option>
+                            <option value="yes">Exchange with Store Component</option>
+                        </select>
+                    </div>
 
-        <button type="submit">Submit</button>
-    </form>
-</section>
+                    <div id="exchangeDetails" style="display:none">
+                        <div class="form-group">
+                            <label>Original Price:</label>
+                            <input type="number" name="original_price" min="0" step="0.01" 
+                                   onchange="calculatePrice()">
+                        </div>
 
-<!-- Popup for verification -->
-<div id="verificationPopup" class="popup">
-    <div class="popup-content">
-        <h3>Email & Phone Verification</h3>
-        <p>Please verify your email and phone number before submitting.</p>
+                        <div class="form-group">
+                            <label>Store Component:</label>
+                            <select name="store_component" onchange="calculatePrice()">
+                                <option value="">Select Component</option>
+                                <?php foreach ($store_components as $comp): ?>
+                                    <option value="<?= $comp['id'] ?>" 
+                                            data-price="<?= $comp['price'] ?>"
+                                            data-subcategory="<?= $comp['subcategory_id'] ?>">
+                                        <?= htmlspecialchars("{$comp['name']} - \${$comp['price']}") ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
 
-        <!-- Email Field (Disabled) -->
-        <label for="popupEmail">Email:</label>
-        <input type="email" id="popupEmail" value="<?= htmlspecialchars($user_email) ?>" readonly>
+                        <div id="priceCalculation"></div>
+                    </div>
+                </div>
+            </div>
+            <button type="submit" class="submit-btn">Submit Request</button>
+        </form>
+    </div>
 
-        <!-- Phone Field (Editable) -->
-        <label for="popupPhone">Phone:</label>
-        <input type="text" id="popupPhone" name="popupPhone" value="<?= htmlspecialchars($user_phone) ?>" required>
+    <!-- Verification Popup -->
+    <div id="verificationPopup" class="popup">
+        <div class="popup-content">
+            <h3>⚠️ Final Verification</h3>
+            <p>Please confirm you understand:</p>
+            <ul>
+                <li>This item will be recycled and cannot be returned</li>
+                <li>All personal data should be backed up and removed</li>
+                <li>The trade-in value (if selected) is final</li>
+                <li>Please verify your contact details below:</li>
+            </ul>
+            
+            <div class="form-group">
+                <label>Email:</label>
+                <div><?= htmlspecialchars($user['email']) ?></div>
+            </div>
+            
+            <div class="form-group">
+                <label>Phone Number:</label>
+                <input type="tel" id="confirmPhone" value="<?= htmlspecialchars($user['phone']) ?>" 
+                       pattern="[0-9\+\-\(\)\s]+" title="Please enter a valid phone number">
+                <small>You can update your phone number if needed</small>
+            </div>
 
-        <!-- Buttons -->
-        <div class="popup-buttons">
-            <button class="confirm-btn" onclick="submitForm()">Confirm</button>
-            <button class="cancel-btn" onclick="closePopup()">Cancel</button>
+            <div class="checkbox-group">
+                <input type="checkbox" id="confirmCheck" required>
+                <label for="confirmCheck">I understand and agree to proceed</label>
+            </div>
+            <button onclick="submitIfConfirmed()" class="confirm-btn">Confirm Submission</button>
+            <button type="button" onclick="closePopup()" class="cancel-btn">Cancel</button>
         </div>
     </div>
-</div>
 
-
-<script>
-    const subcategories = <?php echo $subcategories_json; ?>;
-
-    document.getElementById('category_id').addEventListener('change', function() {
-        const selectedCategoryId = this.value;
-        const subcategorySelect = document.getElementById('subcategory_id');
-        subcategorySelect.innerHTML = '<option value="">Select a subcategory</option>';
-
-        subcategories.forEach(subcategory => {
-            if (subcategory.category_id == selectedCategoryId) {
-                const option = document.createElement('option');
-                option.value = subcategory.subcategory_id;
-                option.textContent = subcategory.category_name + ' - ' + subcategory.subcategory_name;
-                subcategorySelect.appendChild(option);
+    <script>
+        // Add this function at the beginning of your script section
+        function updateSubcategories(categoryId) {
+            const subcategorySelect = document.querySelector('[name="subcategory_id"]');
+            const options = subcategorySelect.getElementsByTagName('option');
+            
+            for (let option of options) {
+                if (option.value === "") { // Skip the placeholder option
+                    continue;
+                }
+                if (option.getAttribute('data-category') === categoryId) {
+                    option.style.display = '';
+                } else {
+                    option.style.display = 'none';
+                }
             }
+            // Reset subcategory selection
+            subcategorySelect.value = '';
+            
+            // Also reset and hide store components when category changes
+            updateStoreComponents('');
+        }
+
+        function toggleExchange(value) {
+            document.getElementById('exchangeDetails').style.display = 
+                value === 'yes' ? 'block' : 'none';
+        }
+
+        function calculatePrice() {
+            const condition = document.querySelector('[name="condition"]').value;
+            const originalPrice = parseFloat(document.querySelector('[name="original_price"]').value) || 0;
+            const storeComponent = document.querySelector('[name="store_component"]');
+            const storePrice = storeComponent.selectedOptions[0]?.dataset.price || 0;
+
+            const rates = { 
+                'Working': 0.5,     // 50% of original price
+                'Damaged': 0.2,     // 20% of original price
+                'Not Working': 0.1  // 10% of original price
+            };
+            const tradeValue = originalPrice * rates[condition];
+            const difference = storePrice - tradeValue;
+
+            document.getElementById('priceCalculation').innerHTML = `
+                <p>Trade-in Value: $${tradeValue.toFixed(2)}</p>
+                <p>Store Price: $${storePrice}</p>
+                <p>Amount to Pay: $${difference.toFixed(2)}</p>
+            `;
+        }
+
+        function showVerificationPopup(event) {
+            event.preventDefault();
+            document.getElementById('verificationPopup').style.display = 'flex';
+            return false;
+        }
+
+        function closePopup() {
+            document.getElementById('verificationPopup').style.display = 'none';
+        }
+
+        function submitIfConfirmed() {
+            if (!document.getElementById('confirmCheck').checked) {
+                alert('Please check the confirmation box to proceed');
+                return;
+            }
+            
+            // Update the hidden phone input with the new value
+            const newPhone = document.getElementById('confirmPhone').value;
+            if (!newPhone) {
+                alert('Please provide a valid phone number');
+                return;
+            }
+            
+            // Update the hidden phone field in the main form
+            document.querySelector('input[name="phone"]').value = newPhone;
+            
+            // Submit the form
+            document.getElementById('recycleForm').submit();
+        }
+
+        // Add this new function
+        function updateStoreComponents(subcategoryId) {
+            const storeComponentSelect = document.querySelector('[name="store_component"]');
+            const options = storeComponentSelect.getElementsByTagName('option');
+            
+            for (let option of options) {
+                if (option.value === "") { // Skip the placeholder option
+                    continue;
+                }
+                if (option.getAttribute('data-subcategory') === subcategoryId) {
+                    option.style.display = '';
+                } else {
+                    option.style.display = 'none';
+                }
+            }
+            // Reset store component selection
+            storeComponentSelect.value = '';
+            // Clear price calculation
+            document.getElementById('priceCalculation').innerHTML = '';
+        }
+
+        // Modify subcategory select to trigger store component update
+        document.querySelector('[name="subcategory_id"]').addEventListener('change', function() {
+            updateStoreComponents(this.value);
         });
-    });
-
-    function showVerificationPopup(event) {
-    event.preventDefault();
-    
-    // Show the popup
-    document.getElementById('verificationPopup').style.display = 'flex';
-
-    // Copy the phone number from the main form to the popup input
-    let phoneField = document.getElementById('phone');
-    let popupPhoneField = document.getElementById('popupPhone');
-
-    if (phoneField && popupPhoneField) {
-        popupPhoneField.value = phoneField.value;
-    }
-}
-
-function submitForm() {
-    // Copy the updated phone number from the popup back to the main form
-    let popupPhoneField = document.getElementById('popupPhone');
-    let phoneField = document.getElementById('phone');
-
-    if (popupPhoneField && phoneField) {
-        phoneField.value = popupPhoneField.value;
-    }
-
-    // Submit the form
-    document.getElementById('recycleForm').submit();
-}
-
-function closePopup() {
-    // Hide the popup
-    document.getElementById('verificationPopup').style.display = 'none';
-}
-
-</script>
-
+    </script>
 </body>
 </html>
