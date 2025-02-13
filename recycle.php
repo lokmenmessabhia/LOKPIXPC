@@ -1,5 +1,6 @@
 <?php
 session_start();
+ob_start();
 require_once 'db_connect.php';
 include 'header.php';
 
@@ -107,12 +108,35 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             ]
         ]);
 
-        if (!curl_exec($curl)) die("Error sending Telegram message: " . curl_error($curl));
+        if (!curl_exec($curl)) {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'error' => 'Error sending Telegram message: ' . curl_error($curl)]);
+            exit();
+        }
         curl_close($curl);
 
-        echo "<script>alert('Request submitted successfully!'); window.location.href='recycle.php';</script>";
+        // Ensure no output before JSON response
+        if (ob_get_length()) ob_clean();
+        
+        // Set JSON header and return success response
+        header('Content-Type: application/json');
+        echo json_encode(['success' => true]);
+        exit();
+        
     } catch (PDOException $e) {
-        die("Database error: " . $e->getMessage());
+        // Ensure no output before JSON response
+        if (ob_get_length()) ob_clean();
+        
+        header('Content-Type: application/json');
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+        exit();
+    } catch (Exception $e) {
+        // Catch any other exceptions
+        if (ob_get_length()) ob_clean();
+        
+        header('Content-Type: application/json');
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+        exit();
     }
 }
 
@@ -284,54 +308,68 @@ try {
             justify-content: center;
             align-items: center;
             z-index: 1000;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         .popup-content {
             background: white;
-            padding: 30px;
-            border-radius: 12px;
-            max-width: 500px;
+            padding: 40px;
+            border-radius: 15px;
+            max-width: 400px;
             width: 90%;
+            text-align: center;
             position: relative;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
 
         .popup h3 {
-            margin-top: 0;
-            color: #2c3e50;
-            border-bottom: 2px solid #f0f0f0;
-            padding-bottom: 15px;
-        }
-
-        .popup ul {
-            margin-bottom: 20px;
-            padding-left: 20px;
-        }
-
-        .popup li {
-            margin-bottom: 10px;
-            color: #555;
-        }
-
-        .checkbox-group {
-            margin: 20px 0;
+            margin: 0 0 20px 0;
+            color: #28a745;
+            font-size: 24px;
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 10px;
         }
 
-        .checkbox-group input[type="checkbox"] {
-            width: auto;
+        .popup p {
+            color: #666;
+            font-size: 16px;
+            margin-bottom: 25px;
         }
 
         .popup .confirm-btn {
             background: #28a745;
             color: white;
-            padding: 12px 24px;
+            padding: 12px 35px;
             border: none;
-            border-radius: 6px;
+            border-radius: 25px;
             cursor: pointer;
-            margin-right: 10px;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(40, 167, 69, 0.2);
+        }
+
+        .popup .confirm-btn:hover {
+            background: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        }
+
+        .popup .confirm-btn:active {
+            transform: translateY(0);
         }
 
         .popup .cancel-btn {
@@ -341,10 +379,6 @@ try {
             border: none;
             border-radius: 6px;
             cursor: pointer;
-        }
-
-        .popup .confirm-btn:hover {
-            background: #218838;
         }
 
         .popup .cancel-btn:hover {
@@ -364,6 +398,16 @@ try {
 </head>
 <body>
     <div class="container">
+
+        <div id="successPopup" class="popup" style="display: none;">
+            <div class="popup-content">
+                <h3>✅ Success!</h3>
+                <p>Your recycling request has been submitted successfully! We'll process it shortly.
+                    please check your email for further instructions and confirmation details.
+                </p>
+                <button onclick="closeSuccessPopup()" class="confirm-btn">Continue</button>
+            </div>
+        </div>
         <div class="info-banner">
             <h2>⚠️ Important Information - Please Read</h2>
             <ul>
@@ -568,18 +612,38 @@ try {
                 return;
             }
             
-            // Update the hidden phone input with the new value
             const newPhone = document.getElementById('confirmPhone').value;
             if (!newPhone) {
                 alert('Please provide a valid phone number');
                 return;
             }
             
-            // Update the hidden phone field in the main form
+            // Update phone number
             document.querySelector('input[name="phone"]').value = newPhone;
             
-            // Submit the form
-            document.getElementById('recycleForm').submit();
+            // Get form data
+            const formData = new FormData(document.getElementById('recycleForm'));
+            
+            // Close verification popup
+            closePopup();
+            
+            // Submit form via AJAX
+            fetch('recycle.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('successPopup').style.display = 'flex';
+                } else {
+                    alert('Error: ' + (data.error || 'Unknown error occurred'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while submitting the form');
+            });
         }
 
         // Add this new function
@@ -607,6 +671,11 @@ try {
         document.querySelector('[name="subcategory_id"]').addEventListener('change', function() {
             updateStoreComponents(this.value);
         });
+
+        function closeSuccessPopup() {
+            document.getElementById('successPopup').style.display = 'none';
+            window.location.href = 'recycle.php';
+        }
     </script>
 </body>
 </html>
