@@ -794,10 +794,10 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
     </div>
     
     <div class="search-container">
-        <form action="search.php" method="GET" class="new-search-form">
-            <input type="text" name="query" class="search-input" placeholder="Search products...">
-            <button type="submit" class="new-search-button">Search</button>
-        </form>
+    <form action="search.php" method="GET" class="new-search-form">
+        <button type="submit" class="new-search-button"><i class="fas fa-search"></i></button> <!-- Search icon button -->
+        <input type="text" name="query" class="search-input" placeholder=" " aria-label="Search products..."> <!-- Placeholder is now empty -->
+     </form>
     </div>
    
 </header>

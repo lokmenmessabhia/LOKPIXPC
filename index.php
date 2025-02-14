@@ -50,29 +50,30 @@ try {
             height: 80vh;
             overflow: hidden;
             position: relative;
+            
+            background: #f8f9fa;
         }
 
         .slider {
             width: 100%;
             height: 100%;
-            overflow: hidden;
             position: relative;
-            border-radius: 15px;
+           
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
             overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         }
 
         .slides {
             display: flex;
             width: 100%;
             height: 100%;
-            transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
-            border-radius: 15px;
+            transition: transform 0.5s ease-in-out;
         }
 
         .slide {
             min-width: 100%;
             position: relative;
+            overflow: hidden;
         }
 
         .slide::after {
@@ -82,34 +83,42 @@ try {
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.7) 100%);
+            background: linear-gradient(
+                180deg,
+                rgba(0,0,0,0.2) 0%,
+                rgba(0,0,0,0.4) 100%
+            );
+            z-index: 1;
         }
 
         .slide img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            filter: brightness(0.9);
-            border-radius: 15px;
-            transition: transform 0.5s ease;
+            transition: transform 0.7s ease;
         }
 
         .slide:hover img {
-            transform: scale(1.05);
+            transform: scale(1.03);
         }
 
         .caption {
             position: absolute;
-            bottom: 40px;
+            bottom: 50px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(255, 255, 255, 0.9);
-            color: #2c3e50;
+            background: rgba(255, 255, 255, 0.95);
+            color: #1a1a1a;
             padding: 15px 30px;
-            border-radius: 30px;
-            font-weight: 500;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            z-index: 1;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1.1em;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            z-index: 2;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            min-width: 200px;
+            text-align: center;
         }
 
         /* Enhanced Features Section */
@@ -149,40 +158,54 @@ try {
         }
 
         .feature-item {
-            background: white;
+            background: #ffffff;
             border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-            transition: all 0.4s ease;
-            border: 1px solid rgba(0,0,0,0.05);
-            opacity: 0;
-            transform: translateY(20px);
-            animation: slideUp 0.6s ease forwards;
+            overflow: hidden;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border: none;
+            opacity: 1;
+            transform: translateY(0);
+            animation: none;
         }
 
         .feature-item:hover {
-            transform: translateY(-10px) scale(1.02);
-            box-shadow: var(--shadow-hover);
+            transform: translateY(-10px) scale(1.05);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .feature-image {
+            height: 300px;
+            overflow: hidden;
+            position: relative;
+            margin-bottom: 10px;
         }
 
         .feature-item img {
             width: 100%;
-            height: 250px;
+            height: 100%;
             object-fit: cover;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            transition: transform 0.3s ease;
+            transition: transform 0.5s ease;
+            border-bottom: 5px solid #3498db;
         }
 
         .feature-item:hover img {
-            transform: scale(1.03);
+            transform: scale(1.1);
         }
 
         .feature-item h3 {
+            padding: 15px 15px 5px;
+            margin: 0;
+            font-size: 1.5em;
+            font-weight: 700;
             color: #2c3e50;
-            margin-bottom: 15px;
-            font-size: 1.4em;
-            font-weight: 600;
+        }
+
+        .feature-item p {
+            padding: 0 15px 20px;
+            color: #666;
+            font-size: 1.1em;
+            line-height: 1.5;
         }
 
         /* Enhanced Product List */
@@ -298,45 +321,7 @@ try {
             filter: brightness(0) invert(1);
         }
 
-        /* Feature Icons Colors */
-        .feature-item .icon {
-            color: var(--primary-color);
-            font-size: 2.5em;
-            margin-bottom: 15px;
-            transition: color 0.3s ease;
-        }
-
-        .feature-item:nth-child(1) .icon {
-            color: #FF6B6B;
-        }
-
-        .feature-item:nth-child(2) .icon {
-            color: #4ECDC4;
-        }
-
-        .feature-item:nth-child(3) .icon {
-            color: #45B7D1;
-        }
-
-        .feature-item:nth-child(4) .icon {
-            color: #96CEB4;
-        }
-
-        .feature-item:nth-child(1):hover .icon {
-            color: #FF4949;
-        }
-
-        .feature-item:nth-child(2):hover .icon {
-            color: #2EAfa7;
-        }
-
-        .feature-item:nth-child(3):hover .icon {
-            color: #3497B1;
-        }
-
-        .feature-item:nth-child(4):hover .icon {
-            color: #76AE94;
-        }
+   
 
         /* Responsive Design */
         @media (max-width: 768px) {
@@ -352,19 +337,36 @@ try {
                 gap: 25px;
             }
 
-            .feature-item {
-                padding: 20px;
+            
+
+            /* Hide slider buttons on mobile */
+            
+                .slider button {
+                width: 20px;
+                height: 20px;
+            }
+            
+
+            /* Adjust caption for mobile */
+            .caption {
+                bottom: 30px;
+                padding: 10px 20px;
+                font-size: 0.9em;
+                min-width: 160px;
             }
         }
 
         @media (max-width: 480px) {
             .hero {
                 height: 40vh;
+                
             }
 
             .caption {
-                padding: 10px 20px;
-                font-size: 0.9em;
+                bottom: 20px;
+                padding: 8px 16px;
+                font-size: 0.8em;
+                min-width: 140px;
             }
 
             .features h2, .product-list h2 {
@@ -373,6 +375,12 @@ try {
 
             .feature-item img {
                 height: 200px;
+            }
+
+            /* Adjust slider button size for mobile */
+            .slider button {
+                width: 10px;
+                height: 10px;
             }
         }
 
@@ -389,154 +397,157 @@ try {
             transition: background-color 0.3s ease, color 0.3s ease;
         }
 
-        /* Add this CSS to style the slider buttons */
+        /* Enhanced Slider Buttons */
         .slider button {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        background-color: rgba(255, 255, 255, 0.9);
-        border: none;
-        border-radius: 50%;
-        padding: 15px;
-        cursor: pointer;
-        z-index: 10;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-        transition: background-color 0.3s, transform 0.3s;
-        font-size: 1.5em; /* Increase font size for better visibility */
-    }
-
-    .slider .prev {
-        left: 20px;
-    }
-
-    .slider .next {
-        right: 20px;
-    }
-
-    .slider button:hover {
-        background-color: rgba(255, 255, 255, 1);
-        transform: scale(1.1); /* Slightly enlarge on hover */
-    }
-
-    .slider button:focus {
-        outline: none; /* Remove default focus outline */
-        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.5); /* Add a focus ring */
-    }
-
-    /* Style Option 1 - Modern Gradient */
-    .back-to-top {
-        position: fixed;
-        bottom: 30px;
-        right: 30px;
-        background: linear-gradient(145deg, #3498db, #2980b9);
-        color: white;
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-decoration: none;
-        opacity: 0;
-        visibility: hidden;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        cursor: pointer;
-        z-index: 1000;
-        border: none;
-    }
-
-    .back-to-top.visible {
-        opacity: 1;
-        visibility: visible;
-    }
-
-    .back-to-top:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-        background: linear-gradient(145deg, #2980b9, #3498db);
-    }
-
-    .back-to-top i {
-        font-size: 20px;
-        transition: transform 0.3s ease;
-    }
-
-    .back-to-top:hover i {
-        transform: translateY(-2px);
-    }
-
-    /* Optional: Add a pulse animation */
-    @keyframes pulse {
-        0% {
-            box-shadow: 0 0 0 0 rgba(52, 152, 219, 0.4);
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            z-index: 10;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        70% {
-            box-shadow: 0 0 0 10px rgba(52, 152, 219, 0);
+
+        .slider .prev {
+            left: 25px;
         }
-        100% {
-            box-shadow: 0 0 0 0 rgba(52, 152, 219, 0);
+
+        .slider .next {
+            right: 25px;
         }
-    }
 
-    .back-to-top.visible {
-        animation: pulse 2s infinite;
-    }
+        .slider button:hover {
+            background: white;
+            transform: translateY(-50%) scale(1.1);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+        }
 
-    .cookie-banner {
-        display: none;
-        position: fixed;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: white;
-        max-width: 400px;
-        width: 90%;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        z-index: 1000;
-    }
+        .slider button:active {
+            transform: translateY(-50%) scale(0.95);
+        }
 
-    .cookie-content {
-        text-align: center;
-    }
+        /* Style Option 1 - Modern Gradient */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(145deg, #3498db, #2980b9);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            z-index: 1000;
+            border: none;
+        }
 
-    .cookie-content p {
-        margin-bottom: 15px;
-        color: #333;
-        font-size: 0.9rem;
-    }
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
 
-    .cookie-buttons {
-        display: flex;
-        gap: 10px;
-        justify-content: center;
-    }
+        .back-to-top:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(145deg, #2980b9, #3498db);
+        }
 
-    .cookie-btn {
-        padding: 8px 20px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        font-weight: 500;
-        transition: all 0.3s ease;
-    }
+        .back-to-top i {
+            font-size: 20px;
+            transition: transform 0.3s ease;
+        }
 
-    .cookie-btn.accept {
-        background: #3498db;
-        color: white;
-    }
+        .back-to-top:hover i {
+            transform: translateY(-2px);
+        }
 
-    .cookie-btn.decline {
-        background: #f1f1f1;
-        color: #333;
-    }
+        /* Optional: Add a pulse animation */
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(52, 152, 219, 0.4);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(52, 152, 219, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(52, 152, 219, 0);
+            }
+        }
 
-    .cookie-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    }
+        .back-to-top.visible {
+            animation: pulse 2s infinite;
+        }
+
+        .cookie-banner {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            max-width: 400px;
+            width: 90%;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+        }
+
+        .cookie-content {
+            text-align: center;
+        }
+
+        .cookie-content p {
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 0.9rem;
+        }
+
+        .cookie-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .cookie-btn {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .cookie-btn.accept {
+            background: #3498db;
+            color: white;
+        }
+
+        .cookie-btn.decline {
+            background: #f1f1f1;
+            color: #333;
+        }
+
+        .cookie-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
     </style>
 </head>
 <body>
@@ -546,7 +557,9 @@ try {
                 <?php foreach ($slider_photos as $photo): ?>
                     <div class="slide">
                         <img src="<?php echo htmlspecialchars($photo['photo_url']); ?>" alt="<?php echo htmlspecialchars($photo['caption']); ?>">
-                        <div class="caption"><?php echo htmlspecialchars($photo['caption']); ?></div>
+                        <?php if (!empty($photo['caption'])): ?>
+                            <div class="caption"><?php echo htmlspecialchars($photo['caption']); ?></div>
+                        <?php endif; ?>
                     </div>
                 <?php endforeach; ?>
             </div>
@@ -561,10 +574,11 @@ try {
             <div class="features-list">
                 <?php foreach ($features as $feature) : ?>
                     <div class="feature-item">
-                        <i class="icon fas fa-[your-icon-name]"></i>
-                        <?php if (!empty($feature['photo'])): ?>
-                            <img src="uploads/<?php echo htmlspecialchars($feature['photo']); ?>" alt="<?php echo htmlspecialchars($feature['title']); ?>">
-                        <?php endif; ?>
+                        <div class="feature-image">
+                            <?php if (!empty($feature['photo'])): ?>
+                                <img src="uploads/<?php echo htmlspecialchars($feature['photo']); ?>" alt="<?php echo htmlspecialchars($feature['title']); ?>">
+                            <?php endif; ?>
+                        </div>
                         <h3><?php echo htmlspecialchars($feature['title']); ?></h3>
                         <p><?php echo htmlspecialchars($feature['description']); ?></p>
                     </div>

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 13, 2025 at 10:24 AM
+-- Generation Time: Feb 14, 2025 at 09:22 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -151,6 +151,14 @@ CREATE TABLE `features` (
   `photo` varchar(255) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `features`
+--
+
+INSERT INTO `features` (`id`, `title`, `description`, `photo`, `created_at`) VALUES
+(5, 'rtx 4060', 'dasd', '22.jpeg', '2025-02-14 16:32:36'),
+(6, '2024 Video Game Release Date Calendar', 'dasdad', 'X.png', '2025-02-14 16:32:44');
 
 -- --------------------------------------------------------
 
@@ -369,22 +377,23 @@ CREATE TABLE `recycle_requests` (
   `component_condition` enum('Working','Not working','Damaged') NOT NULL,
   `photo` varchar(255) NOT NULL,
   `pickup_option` enum('dropoff','pickup') NOT NULL,
-  `submitted_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `submitted_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `status` enum('pending','validated') NOT NULL DEFAULT 'pending',
+  `part_name` varchar(255) NOT NULL,
+  `buying_year` year(4) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `recycle_requests`
 --
 
-INSERT INTO `recycle_requests` (`id`, `user_id`, `email`, `phone`, `category_id`, `subcategory_id`, `component_condition`, `photo`, `pickup_option`, `submitted_at`) VALUES
-(34, 1, '', '', 7, 31, 'Not working', 'uploads/1739411267_8026ec45bae921b1f548f839c7913356.jpg', 'pickup', '2025-02-13 01:47:47'),
-(35, 1, '', '', 9, 36, 'Damaged', 'uploads/1739411364_461194354_530955023214781_3963059509599525035_n.png', 'pickup', '2025-02-13 01:49:24'),
-(36, 1, '', '', 3, 18, 'Damaged', 'uploads/1739411405_458614250_508180308646981_3060937892217739441_n.jpg', 'pickup', '2025-02-13 01:50:05'),
-(37, 1, '', '', 7, 32, 'Damaged', 'uploads/1739411429_450475248_122111832476369213_1750195489027992483_n.jpg', 'pickup', '2025-02-13 01:50:29'),
-(38, 1, 'lokmen15.messabhia@gmail.com', '065723215', 5, 24, 'Damaged', 'uploads/1739411458_4-3.png', 'pickup', '2025-02-13 01:50:58'),
-(39, 1, 'lokmen15.messabhia@gmail.com', '06573123123414115', 10, 39, 'Damaged', 'uploads/1739411535_1.jpeg', 'dropoff', '2025-02-13 01:52:15'),
-(40, 1, 'lokmen15.messabhia@gmail.com', '06574157sdad21315', 1, 8, 'Not working', 'uploads/1739411570_61339.jpg', 'pickup', '2025-02-13 01:52:50'),
-(41, 1, 'lokmen15.messabhia@gmail.com', '0657415716', 1, 9, 'Working', 'uploads/1739438637_image_processing20211202-20943-rzq131 (2) (13).png', 'dropoff', '2025-02-13 09:23:57');
+INSERT INTO `recycle_requests` (`id`, `user_id`, `email`, `phone`, `category_id`, `subcategory_id`, `component_condition`, `photo`, `pickup_option`, `submitted_at`, `status`, `part_name`, `buying_year`) VALUES
+(85, 1, 'lokmen15.messabhia@gmail.com', '0657415715', 3, 18, 'Working', 'uploads/1739457745_9845b8c1-c4ce-40d0-a7cd-303337a58992.jfif', 'dropoff', '2025-02-13 14:42:25', 'pending', '', '0000'),
+(86, 1, 'lokmen15.messabhia@gmail.com', '0657415715', 1, 8, 'Working', 'uploads/1739462956_1000000569.jpg', 'dropoff', '2025-02-13 16:09:16', 'validated', '', '0000'),
+(87, 1, 'lokmen15.messabhia@gmail.com', '0657415715', 1, 7, 'Damaged', 'uploads/1739467975_61dgFvASgSL._AC_SL1500.webp', 'dropoff', '2025-02-13 17:32:55', 'pending', '', '0000'),
+(88, 1, 'lokmen15.messabhia@gmail.com', '0657415715', 1, 3, 'Working', 'uploads/1739468273_461194355_904405968237725_2056302997289649851_n.png', 'dropoff', '2025-02-13 17:37:53', 'pending', '', '0000'),
+(89, 1, 'lokmen15.messabhia@gmail.com', '0657415715', 1, 3, 'Damaged', 'uploads/1739468466_458614250_508180308646981_3060937892217739441_n.jpg', 'dropoff', '2025-02-13 17:41:06', 'pending', 'rx580', '2023'),
+(90, 1, 'lokmen15.messabhia@gmail.com', '0657415715', 1, 3, 'Working', 'uploads/1739469087_1000000568.jpg', 'dropoff', '2025-02-13 17:51:27', 'validated', 'Rtx3070', '2023');
 
 -- --------------------------------------------------------
 
@@ -502,18 +511,21 @@ CREATE TABLE `users` (
   `verification_token` varchar(6) DEFAULT NULL,
   `email_verified` tinyint(1) DEFAULT 0,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `profile_picture` varchar(255) DEFAULT NULL
+  `profile_picture` varchar(255) DEFAULT NULL,
+  `reset_token` varchar(255) DEFAULT NULL,
+  `reset_token_expiry` datetime DEFAULT NULL,
+  `username` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `email`, `phone`, `password`, `verification_token`, `email_verified`, `created_at`, `profile_picture`) VALUES
-(1, 'lokmen15.messabhia@gmail.com', '0657415715', '$2y$10$wxT9zfwaiIDn3sa1S7neGO2.YhxWt84naPkxmx9AEAGhYdyeiSN4S', NULL, 1, '2024-12-22 22:18:21', 'chill_guy_png_by_elenatheobsessionfan_dilje4b-375w-2x.jpg'),
-(2, 'lokmen16.messabhia@gmail.com', '0657415715', '$2y$10$TnYAV6cWlaGVeX3Yxr/Xl.O9Fm9g5jL8VPOSPpdchIiO24wNaLTAi', NULL, 1, '2024-12-19 20:14:58', '459177720_508171588647853_6761848684807922403_n.jpg'),
-(107, 'lokmen14.messabhia@gmail.com', '', '$2y$10$O9wjcDEADVQKI4EitPTxreatk5G55lKJKS69oxQa8VLFG35skXUUu', NULL, 1, '2024-12-23 17:35:21', NULL),
-(108, 'hammoudiwajdi@gmail.com', '0657415715', '$2y$10$nTcM6dXOBmur38Ric1PNAOTzN.eIY.iNu5ZrhvA4xcKPrA4xUMH3y', NULL, 1, '2024-12-30 10:08:30', NULL);
+INSERT INTO `users` (`id`, `email`, `phone`, `password`, `verification_token`, `email_verified`, `created_at`, `profile_picture`, `reset_token`, `reset_token_expiry`, `username`) VALUES
+(1, 'lokmen15.messabhia@gmail.com', '0657415715', '$2y$10$4PArXtWrKRMqI7gHbSaTRuEGBS4R6T4DKPt9fj8x3P.Mt2Lq4oJdm', 'f1473b', 1, '2024-12-22 22:18:21', 'chill_guy_png_by_elenatheobsessionfan_dilje4b-375w-2x.jpg', NULL, NULL, NULL),
+(2, 'lokmen16.messabhia@gmail.com', '0657415715', '$2y$10$TnYAV6cWlaGVeX3Yxr/Xl.O9Fm9g5jL8VPOSPpdchIiO24wNaLTAi', NULL, 1, '2024-12-19 20:14:58', '459177720_508171588647853_6761848684807922403_n.jpg', '5d14799dba15b25333c259941b9ee1544b825e6e9d8c32b923b9a451ce215732', '2025-02-15 15:44:12', NULL),
+(107, 'lokmen14.messabhia@gmail.com', '', '$2y$10$O9wjcDEADVQKI4EitPTxreatk5G55lKJKS69oxQa8VLFG35skXUUu', NULL, 1, '2024-12-23 17:35:21', NULL, NULL, NULL, NULL),
+(108, 'hammoudiwajdi@gmail.com', '0657415715', '$2y$10$nTcM6dXOBmur38Ric1PNAOTzN.eIY.iNu5ZrhvA4xcKPrA4xUMH3y', NULL, 1, '2024-12-30 10:08:30', NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -749,7 +761,7 @@ ALTER TABLE `contact_messages`
 -- AUTO_INCREMENT for table `features`
 --
 ALTER TABLE `features`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `notifications`
@@ -785,7 +797,7 @@ ALTER TABLE `product_images`
 -- AUTO_INCREMENT for table `recycle_requests`
 --
 ALTER TABLE `recycle_requests`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=91;
 
 --
 -- AUTO_INCREMENT for table `slider_photos`

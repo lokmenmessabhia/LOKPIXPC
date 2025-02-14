@@ -240,7 +240,7 @@ $related_products = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
         .add-to-cart-btn {
-            background-color: #1a1a1a;
+            background: linear-gradient(135deg, #007bff,rgb(141, 161, 182));
             color: white;
             border: none;
             padding: 1rem 2rem;
@@ -254,8 +254,8 @@ $related_products = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
         .add-to-cart-btn:hover {
-            background-color: #2c2c2c;
-            transform: translateY(-2px);
+            transform: scale(1.05); /* Slight scale effect on hover */
+            box-shadow: 0 4px 20px rgba(0, 128, 0, 0.3); /* Shadow effect on hover */
         }
 
         /* Responsive Design */
@@ -272,24 +272,15 @@ $related_products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         .comments-section {
             margin-top: 4rem;
-            background: linear-gradient(145deg, #ffffff, #f8fafc);
-            padding: 3rem;
-            border-radius: 24px;
-            box-shadow: 
-                0 20px 40px rgba(0, 0, 0, 0.03),
-                0 60px 120px rgba(0, 0, 0, 0.02);
-            position: relative;
-            overflow: hidden;
+            background: #f9f9f9; /* Light gray background */
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: background 0.3s ease; /* Smooth transition */
         }
 
-        .comments-section::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(0, 123, 255, 0.2), transparent);
+        .comments-section:hover {
+            background: #f0f0f0; /* Lighten background on hover */
         }
 
         .comments-section h2 {
@@ -315,22 +306,16 @@ $related_products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         /* Individual Comment Styling */
         .comment {
-            background: white;
-            padding: 2rem;
-            border-radius: 16px;
+            padding: 1.5rem;
+            border-radius: 12px;
+            background-color: #ffffff; /* White background for comments */
             margin-bottom: 1.5rem;
-            box-shadow: 
-                0 4px 6px rgba(0, 0, 0, 0.02),
-                0 1px 3px rgba(0, 0, 0, 0.03);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            border: 1px solid rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease, box-shadow 0.2s ease; /* Smooth transition */
         }
 
         .comment:hover {
-            transform: translateY(-2px);
-            box-shadow: 
-                0 8px 12px rgba(0, 0, 0, 0.03),
-                0 2px 4px rgba(0, 0, 0, 0.04);
+            transform: translateY(-2px); /* Lift effect on hover */
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.1); /* Shadow effect on hover */
         }
 
         .username {
@@ -585,129 +570,15 @@ $related_products = $stmt->fetchAll(PDO::FETCH_ASSOC);
         /* Comments Section Styling */
         .comments-section {
             margin-top: 4rem;
-            background: white;
+            background: #f9f9f9; /* Light gray background */
             padding: 2rem;
             border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: background 0.3s ease; /* Smooth transition */
         }
 
-        .comment {
-            padding: 1.5rem;
-            border-radius: 12px;
-            background-color: #f8f9fa;
-            margin-bottom: 1rem;
-        }
-
-        .random-products-section {
-            margin-top: 4rem;
-        }
-
-        .random-products-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
-            margin-top: 2rem;
-        }
-
-        .random-product {
-            background: white;
-            border-radius: 16px;
-            overflow: hidden;
-            transition: transform 0.2s ease;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
-        }
-
-        .random-product:hover {
-            transform: translateY(-5px);
-        }
-
-        .random-product img {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-        }
-
-        .random-product-info {
-            padding: 1rem;
-        }
-
-        @media (max-width: 968px) {
-            .product-page {
-                grid-template-columns: 1fr;
-                gap: 2rem;
-            }
-
-            .product-image {
-                position: relative;
-            }
-
-            .product-image img {
-                height: 400px;
-            }
-        }
-
-        /* Random Products Styling */
-        .random-products-section {
-            margin-top: 4rem;
-        }
-
-        .random-products-section h2 {
-            font-size: 1.8rem;
-            margin-bottom: 2rem;
-            font-weight: 600;
-        }
-
-        .random-products-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 2rem;
-        }
-
-        .random-product {
-            background: white;
-            border-radius: 16px;
-            overflow: hidden;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            color: inherit;
-        }
-
-        .random-product:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-        }
-
-        .random-product img {
-            width: 100%;
-            height: 280px;
-            object-fit: cover;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .random-product-info {
-            padding: 1.5rem;
-        }
-
-        .random-product-name {
-            font-size: 1.1rem;
-            font-weight: 500;
-            margin: 0 0 0.5rem 0;
-        }
-
-        .random-product-price {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: #1a1a1a;
-            margin: 0;
-        }
-
-        /* Comments Section Styling */
-        .comments-section {
-            margin-top: 4rem;
-            background: white;
-            padding: 3rem;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+        .comments-section:hover {
+            background: #f0f0f0; /* Lighten background on hover */
         }
 
         .comments-section h2 {
@@ -758,7 +629,7 @@ $related_products = $stmt->fetchAll(PDO::FETCH_ASSOC);
         .comment {
             padding: 1.5rem;
             border-radius: 12px;
-            background-color: #f8f9fa;
+            background-color: #ffffff; /* White background for comments */
             margin-bottom: 1.5rem;
         }
 
@@ -855,28 +726,6 @@ $related_products = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
         .product-images img:hover {
-            transform: scale(1.05); /* Slight zoom effect on hover */
-        }
-
-        .product-images {
-            margin-top: 2rem;
-        }
-
-        .image-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 1rem;
-        }
-
-        .image-grid img {
-            width: 100%;
-            height: auto; /* Maintain aspect ratio */
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease;
-        }
-
-        .image-grid img:hover {
             transform: scale(1.05); /* Slight zoom effect on hover */
         }
 
@@ -1079,7 +928,7 @@ $related_products = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
         .product-info h1 {
-            font-size: 2.8rem;
+            font-size: 3rem;
             font-weight: 700;
             color: #1a1a1a;
             line-height: 1.2;
@@ -1087,7 +936,7 @@ $related_products = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
         .price {
-            font-size: 2.4rem;
+            font-size: 2.8rem;
             font-weight: 600;
             color: #007bff;
         }
@@ -1116,25 +965,20 @@ $related_products = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
         .add-to-cart-btn {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 1.2rem 2rem;
-            border-radius: 12px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            width: 100%;
-            margin-top: 1rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            background: linear-gradient(135deg, #4CAF50, #388E3C); /* Green gradient background */
+            border-radius: 20px; /* More rounded corners */
+            font-size: 1.2rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth transition */
         }
 
         .add-to-cart-btn:hover {
-            background-color: #0056b3;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0, 123, 255, 0.2);
+            transform: scale(1.05); /* Slight scale effect on hover */
+            box-shadow: 0 4px 20px rgba(0, 128, 0, 0.3); /* Shadow effect on hover */
         }
 
         /* Refined Product Container */
@@ -1196,14 +1040,15 @@ $related_products = $stmt->fetchAll(PDO::FETCH_ASSOC);
             width: 60px;
             height: 60px;
             font-size: 24px;
-            color: #007bff;
+            color: #388E3C; /* Green color */
             transform: translateY(-50%) scale(0.9);
+            transition: transform 0.3s ease; /* Smooth transition */
         }
 
         .prev:hover, .next:hover {
-            background: #007bff;
+            background: #388E3C; /* Darker green on hover */
             color: white;
-            transform: translateY(-50%) scale(1);
+            transform: translateY(-50%) scale(1); /* Scale effect on hover */
         }
 
         /* Refined Product Info */
@@ -1268,40 +1113,26 @@ $related_products = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
         .add-to-cart-btn {
-            background: linear-gradient(135deg, #007bff, #0056b3);
-            border-radius: 16px;
+            background: linear-gradient(135deg, #4CAF50, #388E3C); /* Green gradient background */
+            border-radius: 20px; /* More rounded corners */
             font-size: 1.2rem;
             font-weight: 700;
             letter-spacing: 1px;
             padding: 1.5rem;
             position: relative;
             overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth transition */
         }
 
-        .add-to-cart-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(
-                120deg,
-                transparent,
-                rgba(255, 255, 255, 0.2),
-                transparent
-            );
-            transition: 0.5s;
-        }
-
-        .add-to-cart-btn:hover::before {
-            left: 100%;
+        .add-to-cart-btn:hover {
+            transform: scale(1.05); /* Slight scale effect on hover */
+            box-shadow: 0 4px 20px rgba(0, 128, 0, 0.3); /* Shadow effect on hover */
         }
 
         /* Thumbnail Grid Refinements */
         .thumbnail-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
             gap: 1rem;
             padding: 1rem;
             background: rgba(248, 249, 250, 0.5);
@@ -1311,17 +1142,13 @@ $related_products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         .thumbnail {
             border-radius: 12px;
-            box-shadow: 
-                0 4px 8px rgba(0, 0, 0, 0.1);
-            transform: scale(0.95);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease; /* Smooth transition */
         }
 
         .thumbnail:hover {
-            transform: scale(1);
-            box-shadow: 
-                0 8px 16px rgba(0, 123, 255, 0.2);
-            border-color: #007bff;
+            transform: scale(1.05);
+            box-shadow: 0 8px 16px rgba(0, 123, 255, 0.2); /* Shadow effect on hover */
         }
 
         /* Responsive Design Improvements */
@@ -1337,17 +1164,83 @@ $related_products = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
         @media (max-width: 768px) {
+            body {
+                font-size: 14px; /* Adjust base font size for better readability */
+            }
+
+            main {
+                padding: 1rem; /* Reduce padding for main content */
+            }
+
             .product-page {
-                grid-template-columns: 1fr;
-                padding: 2rem;
+                grid-template-columns: 1fr; /* Stack elements vertically */
+                padding: 2rem; /* Reduce padding */
             }
-            
+
             .slider {
-                height: 400px;
+                height: 300px; /* Adjust height for smaller screens */
             }
-            
+
             .product-info {
-                padding: 1rem;
+                padding: 1rem; /* Reduce padding */
+            }
+
+            .thumbnail-grid {
+                grid-template-columns: repeat(3, 1fr); /* Adjust thumbnail grid for smaller screens */
+            }
+
+            .add-to-cart-btn {
+                font-size: 1rem; /* Adjust button font size */
+                padding: 1rem; /* Adjust button padding */
+            }
+
+            .comments-section {
+                padding: 1.5rem; /* Reduce padding */
+            }
+
+            .comment {
+                padding: 1rem; /* Reduce comment padding */
+            }
+
+            .submit-comment-btn {
+                font-size: 1rem; /* Adjust button font size */
+                padding: 0.8rem; /* Adjust button padding */
+            }
+
+            .random-products-grid {
+                grid-template-columns: repeat(2, 1fr); /* Show two random products per row */
+            }
+
+            .random-product {
+                margin: 0; /* Remove margin for better fit */
+            }
+
+            .random-product img {
+                height: auto; /* Maintain aspect ratio */
+            }
+
+            .product-images {
+                flex-direction: column; /* Stack images vertically */
+            }
+
+            .main-image {
+                height: 250px; /* Adjust height for main image */
+            }
+
+            .thumbnail-grid {
+                grid-template-columns: repeat(2, 1fr); /* Show two thumbnails per row */
+            }
+
+            .username {
+                font-size: 0.9rem; /* Adjust username font size */
+            }
+
+            .comment-date {
+                font-size: 0.8rem; /* Adjust comment date font size */
+            }
+
+            .comment-text {
+                font-size: 0.9rem; /* Adjust comment text font size */
             }
         }
 
