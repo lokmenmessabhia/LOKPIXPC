@@ -111,17 +111,17 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
     
         /* Header */
         header {
-             background: white;
-              padding: 1rem 2rem;
-              box-shadow: var(--shadow);
-              position: sticky;
-               top: 0;
-               z-index: 1000;
-               display: flex;
-              flex-direction: row; /* Default to row for larger screens */
-              align-items: center;
-              justify-content: space-between; /* Space between logo and nav toggle */
-            }
+            background: white;
+            padding: 1rem 2rem;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+        }
     
         /* Logo */
         .logo {
@@ -312,76 +312,235 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
             color: var(--primary-blue);
         }
     
-        /* Side Menu */
+        /* Side Menu Updated Styles */
         .side-menu {
             position: fixed;
             right: -300px;
             top: 0;
             width: 300px;
-            height: 100%;
-            background: white;
-            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+            height: 100vh; /* Use viewport height */
+            background: #ffffff;
+            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
             transition: right 0.3s ease;
             z-index: 1001;
+            display: flex;
+            flex-direction: column;
+        }
+    
+        /* Reorganize the layout to have three main sections */
+        .side-menu-top {
+            flex-shrink: 0; /* Don't allow shrinking */
+        }
+    
+        .side-menu-middle {
+            flex: 1; /* Take up remaining space */
+            overflow-y: auto; /* Allow scrolling if needed */
+        }
+    
+        .side-menu-bottom {
+            flex-shrink: 0; /* Don't allow shrinking */
+            padding: 1rem;
+            border-top: 1px solid #eee;
+            background: white;
+        }
+    
+        /* Bottom Action Buttons */
+        .bottom-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            padding: 1rem;
+        }
+    
+        .bottom-action-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            border-radius: 12px;
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+    
+        .build-pc-btn {
+            background: var(--primary-green);
+        }
+    
+        .recycle-btn {
+            background: var(--primary-green);
+        }
+    
+        .bottom-action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+    
+        .bottom-action-btn i {
+            margin-right: 0.5rem;
+            font-size: 1.2em;
         }
     
         .side-menu.show {
             right: 0;
         }
     
+        /* Profile Section */
         .profile {
-            padding: 2rem;
+            position: relative;
+            padding: 2rem 1.5rem;
             text-align: center;
-            background: var(--hover-blue);
+            background: linear-gradient(135deg, var(--primary-blue), var(--primary-blue-dark));
+            color: white;
+            margin-top: 0;
         }
     
-        .build-pc-button {
-        background-color: #218838 !important;
-        color: white !important;
-        margin: 1rem;
-        border-radius: 25px;
-    }
+        .profile img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            object-fit: cover;
+            margin-bottom: 1rem;
+        }
     
-    .build-pc-button:hover {
-        background-color: #1a6e2e !important;
-        color: white !important;
-    }
+        /* Navigation Icons */
+        .side-menu-nav {
+            padding: 1.5rem;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+    
+        .side-menu-nav a {
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            color: var(--text-dark);
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+        }
+    
+        .side-menu-nav a:hover {
+            background: var(--primary-blue);
+            color: white;
+            transform: translateY(-2px);
+        }
+    
+        /* Categories Section */
+        .side-menu-categories {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem 0;
+        }
+    
+        .side-menu-category > a {
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-dark);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+    
+        .side-menu-category > a:hover {
+            background: #f8f9fa;
+            color: var(--primary-blue);
+        }
+    
+        .side-menu-subcategories {
+            background: #f8f9fa;
+            padding: 0.5rem 0;
+        }
+    
+        .side-menu-subcategories a {
+            padding: 0.8rem 2rem;
+            display: block;
+            color: var(--text-dark);
+            text-decoration: none;
+            font-size: 0.95em;
+            transition: all 0.3s ease;
+        }
+    
+        .side-menu-subcategories a:hover {
+            background: white;
+            color: var(--primary-blue);
+            padding-left: 2.5rem;
+        }
+    
+        /* Close Button */
         .closebtn {
             position: absolute;
-            top: 1rem;
-            right: 1rem;
+            top: 1.5rem;
+            right: 1.5rem;
             width: 35px;
             height: 35px;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: var(--hover-blue);
+            background: rgba(0, 0, 0, 0.2);
             border-radius: 50%;
             cursor: pointer;
             font-size: 1.5rem;
+            color: white;
             transition: all 0.3s ease;
+            z-index: 1002; /* Ensure it's above other elements */
+            text-decoration: none;
+            border: none;
         }
     
         .closebtn:hover {
-            background: var(--primary-blue);
-            color: var(--text-light);
+            background: rgba(0, 0, 0, 0.3);
+            transform: rotate(90deg);
+        }
+    
+        /* Special Icons */
+        .build-pc-icon, .recycle-icon {
+            background: var(--primary-green) !important;
+            color: white !important;
+        }
+    
+        .logout-icon {
+            background: #fee2e2 !important;
+            color: #dc2626 !important;
         }
     
         /* Responsive Design */
-       /* Responsive Design */
-@media (max-width: 768px) {
-    header {
-        flex-direction: column; /* Stack items vertically on mobile */
-        align-items: center; /* Center items horizontally */
-    }
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column; /* Stack items vertically */
+                padding: 0.5rem 1rem;
+            }
 
-    .search-container {
-        width: 100%; /* Full width for search bar */
-        margin: 1rem 0; /* Add margin for spacing */
-    }
+            .logo {
+                width: 100%; /* Full width container */
+                display: flex;
+                justify-content: space-between; /* Space between logo and toggle */
+                align-items: center;
+                margin-bottom: 0.5rem; /* Add space before search bar */
+            }
 
-    .new-search-form {
-        width: 100%; /* Full width for search form */
+            .logo img {
+                height: 40px;
+            }
+
+            .search-container {
+                width: 100%;
+                order: 2; /* Move search below logo */
+                margin: 0.5rem 0;
+            }
+
+    .nav-toggle {
+        margin-left: auto; /* Push toggle button to the right */
+        margin-top: 0; /* Remove top margin */
     }
 
     .main-nav {
@@ -390,10 +549,6 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
 
     .categories-nav {
         display: none; /* Hide categories on mobile */
-    }
-
-    .nav-toggle {
-        display: block; /* Show the toggle button */
     }
 
     .side-menu {
@@ -436,8 +591,8 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
         margin-top: 1rem; /* Add margin for spacing */
     }
     .nav-toggle {
-        display: block;
-        position:left; /* Show the toggle button on mobile */
+        display: inline-block;
+        position:right; /* Show the toggle button on mobile */
         margin-top: 0.5rem; /* Add some space above the toggle */
     }
 }
@@ -489,6 +644,140 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
             color: var(--text-dark); /* Match the text color */
             font-weight: 500; /* Adjust font weight */
         }
+
+        /* Side Menu Categories Styles */
+        .side-menu-categories {
+            border-top: 1px solid #eee;
+            margin-top: 1rem;
+            padding-top: 1rem;
+        }
+
+        .side-menu-category {
+            position: relative;
+        }
+
+        .side-menu-category > a {
+            padding: 0.8rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-dark);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .side-menu-category > a:after {
+            content: '\f107';
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            transition: transform 0.3s ease;
+        }
+
+        .side-menu-category > a.active:after {
+            transform: rotate(180deg);
+        }
+
+        .side-menu-subcategories {
+            display: none;
+            background: #f8f9fa;
+            padding-left: 1.5rem;
+        }
+
+        .side-menu-subcategories.show {
+            display: block;
+        }
+
+        .side-menu-subcategories a {
+            padding: 0.6rem 1.5rem;
+            display: block;
+            color: var(--text-dark);
+            text-decoration: none;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+
+        .side-menu-subcategories a:hover {
+            background: var(--hover-blue);
+            color: var(--primary-blue);
+        }
+
+        /* Side Menu Layout */
+        .side-menu-content {
+            display: flex;
+            height: calc(100% - 80px); /* Adjust based on profile section height */
+        }
+
+        .side-menu-categories {
+            flex: 1;
+            border-right: 1px solid #eee;
+            overflow-y: auto;
+            padding-bottom: 2rem;
+        }
+
+        /* Side Menu Navigation Icons */
+        .side-menu-nav {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .side-menu-nav a {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0.5rem 0;
+            border-radius: 50%;
+            color: var(--text-dark);
+            transition: all 0.3s ease;
+        }
+
+        .side-menu-nav a:hover {
+            background: var(--hover-blue);
+            color: var(--primary-blue);
+            transform: scale(1.1);
+        }
+
+        .side-menu-nav a i {
+            font-size: 1.2rem;
+        }
+
+        .side-menu-nav .build-pc-icon {
+            background: var(--primary-green);
+            color: white;
+        }
+
+        .side-menu-nav .recycle-icon {
+            background: var(--primary-green);
+            color: white;
+        }
+
+        .side-menu-nav .logout-icon {
+            color: #dc3545;
+        }
+
+        @media (max-width: 768px) {
+            .side-menu-content {
+                flex-direction: column-reverse;
+            }
+
+            .side-menu-nav {
+                width: 100%;
+                flex-direction: row;
+                justify-content: center;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+                padding: 0.5rem;
+            }
+
+            .side-menu-categories {
+                border-right: none;
+                border-top: 1px solid #eee;
+            }
+        }
     </style>
 </head>
 <body>
@@ -500,7 +789,7 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
 
 <header>
     <div class="logo">
-        <a href="index.php"><img src="logo (1).png" alt="EcoTech Logo"></a>
+        <a href="index.php"><img src="logo (1) text.png" alt="EcoTech Logo"></a>
         <span class="nav-toggle" onclick="toggleMenu()">☰</span>
     </div>
     
@@ -568,38 +857,77 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
     </nav>
 
     <div id="side-menu" class="side-menu">
-    <span class="closebtn" onclick="closeMenu()">×</span>
-    
-    <?php if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true): ?>
-        <div class="profile">
-            <img src="<?php echo isset($user['profile_picture']) && $user['profile_picture'] ? 'uploads/' . htmlspecialchars($user['profile_picture']) : 'https://i.top4top.io/p_3273sk4691.jpg'; ?>" alt="Profile Picture">
-            <span class="profile-email"><?php echo htmlspecialchars(explode('@', $_SESSION['email'])[0]); ?></span>
-        </div>
-    <?php endif; ?>
+        <span class="closebtn" onclick="closeMenu()">×</span>
+        
+        <div class="side-menu-top">
+            <?php if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true): ?>
+                <div class="profile">
+                    <img src="<?php echo isset($user['profile_picture']) && $user['profile_picture'] ? 'uploads/' . htmlspecialchars($user['profile_picture']) : 'https://i.top4top.io/p_3273sk4691.jpg'; ?>" alt="Profile Picture">
+                    <h2 style="font-size: 1.2rem; margin-top: 0.5rem;color:green;">Welcome, <?php echo htmlspecialchars(explode('@', $_SESSION['email'])[0]); ?>!</h2>
+                </div>
+            <?php else: ?>
+                <div class="profile">
+                    <h2 style="font-size: 1.5rem; margin-bottom: 0.5rem;">Welcome!</h2>
+                    <p style="font-size: 0.9rem; opacity: 0.9;color:green;">Please login or sign up to access all features</p>
+                </div>
+            <?php endif; ?>
 
-    <ul>
-        <li><a href="index.php"><i class="fas fa-home fa-sm"></i> Home</a></li>
-        <li><a href="about.php"><i class="fas fa-info-circle fa-sm"></i> About</a></li>
-        <li><a href="contact.php"><i class="fas fa-envelope fa-sm"></i> Contact Us</a></li>
-        
-        <?php if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true): ?>
-            <li><a href="profile.php"><i class="fas fa-user fa-sm"></i> Profile</a></li>
-           
-            <li><a href="cart.php"><i class="fas fa-shopping-cart fa-sm"></i> Cart (<span class="cart-count"><?php echo $cartCount; ?></span>)</a></li>
-            <li><a href="logout.php" style="color:red;"><i class="fas fa-sign-out-alt fa-sm"></i> Logout</a></li>
-        <?php else: ?>
-            <li><a href="login.php"><i class="fas fa-sign-in-alt fa-sm"></i> Login</a></li>
-            <li><a href="sign-up.php"><i class="fas fa-user-plus fa-sm"></i> Sign Up</a></li>
-        <?php endif; ?>
-        
-        <li><a href="buildyourpc.php" class="build-pc-button">
-            <i class="fas fa-desktop fa-sm"></i> Build Your PC
-        </a></li>
-        <li><a href="Recycle.php" class="build-pc-button">
-            <i class="fa fa-recycle"></i> Recycle
-        </a></li>
-    </ul>
-</div>
+            <div class="side-menu-nav">
+                <a href="index.php" style="text-decoration:none"><i class="fas fa-home"></i></a>
+                <a href="about.php" style="text-decoration:none"><i class="fas fa-info-circle"></i></a>
+                <a href="contact.php" style="text-decoration:none"><i class="fas fa-envelope"></i></a>
+                
+                <?php if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true): ?>
+                    <a href="profile.php" style="text-decoration:none"><i class="fas fa-user"></i></a>
+                    <a href="cart.php" style="text-decoration:none"><i class="fas fa-shopping-cart"></i></a>
+                    <?php if ($isAdmin): ?>
+                        <a href="dashboard.php" style="text-decoration:none"><i class="fas fa-tachometer-alt"></i></a>
+                    <?php endif; ?>
+                    <a href="logout.php" class="logout-icon" style="text-decoration:none"><i class="fas fa-sign-out-alt"></i></a>
+                <?php else: ?>
+                    <a href="login.php" style="text-decoration:none"><i class="fas fa-sign-in-alt"></i></a>
+                    <a href="sign-up.php" style="text-decoration:none"><i class="fas fa-user-plus"></i></a>
+                <?php endif; ?>
+            </div>
+        </div>
+
+        <div class="side-menu-middle">
+            <div class="side-menu-categories">
+                <?php foreach ($categories as $category): ?>
+                    <div class="side-menu-category">
+                        <a href="javascript:void(0)" onclick="toggleSubcategories(<?php echo $category['id']; ?>)">
+                            <?php echo htmlspecialchars($category['name']); ?>
+                        </a>
+                        <div id="subcategories-<?php echo $category['id']; ?>" class="side-menu-subcategories">
+                            <?php
+                            $stmt = $pdo->prepare("SELECT * FROM subcategories WHERE category_id = ?");
+                            $stmt->execute([$category['id']]);
+                            $subcategories = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                            foreach ($subcategories as $subcategory): ?>
+                                <a href="subcategory.php?id=<?php echo htmlspecialchars($subcategory['id']); ?>">
+                                    <?php echo htmlspecialchars($subcategory['name']); ?>
+                                </a>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+
+        <div class="side-menu-bottom">
+            <div class="bottom-actions">
+                <a href="buildyourpc.php" class="bottom-action-btn build-pc-btn">
+                    <i class="fas fa-desktop"></i>
+                    Build PC
+                </a>
+                <a href="recycle.php" class="bottom-action-btn recycle-btn">
+                    <i class="fa fa-recycle"></i>
+                    Recycle
+                </a>
+            </div>
+        </div>
+    </div>
     <script>
         function toggleMenu() {
             const sideMenu = document.getElementById('side-menu');
@@ -615,13 +943,27 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
             fetch('get_cart_count.php')
                 .then(response => response.json())
                 .then(data => {
-                    document.getElementById('cart-count').textContent = data.cartCount;
+                    const cartCountElements = document.querySelectorAll('#cart-count');
+                    cartCountElements.forEach(element => {
+                        element.textContent = data.cartCount;
+                    });
                 })
                 .catch(error => console.error('Error fetching cart count:', error));
         }
 
-        // Call updateCartCount every 5 seconds (5000 milliseconds)
+        // Update cart count immediately and then every 5 seconds
+        updateCartCount();
         setInterval(updateCartCount, 5000);
+
+        function toggleSubcategories(categoryId) {
+            const subcategoriesDiv = document.getElementById(`subcategories-${categoryId}`);
+            const categoryLink = subcategoriesDiv.previousElementSibling;
+            
+            // Toggle the show class on the subcategories
+            subcategoriesDiv.classList.toggle('show');
+            // Toggle the active class on the category link
+            categoryLink.classList.toggle('active');
+        }
     </script>
 </body>
 </html>

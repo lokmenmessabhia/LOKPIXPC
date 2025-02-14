@@ -482,6 +482,61 @@ try {
     .back-to-top.visible {
         animation: pulse 2s infinite;
     }
+
+    .cookie-banner {
+        display: none;
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: white;
+        max-width: 400px;
+        width: 90%;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+    }
+
+    .cookie-content {
+        text-align: center;
+    }
+
+    .cookie-content p {
+        margin-bottom: 15px;
+        color: #333;
+        font-size: 0.9rem;
+    }
+
+    .cookie-buttons {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+    }
+
+    .cookie-btn {
+        padding: 8px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .cookie-btn.accept {
+        background: #3498db;
+        color: white;
+    }
+
+    .cookie-btn.decline {
+        background: #f1f1f1;
+        color: #333;
+    }
+
+    .cookie-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
     </style>
 </head>
 <body>
@@ -550,6 +605,39 @@ try {
             <?php endforeach; ?>
         </div>
     </section>
+    <div id="cookie-banner" class="cookie-banner">
+        <div class="cookie-content">
+            <p>We use cookies to enhance your experience. By continuing to visit this site you agree to our use of cookies.</p>
+            <div class="cookie-buttons">
+                <button id="accept-cookies" class="cookie-btn accept">Accept</button>
+                <button id="decline-cookies" class="cookie-btn decline">Decline</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const cookieBanner = document.getElementById("cookie-banner");
+            
+            // Check if user has already made a choice
+            if (!localStorage.getItem("cookieChoice")) {
+                cookieBanner.style.display = "block";
+            }
+
+            document.getElementById("accept-cookies").addEventListener("click", function() {
+                // Set cookie with secure flags
+                document.cookie = "cookies_accepted=true; path=/; max-age=31536000; secure; samesite=Strict";
+                localStorage.setItem("cookieChoice", "accepted");
+                cookieBanner.style.display = "none";
+            });
+
+            document.getElementById("decline-cookies").addEventListener("click", function() {
+                document.cookie = "cookies_accepted=false; path=/; max-age=31536000; secure; samesite=Strict";
+                localStorage.setItem("cookieChoice", "declined");
+                cookieBanner.style.display = "none";
+            });
+        });
+    </script>
 
 <?php   include'footer.php' ?>
     <button class="back-to-top" aria-label="Back to top">

@@ -1,5 +1,11 @@
 <?php
 session_start();
+
+// Initialize cart from cookie if session cart is empty
+if (!isset($_SESSION['cart']) && isset($_COOKIE['cart'])) {
+    $_SESSION['cart'] = json_decode($_COOKIE['cart'], true) ?? [];
+}
+
 include 'db_connect.php'; // Ensure this path is correct
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -12,26 +18,43 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->execute([$product_id]);
         $product = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if ($product && $quantity <= $product['stock']) {
-            // Add product to cart
-            if (!isset($_SESSION['cart'])) {
-                $_SESSION['cart'] = [];
-            }
+        if ($product) {
+            $stock = (int)$product['stock'];
 
-            if (isset($_SESSION['cart'][$product_id])) {
-                $_SESSION['cart'][$product_id] += $quantity;
+            if ($quantity <= $stock) {
+                // Load existing cart from session
+                if (!isset($_SESSION['cart'])) {
+                    $_SESSION['cart'] = [];
+                }
+
+                // Add/update cart in session
+                if (isset($_SESSION['cart'][$product_id])) {
+                    $_SESSION['cart'][$product_id] += $quantity;
+                } else {
+                    $_SESSION['cart'][$product_id] = $quantity;
+                }
+                
+                // Always save cart to cookies with secure settings
+                $cart_json = json_encode($_SESSION['cart']);
+                setcookie('cart', $cart_json, [
+                    'expires' => time() + (30 * 24 * 60 * 60), // 30 days expiration
+                    'path' => '/',
+                    'secure' => true,
+                    'httponly' => true,
+                    'samesite' => 'Strict'
+                ]);
+                
+                // Redirect to cart page
+                header("Location: cart.php");
+                exit();
             } else {
-                $_SESSION['cart'][$product_id] = $quantity;
+                echo "❌ Not enough stock available!";
             }
-
-            // Redirect to cart page or show a success message
-            header("Location: cart.php");
-            exit();
         } else {
-            echo "Invalid quantity or product not found!";
+            echo "❌ Product not found!";
         }
     } else {
-        echo "Quantity must be greater than 0!";
+        echo "❌ Quantity must be greater than 0!";
     }
 }
 ?>

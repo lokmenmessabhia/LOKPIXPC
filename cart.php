@@ -2,6 +2,35 @@
 session_start();
 include 'db_connect.php'; // Ensure this path is correct
 include 'header.php';
+
+// Merge cookie cart data with session cart after login
+if (isset($_COOKIE['cart'])) {
+    $cookie_cart = json_decode($_COOKIE['cart'], true) ?? [];
+    
+    if (!isset($_SESSION['cart'])) {
+        $_SESSION['cart'] = $cookie_cart;
+    } else {
+        // Merge cookie cart with session cart (add quantities)
+        foreach ($cookie_cart as $product_id => $quantity) {
+            if (isset($_SESSION['cart'][$product_id])) {
+                $_SESSION['cart'][$product_id] += $quantity;
+            } else {
+                $_SESSION['cart'][$product_id] = $quantity;
+            }
+        }
+    }
+    
+    // Update cookie with merged cart data
+    $cart_json = json_encode($_SESSION['cart']);
+    setcookie('cart', $cart_json, [
+        'expires' => time() + (30 * 24 * 60 * 60), // 30 days expiration
+        'path' => '/',
+        'secure' => true,
+        'httponly' => true,
+        'samesite' => 'Strict'
+    ]);
+}
+
 // Initialize cart
 if (!isset($_SESSION['cart'])) {
     $_SESSION['cart'] = [];
@@ -11,6 +40,15 @@ if (!isset($_SESSION['cart'])) {
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $input = file_get_contents('php://input');
     $data = json_decode($input, true);
+
+    // Check for cookie acceptance and load cart from cookies if available
+    if (isset($_COOKIE['cookies_accepted']) && $_COOKIE['cookies_accepted'] == "true") {
+        if (isset($_COOKIE['cart'])) {
+            $_SESSION['cart'] = json_decode($_COOKIE['cart'], true) ?? [];
+        } else {
+            $_SESSION['cart'] = [];
+        }
+    }
 
 // Add to cart
 if ($data && isset($data['action']) && $data['action'] === 'add_to_cart') {
@@ -56,7 +94,26 @@ if ($data && isset($data['action']) && $data['action'] === 'add_to_cart') {
             }
         }
     }
-
+    
+    // Improved cookie handling for fetching cart data
+    if (!isset($_SESSION['cart'])) {
+        $_SESSION['cart'] = [];
+        
+        // Only try to fetch from cookie if cookies are accepted
+        if (isset($_COOKIE['cookies_accepted']) && $_COOKIE['cookies_accepted'] === "true" && isset($_COOKIE['cart'])) {
+            $cart_cookie = json_decode($_COOKIE['cart'], true);
+            
+            if (is_array($cart_cookie)) {
+                foreach ($cart_cookie as $product_id => $quantity) {
+                    if (is_numeric($product_id) && is_numeric($quantity)) {
+                        $_SESSION['cart'][$product_id] = (int)$quantity;
+                    }
+                }
+            }
+        }
+    }
+    
+    
     // Remove item from cart
     if (isset($_POST['remove_item'])) {
         $product_id = $_POST['remove_item'];
@@ -507,6 +564,9 @@ main {
     
     <main>
         <h1>Shopping Cart</h1>
+        <?php if (!isset($_COOKIE['cookies_accepted']) || $_COOKIE['cookies_accepted'] != "true"): ?>
+            <div class="alert alert-warning">Cookies are required to load the cart!</div>
+        <?php endif; ?>
         <form id="cart-form" action="cart.php" method="POST">
         <?php if (!empty($cart_items)) : ?>
     <?php foreach ($cart_items as $item) : ?>
