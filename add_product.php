@@ -153,42 +153,40 @@ $subcategories_json = json_encode($subcategories);
             color: var(--text-primary);
             min-height: 100vh;
         }
+/* Header Styles */
+header {
+    background: linear-gradient(135deg, #4f46e5, #3b82f6); /* Gradient background */
+    color: white;
+    padding: 1.5rem 2rem; /* Adjusted padding */
+    box-shadow: 0 4px 20px rgba(99, 102, 241, 0.2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: none; /* Remove border radius for straight edges */
+}
 
-        /* Header Styles */
-        header {
-            background: var(--primary-gradient);
-            color: white;
-            padding: 2rem;
-            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.2);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0; /* Remove default margin */
+}
 
-        header h1 {
-            font-size: 2rem;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-            margin-bottom: 0.5rem;
-        }
+header a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: white;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px; /* Slightly rounded corners */
+    transition: all 0.3s ease;
+}
 
-        header a {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: white;
-            text-decoration: none;
-            padding: 0.5rem 1rem;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
-        }
-
-        header a:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateY(-2px);
-        }
+header a:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
 
         /* Main Content Styles */
         .content {
@@ -198,15 +196,16 @@ $subcategories_json = json_encode($subcategories);
             animation: fadeIn 0.5s ease-out;
         }
 
-        /* Form Styles */
-        form {
-            background: var(--surface-color);
-            padding: 2.5rem;
-            border-radius: 16px;
-            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.05);
-            margin-bottom: 2.5rem;
-            transition: transform 0.3s ease;
-        }
+       /* Input Styles */
+input, textarea, select {
+    border: 2px solid #e2e8f0;
+    border-radius: 4px; /* Slightly rounded corners */
+    transition: all 0.3s ease;
+}
+input:focus, textarea:focus, select:focus {
+    border-color: #4f46e5; /* Focus color */
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+}
 
         form:hover {
             transform: translateY(-5px);
@@ -236,26 +235,26 @@ $subcategories_json = json_encode($subcategories);
 
         input:focus, textarea:focus, select:focus {
             outline: none;
-            border-color: #6366f1;
+            border-color: #4f46e5;
             box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
             background-color: white;
         }
 
-        /* Button Styles */
-        button {
-            background: var(--primary-gradient);
-            color: white;
-            padding: 0.5rem 1rem;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.875rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.2);
-            display: inline-block;
-            margin-right: 0.5rem;
-        }
+       /* Button Styles */
+button {
+    background: linear-gradient(135deg, #4f46e5, #3b82f6); /* Button gradient */
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px; /* Slightly rounded corners */
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.3);
+}
 
         button:hover {
             transform: translateY(-2px);
@@ -346,12 +345,42 @@ $subcategories_json = json_encode($subcategories);
         ::-webkit-scrollbar-thumb:hover {
             background: #64748b;
         }
+
+        /* Success and Error Messages */
+.success-message, .error-messages {
+    margin: 1rem 0;
+    padding: 1rem;
+    border-radius: 8px;
+}
+
+.success-message {
+    background-color: #d1fae5; /* Light green */
+    color: #065f46; /* Dark green */
+}
+
+.error-messages {
+    background-color: #fee2e2; /* Light red */
+    color: #b91c1c; /* Dark red */
+}
+
+/* Form Styles */
+form {
+    background: var(--surface-color);
+    padding: 2.5rem;
+    border-radius: 8px; /* Slightly rounded corners */
+    box-shadow: 0 4px 25px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2.5rem;
+    transition: transform 0.3s ease;
+}
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1>Add New Product</h1>
+    <header>
+    <h1>Add New Product</h1>
+    <a href="dashboard_products.php" class="btn btn-secondary">Back to manage products</a>
+</header>
 
         <?php if (!empty($errors)): ?>
             <div class="error-messages">
@@ -425,7 +454,6 @@ $subcategories_json = json_encode($subcategories);
 
             <div class="form-group">
                 <button type="submit" class="btn btn-primary">Add Product</button>
-                <a href="dashboard_products.php" class="btn btn-secondary">Cancel</a>
             </div>
         </form>
     </div>
