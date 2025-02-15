@@ -1,6 +1,23 @@
 <?php
 session_start();
 include 'db_connect.php';
+
+// Store product ID in session if redirecting to login
+if (isset($_GET['add_to_wishlist'])) {
+    $_SESSION['pending_wishlist_item'] = $_GET['add_to_wishlist'];
+    header('Location: login.php?redirect=' . urlencode('index.php'));
+    exit();
+}
+
+// Add pending wishlist item after login
+if (isset($_SESSION['user_id']) && isset($_SESSION['pending_wishlist_item'])) {
+    $product_id = $_SESSION['pending_wishlist_item'];
+    $stmt = $pdo->prepare("INSERT IGNORE INTO wishlists (user_id, product_id) VALUES (?, ?)");
+    $stmt->execute([$_SESSION['user_id'], $product_id]);
+    unset($_SESSION['pending_wishlist_item']);
+}
+
+// Include header after all redirects
 include 'header.php';
 
 // Fetch features from the database
@@ -13,8 +30,26 @@ $stmt = $pdo->prepare("SELECT title, description, photo, is_gold FROM features
 $stmt->execute();
 $features = $stmt->fetchAll();
 
-$stmt = $pdo->query("SELECT * FROM products");
+// Fetch products with their first image
+$stmt = $pdo->prepare("
+    SELECT p.*, 
+           (SELECT pi.image_url 
+            FROM product_images pi 
+            WHERE pi.product_id = p.id 
+            LIMIT 1) as primary_image
+    FROM products p
+    ORDER BY p.created_at DESC
+");
+$stmt->execute();
 $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Get wishlist items for the current user if logged in
+$wishlist_items = [];
+if (isset($_SESSION['user_id'])) {
+    $stmt = $pdo->prepare("SELECT product_id FROM wishlists WHERE user_id = ?");
+    $stmt->execute([$_SESSION['user_id']]);
+    $wishlist_items = $stmt->fetchAll(PDO::FETCH_COLUMN);
+}
 
 try {
     $stmt = $pdo->query("SELECT * FROM slider_photos");
@@ -263,78 +298,148 @@ try {
 
         /* Enhanced Product List */
         .product-list {
-    padding: 80px 20px;
-    background: #f8f9fa;
-    color: inherit;
-}
+            padding: 80px 20px;
+            background: #f8f9fa;
+            color: inherit;
+        }
 
-.product-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 40px;
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 0 20px;
-}
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
 
-.product-item {
-    background: white;
-    border-radius: 15px;
-    overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-    transition: all 0.4s ease;
-    opacity: 0;
-    transform: translateY(20px);
-    animation: slideUp 0.6s ease forwards;
-    color: inherit;
-    text-decoration: none; /* Prevent underline for links inside product items */
-}
+        .product-item {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            transition: all 0.4s ease;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: slideUp 0.6s ease forwards;
+            color: inherit;
+            text-decoration: none;
+            position: relative;
+        }
 
-.product-item:hover {
-    transform: translateY(-10px) scale(1.02);
-    box-shadow: var(--shadow-hover);
-}
+        .product-item:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: var(--shadow-hover);
+        }
 
-/* Prevent default link styles */
-.product-item a {
-    color: inherit;
-    text-decoration: none; /* Removes underline from links */
-}
+        /* Prevent default link styles */
+        .product-item a {
+            color: inherit;
+            text-decoration: none; /* Removes underline from links */
+        }
 
-.product-item a:hover {
-    color: #1a73e8; /* Optional hover color for links */
-}
+        .product-item a:hover {
+            color: #1a73e8; /* Optional hover color for links */
+        }
 
-.product-image {
-    height: 280px;
-    overflow: hidden;
-    position: relative;
-}
+        .product-image {
+            height: 280px;
+            overflow: hidden;
+            position: relative;
+        }
 
-.product-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.5s ease;
-}
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
 
-.product-item:hover .product-image img {
-    transform: scale(1.1);
-}
+        .product-item:hover .product-image img {
+            transform: scale(1.1);
+        }
 
-.product-item h3 {
-    padding: 20px 20px 10px;
-    margin: 0;
-    font-size: 1.3em;
-    font-weight: 600;
-}
+        .product-item h3 {
+            padding: 20px 20px 10px;
+            margin: 0;
+            font-size: 1.3em;
+            font-weight: 600;
+        }
 
-.product-item p {
-    padding: 0 20px 20px;
-    color: #666;
-    font-size: 1.1em;
-}
+        .product-item p {
+            padding: 0 20px 20px;
+            color: #666;
+            font-size: 1.1em;
+        }
 
+        .wishlist-heart {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+            text-decoration: none;
+        }
+
+        .wishlist-heart i {
+            font-size: 20px;
+            color: #e74c3c;
+            transition: all 0.3s ease;
+        }
+
+        .wishlist-heart:hover {
+            transform: scale(1.15);
+            background: white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .wishlist-heart:hover i {
+            transform: scale(1.1);
+        }
+
+        .wishlist-heart.active {
+            background: #e74c3c;
+        }
+
+        .wishlist-heart.active i {
+            color: white;
+        }
+
+        .wishlist-heart::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: rgba(231, 76, 60, 0.1);
+            transform: scale(0);
+            transition: transform 0.3s ease;
+        }
+
+        .wishlist-heart:hover::before {
+            transform: scale(1.2);
+        }
+
+        @keyframes heartBeat {
+            0% { transform: scale(1); }
+            25% { transform: scale(1.2); }
+            50% { transform: scale(1); }
+            75% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .wishlist-heart.animate {
+            animation: heartBeat 0.6s ease-in-out;
+        }
 
         /* Enhanced Footer */
         .site-footer {
@@ -646,29 +751,36 @@ try {
     <section class="product-list">
         <h2>Featured Products</h2>
         <div class="product-grid">
-            <?php foreach ($products as $product) : 
-                $stmt = $pdo->prepare("SELECT image_url FROM product_images WHERE product_id = :product_id");
-                $stmt->execute(['product_id' => $product['id']]);
-                $product_image = $stmt->fetchColumn();
-            ?>
+            <?php foreach ($products as $product): ?>
                 <div class="product-item">
-                    <a href="product.php?id=<?php echo htmlspecialchars($product['id']); ?>">
-                        <div class="product-image">
-                            <?php
-                            if ($product_image) {
-                                echo '<img src="uploads/products/' . htmlspecialchars($product_image) . '" alt="' . htmlspecialchars($product['name']) . '" class="uploaded-photo">';
-                            } else {
-                                echo '<p>Image not found in uploads.</p>';
-                            }
-                            ?>
-                        </div>
-                        <h3><?php echo htmlspecialchars($product['name']); ?></h3>
-                        <p><?php echo htmlspecialchars($product['price']); ?>   DZD</p>
-
-                        <?php if ($product['stock'] == 0): ?>
-                            <p style="color: red;">Out of Stock</p>
+                    <div class="product-image">
+                        <a href="product.php?id=<?php echo $product['id']; ?>">
+                            <img src="<?php echo !empty($product['primary_image']) ? 'uploads/products/' . htmlspecialchars($product['primary_image']) : 'placeholder.jpg'; ?>" 
+                                 alt="<?php echo htmlspecialchars($product['name']); ?>">
+                        </a>
+                        <?php if (isset($_SESSION['user_id'])): ?>
+                            <div class="wishlist-heart <?php echo in_array($product['id'], $wishlist_items) ? 'active' : ''; ?>" 
+                                 data-product-id="<?php echo $product['id']; ?>"
+                                 title="<?php echo in_array($product['id'], $wishlist_items) ? 'Remove from Wishlist' : 'Add to Wishlist'; ?>">
+                                <i class="fas fa-heart"></i>
+                            </div>
+                        <?php else: ?>
+                            <a href="index.php?add_to_wishlist=<?php echo $product['id']; ?>" 
+                               class="wishlist-heart"
+                               title="Login to add to wishlist">
+                                <i class="fas fa-heart"></i>
+                            </a>
                         <?php endif; ?>
-                    </a>
+                    </div>
+                    <div class="product-info">
+                        <h3><?php echo htmlspecialchars($product['name']); ?></h3>
+                        <p class="price"><?php echo number_format($product['price'], 2); ?> DZD</p>
+                        <?php if ($product['stock'] > 0): ?>
+                            <p class="stock in-stock">In Stock</p>
+                        <?php else: ?>
+                            <p class="stock out-of-stock">Out of Stock</p>
+                        <?php endif; ?>
+                    </div>
                 </div>
             <?php endforeach; ?>
         </div>
@@ -707,7 +819,7 @@ try {
         });
     </script>
 
-<?php   include'footer.php' ?>
+    <?php include 'footer.php'; ?>
     <button class="back-to-top" aria-label="Back to top">
         <i class="fas fa-arrow-up"></i>
     </button>
@@ -752,6 +864,120 @@ try {
             window.scrollTo({
                 top: 0,
                 behavior: 'smooth'
+            });
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize wishlist hearts
+            document.querySelectorAll('.wishlist-heart').forEach(heart => {
+                if (heart.classList.contains('active')) {
+                    heart.style.background = '#e74c3c';
+                    heart.querySelector('i').style.color = 'white';
+                }
+            });
+
+            // Wishlist functionality
+            const toast = document.getElementById('toast');
+            
+            function showToast(message, success = true) {
+                toast.textContent = message;
+                toast.style.background = success ? '#2ecc71' : '#e74c3c';
+                toast.classList.add('show');
+                setTimeout(() => toast.classList.remove('show'), 3000);
+            }
+
+            // Event delegation for wishlist hearts
+            document.querySelector('.product-grid').addEventListener('click', function(e) {
+                const wishlistHeart = e.target.closest('.wishlist-heart');
+                if (!wishlistHeart || wishlistHeart.tagName.toLowerCase() === 'a') return;
+
+                e.preventDefault();
+                const action = wishlistHeart.classList.contains('active') ? 'remove' : 'add';
+                const productId = wishlistHeart.dataset.productId;
+
+                // Add animation class
+                wishlistHeart.classList.add('animate');
+                setTimeout(() => wishlistHeart.classList.remove('animate'), 600);
+
+                fetch('wishlist.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `action=${action}&product_id=${productId}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        wishlistHeart.classList.toggle('active');
+                        if (wishlistHeart.classList.contains('active')) {
+                            wishlistHeart.style.background = '#e74c3c';
+                            wishlistHeart.querySelector('i').style.color = 'white';
+                        } else {
+                            wishlistHeart.style.background = 'rgba(255, 255, 255, 0.95)';
+                            wishlistHeart.querySelector('i').style.color = '#e74c3c';
+                        }
+                        wishlistHeart.title = wishlistHeart.classList.contains('active') ? 'Remove from Wishlist' : 'Add to Wishlist';
+                        showToast(data.message);
+                    } else {
+                        showToast(data.message, false);
+                    }
+                })
+                .catch(error => {
+                    showToast('An error occurred. Please try again.', false);
+                });
+            });
+        });
+    </script>
+
+    <div class="toast" id="toast"></div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Wishlist functionality
+            const toast = document.getElementById('toast');
+            
+            function showToast(message, success = true) {
+                toast.textContent = message;
+                toast.style.background = success ? '#2ecc71' : '#e74c3c';
+                toast.classList.add('show');
+                setTimeout(() => toast.classList.remove('show'), 3000);
+            }
+
+            // Event delegation for wishlist hearts
+            document.querySelector('.product-grid').addEventListener('click', function(e) {
+                const wishlistHeart = e.target.closest('.wishlist-heart');
+                if (!wishlistHeart || wishlistHeart.tagName.toLowerCase() === 'a') return;
+
+                e.preventDefault();
+                const action = wishlistHeart.classList.contains('active') ? 'remove' : 'add';
+                const productId = wishlistHeart.dataset.productId;
+
+                // Add animation class
+                wishlistHeart.classList.add('animate');
+                setTimeout(() => wishlistHeart.classList.remove('animate'), 600);
+
+                fetch('wishlist.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `action=${action}&product_id=${productId}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        wishlistHeart.classList.toggle('active');
+                        wishlistHeart.title = wishlistHeart.classList.contains('active') ? 'Remove from Wishlist' : 'Add to Wishlist';
+                        showToast(data.message);
+                    } else {
+                        showToast(data.message, false);
+                    }
+                })
+                .catch(error => {
+                    showToast('An error occurred. Please try again.', false);
+                });
             });
         });
     </script>

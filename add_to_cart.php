@@ -12,6 +12,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $product_id = (int)$_POST['product_id'];
     $quantity = (int)$_POST['quantity'];
 
+    $response = ['success' => false, 'message' => 'Invalid request'];
+
     if ($quantity > 0) {
         // Fetch product details
         $stmt = $pdo->prepare("SELECT * FROM products WHERE id = ?");
@@ -43,18 +45,48 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     'httponly' => true,
                     'samesite' => 'Strict'
                 ]);
-                
-                // Redirect to cart page
-                header("Location: cart.php");
-                exit();
+
+                $response = [
+                    'success' => true,
+                    'message' => 'Product added to cart successfully',
+                    'cart_count' => count($_SESSION['cart'])
+                ];
             } else {
-                echo "❌ Not enough stock available!";
+                $response = [
+                    'success' => false,
+                    'message' => 'Not enough stock available'
+                ];
             }
         } else {
-            echo "❌ Product not found!";
+            $response = [
+                'success' => false,
+                'message' => 'Product not found'
+            ];
         }
     } else {
-        echo "❌ Quantity must be greater than 0!";
+        $response = [
+            'success' => false,
+            'message' => 'Invalid quantity'
+        ];
     }
+
+    // Check if it's an AJAX request
+    if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 
+        strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+        header('Content-Type: application/json');
+        echo json_encode($response);
+    } else {
+        // For regular form submissions, set a flash message and redirect
+        $_SESSION['cart_message'] = $response['message'];
+        $_SESSION['cart_status'] = $response['success'];
+        
+        if ($response['success']) {
+            header("Location: cart.php");
+        } else {
+            $referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : 'index.php';
+            header("Location: " . $referer . "?error=" . urlencode($response['message']));
+        }
+    }
+    exit();
 }
 ?>

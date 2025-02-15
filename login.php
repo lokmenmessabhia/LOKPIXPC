@@ -97,10 +97,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
        if (password_verify($password, $user['password'])) {
             // User login successful
             $_SESSION['loggedin'] = true;
-            $_SESSION['userid'] = $user['id'];
+            $_SESSION['user_id'] = $user['id'];
             $_SESSION['email'] = $user['email'];
             $_SESSION['role'] = 'user';
-            header("Location: index.php");
+            
+            // Redirect based on presence of redirect parameter
+            $redirect = isset($_GET['redirect']) ? $_GET['redirect'] : 'index.php';
+            header("Location: " . $redirect);
             exit;
         } else {
             $error = "Invalid email or password.";

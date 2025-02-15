@@ -1,139 +1,81 @@
 <?php
 session_start();
-include 'db_connect.php'; // Ensure this path is correct
-include 'header.php';
 
-// Merge cookie cart data with session cart after login
-if (isset($_COOKIE['cart'])) {
-    $cookie_cart = json_decode($_COOKIE['cart'], true) ?? [];
-    
-    if (!isset($_SESSION['cart'])) {
-        $_SESSION['cart'] = $cookie_cart;
-    } else {
-        // Merge cookie cart with session cart (add quantities)
-        foreach ($cookie_cart as $product_id => $quantity) {
-            if (isset($_SESSION['cart'][$product_id])) {
-                $_SESSION['cart'][$product_id] += $quantity;
-            } else {
-                $_SESSION['cart'][$product_id] = $quantity;
-            }
-        }
-    }
-    
-    // Update cookie with merged cart data
-    $cart_json = json_encode($_SESSION['cart']);
-    setcookie('cart', $cart_json, [
-        'expires' => time() + (30 * 24 * 60 * 60), // 30 days expiration
-        'path' => '/',
-        'secure' => true,
-        'httponly' => true,
-        'samesite' => 'Strict'
-    ]);
-}
-
-// Initialize cart
+// Initialize cart if not set
 if (!isset($_SESSION['cart'])) {
     $_SESSION['cart'] = [];
 }
 
-// Handle update and delete actions
+// Include database connection
+include 'db_connect.php';
+
+// Handle AJAX requests
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $input = file_get_contents('php://input');
-    $data = json_decode($input, true);
+    header('Content-Type: application/json');
+    $response = ['success' => false, 'message' => 'Invalid request'];
 
-    // Check for cookie acceptance and load cart from cookies if available
-    if (isset($_COOKIE['cookies_accepted']) && $_COOKIE['cookies_accepted'] == "true") {
-        if (isset($_COOKIE['cart'])) {
-            $_SESSION['cart'] = json_decode($_COOKIE['cart'], true) ?? [];
-        } else {
-            $_SESSION['cart'] = [];
-        }
-    }
-
-// Add to cart
-if ($data && isset($data['action']) && $data['action'] === 'add_to_cart') {
-    if (isset($data['products']) && is_array($data['products'])) {
-        foreach ($data['products'] as $product_id => $quantity) {
-            if ($product_id && is_numeric($product_id) && is_numeric($quantity)) {
+    // Handle update cart quantities
+    if (isset($_POST['update_cart']) && isset($_POST['quantity'])) {
+        foreach ($_POST['quantity'] as $product_id => $quantity) {
+            if (is_numeric($product_id) && is_numeric($quantity)) {
                 // Fetch product stock
                 $stmt = $pdo->prepare("SELECT stock FROM products WHERE id = ?");
                 $stmt->execute([$product_id]);
                 $product = $stmt->fetch(PDO::FETCH_ASSOC);
 
                 if ($product) {
-                    $available_stock = $product['stock'];
-                    // Update quantity or add new, ensuring it does not exceed available stock
-                    if (isset($_SESSION['cart'][$product_id])) {
-                        $new_quantity = $_SESSION['cart'][$product_id] + $quantity;
-                        if ($new_quantity > $available_stock) {
-                            $_SESSION['cart'][$product_id] = $available_stock; // Set to max available stock
-                        } else {
-                            $_SESSION['cart'][$product_id] = $new_quantity; // Increment quantity
-                        }
+                    $quantity = max(0, min((int)$quantity, (int)$product['stock']));
+                    if ($quantity > 0) {
+                        $_SESSION['cart'][$product_id] = $quantity;
                     } else {
-                        if ($quantity > $available_stock) {
-                            $_SESSION['cart'][$product_id] = $available_stock; // Set to max available stock
-                        } else {
-                            $_SESSION['cart'][$product_id] = $quantity; // Add new product with quantity
-                        }
+                        unset($_SESSION['cart'][$product_id]);
                     }
                 }
             }
         }
-        echo json_encode(['success' => true]);
-        exit;
-    }
-}
-
-
-    // Update cart quantities
-    if (isset($_POST['update_cart'])) {
-        foreach ($_POST['quantity'] as $product_id => $quantity) {
-            if (is_numeric($product_id) && is_numeric($quantity)) {
-                $_SESSION['cart'][$product_id] = max(0, (int)$quantity);
-            }
-        }
-    }
-    
-    // Improved cookie handling for fetching cart data
-    if (!isset($_SESSION['cart'])) {
-        $_SESSION['cart'] = [];
         
-        // Only try to fetch from cookie if cookies are accepted
-        if (isset($_COOKIE['cookies_accepted']) && $_COOKIE['cookies_accepted'] === "true" && isset($_COOKIE['cart'])) {
-            $cart_cookie = json_decode($_COOKIE['cart'], true);
-            
-            if (is_array($cart_cookie)) {
-                foreach ($cart_cookie as $product_id => $quantity) {
-                    if (is_numeric($product_id) && is_numeric($quantity)) {
-                        $_SESSION['cart'][$product_id] = (int)$quantity;
-                    }
-                }
-            }
+        // Update cookie
+        if (isset($_COOKIE['cookies_accepted']) && $_COOKIE['cookies_accepted'] === "true") {
+            setcookie('cart', json_encode($_SESSION['cart']), [
+                'expires' => time() + (30 * 24 * 60 * 60),
+                'path' => '/',
+                'secure' => true,
+                'httponly' => true,
+                'samesite' => 'Strict'
+            ]);
         }
+        
+        $response = ['success' => true, 'message' => 'Cart updated successfully'];
     }
     
-    
-    // Remove item from cart
+    // Handle remove item
     if (isset($_POST['remove_item'])) {
         $product_id = $_POST['remove_item'];
         if (isset($_SESSION['cart'][$product_id])) {
             unset($_SESSION['cart'][$product_id]);
+            
+            // Update cookie
+            if (isset($_COOKIE['cookies_accepted']) && $_COOKIE['cookies_accepted'] === "true") {
+                setcookie('cart', json_encode($_SESSION['cart']), [
+                    'expires' => time() + (30 * 24 * 60 * 60),
+                    'path' => '/',
+                    'secure' => true,
+                    'httponly' => true,
+                    'samesite' => 'Strict'
+                ]);
+            }
+            
+            $response = ['success' => true, 'message' => 'Item removed successfully'];
         }
     }
 
-    echo "Cart updated"; // Response for AJAX
+    echo json_encode($response);
     exit();
 }
 
-// Fetch cart items
+// Fetch cart items for display
 $cart_items = [];
 $total_price = 0;
-
-function getProductImageUrl($photo) {
-    $photo_path = "uploads/products/" . htmlspecialchars($photo);
-    return file_exists($photo_path) ? $photo_path : 'path/to/default-image.jpg'; // Default image if not found
-}
 
 foreach ($_SESSION['cart'] as $product_id => $quantity) {
     $stmt = $pdo->prepare("SELECT * FROM products WHERE id = ?");
@@ -141,28 +83,21 @@ foreach ($_SESSION['cart'] as $product_id => $quantity) {
     $product = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($product) {
-        // Fetch the primary image details from the product_images table
-        $image_stmt = $pdo->prepare("SELECT image_url FROM product_images WHERE product_id = ? AND is_primary = 1");
+        // Fetch primary image
+        $image_stmt = $pdo->prepare("SELECT image_url FROM product_images WHERE product_id = ? AND is_primary = 1 LIMIT 1");
         $image_stmt->execute([$product_id]);
         $image = $image_stmt->fetch(PDO::FETCH_ASSOC);
 
-        // Check if an image was found
-        if ($image) {
-            $product['image_url'] = "uploads/products/" . htmlspecialchars($image['image_url']);
-        } else {
-            $product['image_url'] = 'path/to/default-image.jpg'; // Default image if not found
-        }
-
-        $item_total = $product['price'] * $quantity; // Use actual quantity from session
-        $total_price += $item_total;
-
-        // Set the image path and other product details
-        $product['photo'] = $product['image_url']; // Use the formatted image URL
-        $product['quantity'] = $quantity; // Set quantity for display
-        $product['total'] = $item_total;
+        $product['image_url'] = $image ? "uploads/products/" . htmlspecialchars($image['image_url']) : 'path/to/default-image.jpg';
+        $product['quantity'] = $quantity;
+        $product['total'] = $product['price'] * $quantity;
+        $total_price += $product['total'];
         $cart_items[] = $product;
     }
 }
+
+// Include header after all potential header modifications
+include 'header.php';
 
 ?>
 
@@ -606,30 +541,87 @@ main {
             const quantityInputs = document.querySelectorAll('.quantity-input');
             const removeButtons = document.querySelectorAll('.remove-item');
 
+            // Function to show toast message
+            function showToast(message, isSuccess = true) {
+                const toast = document.createElement('div');
+                toast.className = `toast ${isSuccess ? 'success' : 'error'}`;
+                toast.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    padding: 15px 25px;
+                    background: ${isSuccess ? '#28a745' : '#dc3545'};
+                    color: white;
+                    border-radius: 5px;
+                    z-index: 1000;
+                    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+                `;
+                toast.textContent = message;
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 3000);
+            }
+
             // Update quantities
             quantityInputs.forEach(input => {
+                let timeout;
                 input.addEventListener('change', function() {
-                    const formData = new FormData(cartForm);
-                    formData.append('update_cart', true);
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => {
+                        const formData = new FormData();
+                        formData.append('update_cart', '1');
+                        formData.append(`quantity[${this.name.match(/\d+/)[0]}]`, this.value);
 
-                    fetch('cart.php', { method: 'POST', body: formData })
-                        .then(response => response.text())
-                        .then(() => location.reload())
-                        .catch(error => console.error('Error:', error));
+                        fetch('cart.php', {
+                            method: 'POST',
+                            body: formData
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                showToast(data.message);
+                                location.reload();
+                            } else {
+                                showToast(data.message, false);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            showToast('An error occurred while updating the cart', false);
+                        });
+                    }, 500); // Debounce for 500ms
                 });
             });
 
             // Remove items
             removeButtons.forEach(button => {
                 button.addEventListener('click', function() {
-                    const productId = this.getAttribute('data-id');
-                    const formData = new FormData(cartForm);
-                    formData.append('remove_item', productId);
+                    if (confirm('Are you sure you want to remove this item?')) {
+                        const productId = this.getAttribute('data-id');
+                        const formData = new FormData();
+                        formData.append('remove_item', productId);
 
-                    fetch('cart.php', { method: 'POST', body: formData })
-                        .then(response => response.text())
-                        .then(() => location.reload())
-                        .catch(error => console.error('Error:', error));
+                        fetch('cart.php', {
+                            method: 'POST',
+                            body: formData
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                showToast(data.message);
+                                const item = this.closest('.cart-item');
+                                item.style.animation = 'fadeOut 0.3s ease forwards';
+                                setTimeout(() => {
+                                    location.reload();
+                                }, 300);
+                            } else {
+                                showToast(data.message, false);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            showToast('An error occurred while removing the item', false);
+                        });
+                    }
                 });
             });
         });

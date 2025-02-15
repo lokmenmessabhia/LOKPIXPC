@@ -489,8 +489,9 @@ $related_products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         .random-product img {
             width: 100%;
-            height: 200px;
-            object-fit: cover;
+            height: auto; /* Maintain aspect ratio */
+            border-radius: 8px;
+            cursor: pointer;
         }
 
         .random-product-info {
@@ -601,7 +602,6 @@ $related_products = $stmt->fetchAll(PDO::FETCH_ASSOC);
             font-family: inherit;
             resize: vertical;
             margin-bottom: 1rem;
-            transition: border-color 0.3s ease;
         }
 
         #comment-form textarea:focus {
@@ -817,7 +817,8 @@ $related_products = $stmt->fetchAll(PDO::FETCH_ASSOC);
             cursor: pointer;
             padding: 10px;
             border-radius: 50%;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            width: 25px;
+            height: 25px;
             font-size: 18px;
             z-index: 10;
         }
@@ -882,7 +883,6 @@ $related_products = $stmt->fetchAll(PDO::FETCH_ASSOC);
             cursor: pointer;
             padding: 16px;
             border-radius: 50%;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             font-size: 20px;
             z-index: 10;
             transition: all 0.3s ease;
@@ -1255,6 +1255,171 @@ $related_products = $stmt->fetchAll(PDO::FETCH_ASSOC);
             text-align: center;
             background: rgba(220, 53, 69, 0.1);
         }
+
+        /* Wishlist Heart Button Styling */
+        .wishlist-heart {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 45px;
+            height: 45px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+        }
+
+        .wishlist-heart i {
+            font-size: 22px;
+            color: #e74c3c;
+            transition: all 0.3s ease;
+        }
+
+        .wishlist-heart:hover {
+            transform: scale(1.15);
+            background: white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .wishlist-heart:hover i {
+            transform: scale(1.1);
+        }
+
+        .wishlist-heart.in-wishlist {
+            background: #e74c3c;
+        }
+
+        .wishlist-heart.in-wishlist i {
+            color: white;
+        }
+
+        .wishlist-heart::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: rgba(231, 76, 60, 0.1);
+            transform: scale(0);
+            transition: transform 0.3s ease;
+        }
+
+        .wishlist-heart:hover::before {
+            transform: scale(1.2);
+        }
+
+        @keyframes heartBeat {
+            0% { transform: scale(1); }
+            25% { transform: scale(1.2); }
+            50% { transform: scale(1); }
+            75% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .wishlist-heart.animate {
+            animation: heartBeat 0.6s ease-in-out;
+        }
+
+        .product-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            gap: 15px;
+        }
+
+        .product-header h1 {
+            margin: 0;
+            font-size: 2em;
+            color: #2c3e50;
+            flex: 1;
+        }
+
+        .wishlist-heart {
+            width: 45px;
+            height: 45px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+            flex-shrink: 0;
+        }
+
+        .wishlist-heart i {
+            font-size: 22px;
+            color: #e74c3c;
+            transition: all 0.3s ease;
+        }
+
+        .wishlist-heart:hover {
+            transform: scale(1.15);
+            background: white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .wishlist-heart:hover i {
+            transform: scale(1.1);
+        }
+
+        .wishlist-heart.in-wishlist {
+            background: #e74c3c;
+        }
+
+        .wishlist-heart.in-wishlist i {
+            color: white;
+        }
+
+        .wishlist-heart::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: rgba(231, 76, 60, 0.1);
+            transform: scale(0);
+            transition: transform 0.3s ease;
+        }
+
+        .wishlist-heart:hover::before {
+            transform: scale(1.2);
+        }
+
+        @keyframes heartBeat {
+            0% { transform: scale(1); }
+            25% { transform: scale(1.2); }
+            50% { transform: scale(1); }
+            75% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .wishlist-heart.animate {
+            animation: heartBeat 0.6s ease-in-out;
+        }
+
+        .price {
+            font-size: 1.5em;
+            color: #e74c3c;
+            font-weight: 600;
+            margin: 15px 0;
+        }
+
+        .description {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
@@ -1282,7 +1447,27 @@ $related_products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 </div>
             
             <div class="product-info">
-                <h1><?php echo htmlspecialchars($product['name']); ?></h1>
+                <div class="product-header">
+                    <h1><?php echo htmlspecialchars($product['name']); ?></h1>
+                    <?php if (isset($_SESSION['user_id'])): 
+                        // Check if product is in user's wishlist
+                        $stmt = $pdo->prepare("SELECT 1 FROM wishlists WHERE user_id = ? AND product_id = ?");
+                        $stmt->execute([$_SESSION['user_id'], $product_id]);
+                        $inWishlist = $stmt->fetchColumn();
+                    ?>
+                        <div class="wishlist-heart <?php echo $inWishlist ? 'active' : ''; ?>" 
+                             data-product-id="<?php echo $product_id; ?>"
+                             title="<?php echo $inWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'; ?>">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                    <?php else: ?>
+                        <a href="login.php?redirect=<?php echo urlencode($_SERVER['REQUEST_URI']); ?>" 
+                           class="wishlist-heart"
+                           title="Login to add to wishlist">
+                            <i class="fas fa-heart"></i>
+                        </a>
+                    <?php endif; ?>
+                </div>
                 <p class="price"><?php echo htmlspecialchars($product['price']); ?>   DZD  </p>
                 <p><?php echo htmlspecialchars($product['description']); ?></p>
 
@@ -1376,7 +1561,7 @@ $related_products = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </div>
         </div>
 
-
+        <div class="toast" id="toast"></div>
 
     </main>
 
@@ -1441,6 +1626,49 @@ $related_products = $stmt->fetchAll(PDO::FETCH_ASSOC);
             }
             const primaryImage = document.getElementById('primary-image');
             primaryImage.src = 'uploads/products/' + images[currentIndex]; // Update primary image
+        }
+    </script>
+    <script>
+        const wishlistHeart = document.querySelector('.wishlist-heart');
+        const toast = document.getElementById('toast');
+            
+        function showToast(message, success = true) {
+            toast.textContent = message;
+            toast.style.background = success ? '#2ecc71' : '#e74c3c';
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        if (wishlistHeart && !wishlistHeart.tagName.toLowerCase() === 'a') {
+            wishlistHeart.addEventListener('click', function() {
+                const action = this.classList.contains('active') ? 'remove' : 'add';
+                const productId = this.dataset.productId;
+
+                // Add animation class
+                this.classList.add('animate');
+                setTimeout(() => this.classList.remove('animate'), 600);
+
+                fetch('wishlist.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `action=${action}&product_id=${productId}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        this.classList.toggle('active');
+                        this.title = this.classList.contains('active') ? 'Remove from Wishlist' : 'Add to Wishlist';
+                        showToast(data.message);
+                    } else {
+                        showToast(data.message, false);
+                    }
+                })
+                .catch(error => {
+                    showToast('An error occurred. Please try again.', false);
+                });
+            });
         }
     </script>
             <?php

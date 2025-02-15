@@ -18,11 +18,11 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
     exit;
 }
 
-$user_id = $_SESSION['userid'];
+$user_id = $_SESSION['user_id']; // Changed from 'userid' to 'user_id'
 
 // Fetch current user details
 try {
-    $stmt = $pdo->prepare("SELECT email , created_at, profile_picture, phone, email_verified FROM users WHERE id = :user_id");
+    $stmt = $pdo->prepare("SELECT email, created_at, profile_picture, phone, email_verified FROM users WHERE id = :user_id");
     $stmt->bindParam(':user_id', $user_id);
     $stmt->execute();
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -37,53 +37,88 @@ try {
 // Fetch user orders with product details
 try {
     $stmt = $pdo->prepare("
-        SELECT o.id AS order_id, p.name AS product_name, pi.image_url AS product_photo, o.total_price, o.order_date, o.status, o.tracking_number 
+        SELECT DISTINCT o.id AS order_id, 
+               o.total_price, 
+               o.order_date, 
+               o.status, 
+               o.tracking_number,
+               GROUP_CONCAT(p.name) AS product_names,
+               GROUP_CONCAT(pi.image_url) AS product_photos
         FROM orders o
-        JOIN order_details od ON o.id = od.order_id
-        JOIN products p ON od.product_id = p.id
-        JOIN product_images pi ON p.id = pi.product_id AND pi.is_primary = 1
+        LEFT JOIN order_details od ON o.id = od.order_id
+        LEFT JOIN products p ON od.product_id = p.id
+        LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.is_primary = 1
         WHERE o.user_id = :user_id
+        GROUP BY o.id, o.total_price, o.order_date, o.status, o.tracking_number
+        ORDER BY o.order_date DESC
     ");
     $stmt->bindParam(':user_id', $user_id);
     $stmt->execute();
     $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Process the orders to split concatenated values
+    foreach ($orders as &$order) {
+        $order['product_names'] = explode(',', $order['product_names']);
+        $order['product_photos'] = explode(',', $order['product_photos']);
+        // Take the first product name and photo for display
+        $order['product_name'] = $order['product_names'][0] ?? 'Unknown Product';
+        $order['product_photo'] = $order['product_photos'][0] ?? 'default-product.jpg';
+    }
 } catch (PDOException $e) {
-    die('Error: ' . $e->getMessage());
+    error_log('Error fetching orders: ' . $e->getMessage());
+    $orders = [];
 }
 
 // Handle profile picture upload
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['profile_picture'])) {
     $file = $_FILES['profile_picture'];
-    $uploadDir = 'uploads/';
-    $uploadFile = $uploadDir . basename($file['name']);
-    $allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
-    $maxFileSize = 2 * 1024 * 1024; // 2 MB
-
-    // Check if the uploads directory exists
+    $uploadDir = 'uploads/profiles/'; // Changed to a specific directory for profile pictures
+    
+    // Create directory if it doesn't exist
     if (!is_dir($uploadDir)) {
         mkdir($uploadDir, 0755, true);
     }
 
-    if (in_array($file['type'], $allowedTypes) && $file['size'] <= $maxFileSize) {
-        if (move_uploaded_file($file['tmp_name'], $uploadFile)) {
-            $stmt = $pdo->prepare("UPDATE users SET profile_picture = :profile_picture WHERE id = :user_id");
-            $stmt->bindParam(':profile_picture', $file['name']);
-            $stmt->bindParam(':user_id', $user_id);
-            $stmt->execute();
-            header("Location: " . $_SERVER['PHP_SELF']);
-            exit();
-            
-            
-        } else {
-            $error = "Failed to upload file. Please check directory permissions.";
+    $allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+    $maxFileSize = 2 * 1024 * 1024; // 2 MB
+    $fileName = time() . '_' . basename($file['name']); // Add timestamp to prevent name conflicts
+    $uploadFile = $uploadDir . $fileName;
+
+    try {
+        if (!in_array($file['type'], $allowedTypes)) {
+            throw new Exception('Invalid file type. Only JPG, PNG and GIF are allowed.');
         }
-    } else {
-        $error = "Invalid file type or size.";
+
+        if ($file['size'] > $maxFileSize) {
+            throw new Exception('File is too large. Maximum size is 2MB.');
+        }
+
+        if (!move_uploaded_file($file['tmp_name'], $uploadFile)) {
+            throw new Exception('Failed to upload file. Please try again.');
+        }
+
+        // Delete old profile picture if it exists
+        if (!empty($user['profile_picture'])) {
+            $oldFile = $uploadDir . $user['profile_picture'];
+            if (file_exists($oldFile)) {
+                unlink($oldFile);
+            }
+        }
+
+        // Update database with new profile picture
+        $stmt = $pdo->prepare("UPDATE users SET profile_picture = :profile_picture WHERE id = :user_id");
+        $stmt->execute([
+            ':profile_picture' => $fileName,
+            ':user_id' => $user_id
+        ]);
+
+        $_SESSION['success_msg'] = 'Profile picture updated successfully!';
+        header("Location: " . $_SERVER['PHP_SELF']);
+        exit();
+    } catch (Exception $e) {
+        $_SESSION['error'] = $e->getMessage();
     }
 }
-
-
-
 
 // Handle phone number update
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['phone'])) {
@@ -706,6 +741,71 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         .upload-form .custom-file-upload:hover {
             background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
         }
+
+        /* Profile Action Buttons */
+        .profile-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+            padding: 0 20px;
+        }
+
+        .profile-action-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 15px 25px;
+            border-radius: 10px;
+            border: none;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            text-align: center;
+        }
+
+        .profile-action-btn i {
+            font-size: 1.2em;
+        }
+
+        .wishlist-btn {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+        }
+
+        .wishlist-btn:hover {
+            background: linear-gradient(135deg, #c0392b, #e74c3c);
+            transform: translateY(-2px);
+        }
+
+        .recycle-btn {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+        }
+
+        .recycle-btn:hover {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            transform: translateY(-2px);
+        }
+
+        .orders-btn {
+            background: linear-gradient(135deg, #f39c12, #f1c40f);
+        }
+
+        .orders-btn:hover {
+            background: linear-gradient(135deg, #f1c40f, #f39c12);
+            transform: translateY(-2px);
+        }
+
+        .settings-btn {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+        }
+
+        .settings-btn:hover {
+            background: linear-gradient(135deg, #2980b9, #3498db);
+            transform: translateY(-2px);
+        }
     </style>
 </head>
 <body>
@@ -794,31 +894,62 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </form>
             </div>
 
+            <div class="profile-actions">
+                <a href="wishlist.php" class="profile-action-btn wishlist-btn">
+                    <i class="fas fa-heart"></i>
+                    My Wishlist
+                </a>
+                <a href="recycle.php" class="profile-action-btn recycle-btn">
+                    <i class="fas fa-recycle"></i>
+                    My Recycling
+                </a>
+                <a href="orders.php" class="profile-action-btn orders-btn">
+                    <i class="fas fa-shopping-bag"></i>
+                    My Orders
+                </a>
+                <a href="settings.php" class="profile-action-btn settings-btn">
+                    <i class="fas fa-cog"></i>
+                    Settings
+                </a>
+            </div>
+
             <div class="orders-section">
                 <h2>Your Orders</h2>
-                <?php if (count($orders) > 0): ?>
+                <?php if (!empty($orders)): ?>
                     <div class="order-card-container">
                         <?php foreach ($orders as $order): ?>
                             <div class="order-card">
                                 <div class="order-image">
-                                    <img src="<?php echo 'uploads/products/' . htmlspecialchars($order['product_photo']); ?>" 
+                                    <img src="<?php echo file_exists('uploads/products/' . $order['product_photo']) 
+                                        ? 'uploads/products/' . htmlspecialchars($order['product_photo'])
+                                        : 'path/to/default-image.jpg'; ?>" 
                                          alt="<?php echo htmlspecialchars($order['product_name']); ?>">
                                 </div>
                                 <div class="order-details">
                                     <div>
                                         <p><strong>Order ID:</strong> #<?php echo htmlspecialchars($order['order_id']); ?></p>
-                                        <p><strong>Product:</strong> <?php echo htmlspecialchars($order['product_name']); ?></p>
-                                        <p><strong>Date:</strong> <?php echo htmlspecialchars($order['order_date']); ?></p>
+                                        <p><strong>Products:</strong> 
+                                            <?php 
+                                            if (count($order['product_names']) > 1) {
+                                                echo htmlspecialchars($order['product_name']) . ' and ' . (count($order['product_names']) - 1) . ' more items';
+                                            } else {
+                                                echo htmlspecialchars($order['product_name']);
+                                            }
+                                            ?>
+                                        </p>
+                                        <p><strong>Date:</strong> <?php echo date('F j, Y', strtotime($order['order_date'])); ?></p>
                                     </div>
                                     <div>
-                                        <p><strong>Price:</strong> <?php echo htmlspecialchars($order['total_price']); ?> DA</p>
-                                        <p><strong>Status:</strong> <?php echo htmlspecialchars($order['status']); ?></p>
+                                        <p><strong>Total Price:</strong> <?php echo number_format($order['total_price'], 2); ?> DA</p>
+                                        <p><strong>Status:</strong> 
+                                            <span class="status-badge <?php echo strtolower($order['status']); ?>">
+                                                <?php echo htmlspecialchars($order['status']); ?>
+                                            </span>
+                                        </p>
                                         <?php if (!empty($order['tracking_number'])): ?>
                                             <p><strong>Tracking:</strong> <?php echo htmlspecialchars($order['tracking_number']); ?></p>
                                             <a href="track_order.php?tracking_number=<?php echo htmlspecialchars($order['tracking_number']); ?>" 
                                                class="view-details">Track Order</a>
-                                        <?php else: ?>
-                                            <p>No tracking information available.</p>
                                         <?php endif; ?>
                                     </div>
                                 </div>
@@ -826,7 +957,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <?php endforeach; ?>
                     </div>
                 <?php else: ?>
-                    <p>No orders found.</p>
+                    <div class="no-orders">
+                        <p>You haven't placed any orders yet.</p>
+                        <a href="index.php" class="browse-products-btn">Browse Products</a>
+                    </div>
                 <?php endif; ?>
             </div>
         </div>
