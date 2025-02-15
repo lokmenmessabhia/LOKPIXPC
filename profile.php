@@ -612,9 +612,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         .upload-btn {
-            width: 100%;
+            width: 10%;
             padding: 12px;
-            background: #3b82f6;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
             color: white;
             border: none;
             border-radius: 8px;
@@ -686,6 +686,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         .back-to-top.visible {
             animation: pulse 2s infinite;
         }
+
+        /* New styles for the Choose File button */
+        .upload-form input[type="file"] {
+            display: none; /* Hide the default file input */
+        }
+
+        .upload-form .custom-file-upload {
+            display: inline-block;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            font-weight: 500;
+            transition: background 0.3s ease;
+        }
+
+        .upload-form .custom-file-upload:hover {
+            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+        }
     </style>
 </head>
 <body>
@@ -712,9 +732,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
        
             <div class="upload-form">
                 <form action="profile.php" method="post" enctype="multipart/form-data">
-                    
-                    <input type="file" id="profile_picture" name="profile_picture" accept="image/*">
-                    <button type="submit">Upload</button>
+                    <label class="custom-file-upload">
+                        Choose File
+                        <input type="file" id="profile_picture" name="profile_picture" accept="image/*">
+                    </label>
+                    <button type="submit" class="upload-btn">Upload</button>
                 </form>
 
             

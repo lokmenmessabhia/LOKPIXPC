@@ -913,13 +913,13 @@ try {
                     <h3>CNFE</h3>
                     <p>National Conservatory for Environmental Training</p>
                 </div>
-<a href="https://www.univ-annaba.dz/" style="text-decoration: none;", target="_blank">
-                <div class="association-card golden-partner" >
+
+                <div class="association-card golden-partner">
                     <img src="https://www.univ-annaba.dz/wp-content/uploads/2021/04/Logo@2x.png" alt="UBMA Logo">
                     <h3>Université Badji Mokhtar Annaba</h3>
                     <p>Leading Research & Innovation Partner</p>
                 </div>
-    </a>
+
                 <div class="association-card">
                     <img src="https://academy-ce.info/wp-content/uploads/2024/04/step-logos-march-18.png" alt="StEP Logo">
                     <h3>StEP Initiative</h3>
@@ -942,20 +942,20 @@ try {
         <form id="recycleForm" action="recycle.php" method="POST" enctype="multipart/form-data" 
               onsubmit="return showVerificationPopup(event)">
             <div class="form-wrapper">
-                <div class="form-section">
-                    <h3>📝 Basic Information</h3>
+                <div class="form-section" style="background: #f9f9f9; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                    <h3 style="color: #28a745;">📝 Basic Information</h3>
                     <!-- Hidden user info -->
                     <input type="hidden" name="email" value="<?= htmlspecialchars($user['email']) ?>">
                     <input type="hidden" name="phone" value="<?= htmlspecialchars($user['phone']) ?>">
                     
-                    <div class="form-group">
-                        <label>Part Name:</label>
-                        <input type="text" name="part_name" required placeholder="e.g., Intel Core i7-9700K, RTX 3070">
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label style="font-weight: 600; color: #444;">Part Name:</label>
+                        <input type="text" name="part_name" required placeholder="e.g., Intel Core i7-9700K, RTX 3070" style="border: 1px solid #28a745;">
                     </div>
 
-                    <div class="form-group">
-                        <label>Buying Year:</label>
-                        <select name="buying_year" required>
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label style="font-weight: 600; color: #444;">Buying Year:</label>
+                        <select name="buying_year" required style="border: 1px solid #28a745;">
                             <option value="">Select Year</option>
                             <?php 
                             $currentYear = date('Y');
@@ -966,9 +966,9 @@ try {
                         </select>
                     </div>
 
-                    <div class="form-group">
-                        <label>Category:</label>
-                        <select name="category_id" required onchange="updateSubcategories(this.value)">
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label style="font-weight: 600; color: #444;">Category:</label>
+                        <select name="category_id" required onchange="updateSubcategories(this.value)" style="border: 1px solid #28a745;">
                             <option value="">Select Category</option>
                             <?php foreach ($categories as $cat): ?>
                                 <option value="<?= $cat['id'] ?>"><?= htmlspecialchars($cat['name']) ?></option>
@@ -976,9 +976,9 @@ try {
                         </select>
                     </div>
 
-                    <div class="form-group">
-                        <label>Subcategory:</label>
-                        <select name="subcategory_id" required>
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label style="font-weight: 600; color: #444;">Subcategory:</label>
+                        <select name="subcategory_id" required style="border: 1px solid #28a745;">
                             <option value="">Select Subcategory</option>
                             <?php foreach ($subcategories as $sub): ?>
                                 <option value="<?= $sub['subcategory_id'] ?>" 
@@ -989,23 +989,23 @@ try {
                         </select>
                     </div>
 
-                    <div class="form-group">
-                        <label>Condition:</label>
-                        <select name="condition" required>
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label style="font-weight: 600; color: #444;">Condition:</label>
+                        <select name="condition" required style="border: 1px solid #28a745;">
                             <option value="Working">Working</option>
                             <option value="Damaged">Damaged</option>
                             <option value="Not Working">Not Working</option>
                         </select>
                     </div>
 
-                    <div class="form-group">
-                        <label>Photo:</label>
-                        <input type="file" name="photo" accept="image/*" required>
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label style="font-weight: 600; color: #444;">Photo:</label>
+                        <input type="file" name="photo" accept="image/*" required style="border: 1px solid #28a745;">
                     </div>
 
-                    <div class="form-group">
-                        <label>Delivery Option:</label>
-                        <select name="pickup">
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label style="font-weight: 600; color: #444;">Delivery Option:</label>
+                        <select name="pickup" style="border: 1px solid #28a745;">
                             <option value="dropoff">Drop-off</option>
                             <option value="pickup">Request Pickup</option>
                         </select>
@@ -1013,11 +1013,11 @@ try {
                 </div>
 
                 <div class="form-section">
-                    <h3>�� Exchange Options</h3>
+                    <h3 style="color: #28a745;">💱 Exchange Options</h3>
                     <!-- Exchange section -->
                     <div class="form-group">
                         <label>Exchange Option:</label>
-                        <select name="exchange_option" onchange="toggleExchange(this.value)">
+                        <select name="exchange_option" onchange="toggleExchange(this.value)" style="border: 1px solid #28a745;">
                             <option value="no">No Exchange</option>
                             <option value="yes">Exchange with Store Component</option>
                         </select>
@@ -1027,12 +1027,12 @@ try {
                         <div class="form-group">
                             <label>Original Price:</label>
                             <input type="number" name="original_price" min="0" step="0.01" 
-                                   onchange="calculatePrice()">
+                                   onchange="calculatePrice()" style="border: 1px solid #28a745;">
                         </div>
 
                         <div class="form-group">
                             <label>Store Component:</label>
-                            <select name="store_component" onchange="showProductDetails(this.value)">
+                            <select name="store_component" onchange="showProductDetails(this.value)" style="border: 1px solid #28a745;">
                                 <option value="">Select Component</option>
                                 <?php foreach ($store_components as $comp): ?>
                                     <option value="<?= $comp['id'] ?>" 
