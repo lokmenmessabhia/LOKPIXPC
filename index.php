@@ -4,7 +4,12 @@ include 'db_connect.php';
 include 'header.php';
 
 // Fetch features from the database
-$stmt = $pdo->prepare("SELECT title, description, photo FROM features ORDER BY created_at DESC");
+$stmt = $pdo->prepare("SELECT title, description, photo, is_gold FROM features 
+                       ORDER BY CASE 
+                           WHEN title = 'Université Badji Mokhtar Annaba' THEN 0 
+                           ELSE 1 
+                       END, 
+                       created_at DESC");
 $stmt->execute();
 $features = $stmt->fetchAll();
 
@@ -169,6 +174,50 @@ try {
             animation: none;
         }
 
+        .feature-item.gold {
+            border: 2px solid #FFD700;
+            background: linear-gradient(135deg, #fff8e7, #ffffff);
+            position: relative;
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.15);
+            transform-style: preserve-3d;
+            transition: all 0.3s ease;
+        }
+
+        .feature-item.gold::before {
+            content: '★ Premium Partner';
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #FFD700;
+            color: #000;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-size: 0.9em;
+            font-weight: 600;
+            z-index: 2;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-item.gold h3 {
+            color: #B8860B;
+            font-weight: 700;
+            padding: 20px 15px 10px;
+            font-size: 1.4em;
+        }
+
+        .feature-item.gold:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(255, 215, 0, 0.2);
+        }
+
+        .feature-item.gold p {
+            color: #4a4a4a;
+            font-weight: 500;
+            font-size: 1.1em;
+            line-height: 1.6;
+            padding: 0 20px 25px;
+        }
+
         .feature-item:hover {
             transform: translateY(-10px) scale(1.05);
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
@@ -187,6 +236,10 @@ try {
             object-fit: cover;
             transition: transform 0.5s ease;
             border-bottom: 5px solid #3498db;
+        }
+
+        .feature-item.gold img {
+            border-bottom: 5px solid #FFD700;
         }
 
         .feature-item:hover img {
@@ -570,10 +623,11 @@ try {
 
     <section class="features">
         <h2>Featured Items</h2>
+        
         <?php if (!empty($features)) : ?>
             <div class="features-list">
                 <?php foreach ($features as $feature) : ?>
-                    <div class="feature-item">
+                    <div class="feature-item <?php echo $feature['is_gold'] ? 'gold' : ''; ?>">
                         <div class="feature-image">
                             <?php if (!empty($feature['photo'])): ?>
                                 <img src="uploads/<?php echo htmlspecialchars($feature['photo']); ?>" alt="<?php echo htmlspecialchars($feature['title']); ?>">

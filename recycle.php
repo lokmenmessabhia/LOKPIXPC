@@ -913,13 +913,13 @@ try {
                     <h3>CNFE</h3>
                     <p>National Conservatory for Environmental Training</p>
                 </div>
-
-                <div class="association-card golden-partner">
+<a href="https://www.univ-annaba.dz/" style="text-decoration: none;", target="_blank">
+                <div class="association-card golden-partner" >
                     <img src="https://www.univ-annaba.dz/wp-content/uploads/2021/04/Logo@2x.png" alt="UBMA Logo">
                     <h3>Université Badji Mokhtar Annaba</h3>
                     <p>Leading Research & Innovation Partner</p>
                 </div>
-
+    </a>
                 <div class="association-card">
                     <img src="https://academy-ce.info/wp-content/uploads/2024/04/step-logos-march-18.png" alt="StEP Logo">
                     <h3>StEP Initiative</h3>

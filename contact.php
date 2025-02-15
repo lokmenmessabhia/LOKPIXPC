@@ -7,33 +7,19 @@ require 'PHPMailer/src/Exception.php';
 require 'PHPMailer/src/PHPMailer.php';
 require 'PHPMailer/src/SMTP.php';
 
-// Start session
 session_start();
 
-// Check if the user is logged in
-if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
-    echo '<!DOCTYPE html>
-          <html lang="en">
-          <head>
-              <meta charset="UTF-8">
-              <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <title>Access Denied - EcoTech</title>
-          </head>
-          <body>
-              <p>You must be logged in to access this page. <a href="login.php">Log in here</a>.</p>
-          </body>
-          </html>';
-    exit; // Stop further execution of the script
-}
 
 // Handle form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $name = $_POST['name'];
     $email = $_POST['email'];
+    $phone = $_POST['phone'];
+    $subject = $_POST['subject'];
     $message = $_POST['message'];
-
+    
     $mail = new PHPMailer(true);
-
+    
     try {
         // Server settings
         $mail->isSMTP();
@@ -50,310 +36,313 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         // Content
         $mail->isHTML(true); // Set email format to HTML
-        $mail->Subject = 'Contact Form Submission';
-        $mail->Body    = "Name: $name<br>Email: $email<br>Message: $message";
+        $mail->Subject = $subject;
+        $mail->Body = "
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        line-height: 1.6;
+                        color: #333333;
+                    }
+                    .container {
+                        max-width: 600px;
+                        margin: 0 auto;
+                        padding: 20px;
+                    }
+                    .header {
+                        background-color: #007bff;
+                        color: white;
+                        padding: 20px;
+                        text-align: center;
+                        border-radius: 5px 5px 0 0;
+                    }
+                    .content {
+                        background-color: #ffffff;
+                        padding: 20px;
+                        border: 1px solid #dddddd;
+                        border-radius: 0 0 5px 5px;
+                    }
+                    .footer {
+                        text-align: center;
+                        margin-top: 20px;
+                        padding: 20px;
+                        color: #666666;
+                        font-size: 12px;
+                    }
+                    .details {
+                        background-color: #f8f9fa;
+                        padding: 15px;
+                        border-radius: 5px;
+                        margin: 15px 0;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class='container'>
+                    <div class='header'>
+                        <h1>New Contact Message</h1>
+                    </div>
+                    
+                    <div class='content'>
+                        <div class='details'>
+                            <p><strong>From:</strong> " . htmlspecialchars($name) . "</p>
+                            <p><strong>Email:</strong> " . htmlspecialchars($email) . "</p>
+                            <p><strong>Phone:</strong> " . htmlspecialchars($phone) . "</p>
+                            <p><strong>Subject:</strong> " . htmlspecialchars($subject) . "</p>
+                            <p><strong>Message:</strong><br>" . nl2br(htmlspecialchars($message)) . "</p>
+                        </div>
+                    </div>
 
+                    <div class='footer'>
+                        <p>This email was sent from LokPixPC Contact Form</p>
+                        <p>  " . date('Y') . " LokPixPC. All rights reserved.</p>
+                        <p>Route Nationale N-16, Souk Ahras, Algeria</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        ";
+        
+        // Set plain text version
+        $mail->AltBody = "
+From: $name
+Email: $email
+Phone: $phone
+Subject: $subject
+
+Message:
+$message
+
+Sent from LokPixPC Contact Form
+";
+        
         $mail->send();
         $message_sent = 'Message has been sent';
     } catch (Exception $e) {
-        $message_sent = "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+        $error_message = "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
     }
 }
 
 include 'db_connect.php';
-include 'header.php';
+
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contact Us - EcoTech</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #f0f2f5 0%, #e5e9f0 100%);
-            margin: 0;
-        
-            color: #1a1a1a;
-            line-height: 1.6;
-            min-height: 100vh;
-        }
-
         .contact-container {
-            max-width: 800px;
-            margin: 40px auto;
-            padding: 40px;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 24px;
-            box-shadow: 
-                0 20px 40px rgba(0, 0, 0, 0.04),
-                0 8px 16px rgba(59, 130, 246, 0.03);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.8);
+            display: flex;
+            max-width: 1200px;
+            margin: 50px auto;
+            padding: 20px;
+            gap: 50px;
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
 
-        .contact-heading {
-            font-size: 32px;
-            margin-bottom: 35px;
-            color: #2d3748;
-            font-weight: 600;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #edf2f7;
-            position: relative;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .contact-heading::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            width: 100px;
-            height: 3px;
-            background: linear-gradient(90deg, #3b82f6, transparent);
-            border-radius: 3px;
+        .contact-info {
+            flex: 1;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 10px;
         }
 
         .contact-form {
-            margin-bottom: 35px;
-            padding: 25px;
-            border-radius: 16px;
-            background: rgba(248, 250, 252, 0.8);
-            border: 1px solid rgba(59, 130, 246, 0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            flex: 1.5;
+            padding: 30px;
         }
 
-        .contact-form:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(59, 130, 246, 0.06);
+        .info-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 30px;
+            gap: 15px;
+        }
+
+        .info-item i {
+            font-size: 24px;
+            color: #007bff;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #e7f1ff;
+            border-radius: 50%;
+        }
+
+        .content h3 {
+            margin: 0 0 5px 0;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .content p {
+            margin: 0;
+            color: #666;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .social-links a {
+            width: 40px;
+            height: 40px;
+            background: #007bff;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .social-links a:hover {
+            background: #0056b3;
+            transform: translateY(-3px);
         }
 
         .form-group {
-            margin-bottom: 25px;
-            display: flex;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 20px;
-            position: relative;
+            margin-bottom: 20px;
         }
 
         .form-group label {
             display: block;
+            margin-bottom: 8px;
+            color: #333;
             font-weight: 500;
-            color: #4a5568;
-            width: 140px;
-            font-size: 0.95rem;
-            transition: all 0.3s ease;
-            position: relative;
-            padding-left: 20px;
-        }
-
-        .form-group label::before {
-            content: '→';
-            position: absolute;
-            left: 0;
-            opacity: 0;
-            transition: all 0.3s ease;
-        }
-
-        .form-group:hover label::before {
-            opacity: 1;
-            color: #3b82f6;
-        }
-
-        .form-group:hover label {
-            color: #3b82f6;
-            transform: translateX(5px);
-        }
-
-        .input-container {
-            flex: 1;
-            min-width: 250px;
         }
 
         .form-group input,
         .form-group textarea {
             width: 100%;
-            padding: 14px 18px;
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            font-size: 0.95rem;
-            transition: all 0.3s ease;
-            background-color: rgba(255, 255, 255, 0.9);
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
         }
 
-        .form-group input:hover,
-        .form-group textarea:hover {
-            border-color: #cbd5e1;
-            background-color: #ffffff;
+        .form-group textarea {
+            height: 150px;
+            resize: vertical;
         }
 
-        .form-group input:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
-            background-color: #ffffff;
-            transform: translateY(-1px);
-        }
-
-        .submit-button {
-            padding: 14px 28px;
+        .submit-btn {
+            background: #007bff;
+            color: white;
+            padding: 12px 30px;
             border: none;
-            border-radius: 12px;
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-            color: #ffffff;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 0.95rem;
-            font-weight: 500;
+            font-size: 16px;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
-            position: relative;
-            overflow: hidden;
         }
 
-        .submit-button::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(
-                90deg,
-                transparent,
-                rgba(255, 255, 255, 0.2),
-                transparent
-            );
-            transition: 0.5s;
-        }
-
-        .submit-button:hover::before {
-            left: 100%;
-        }
-
-        .submit-button:hover {
-            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(37, 99, 235, 0.25);
-        }
-
-        .alert {
-            padding: 16px 24px;
-            margin-bottom: 25px;
-            border-radius: 14px;
-            font-size: 0.95rem;
-            display: flex;
-            align-items: center;
-            animation: slideIn 0.4s ease;
-            backdrop-filter: blur(8px);
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateY(-10px) scale(0.98);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0) scale(1);
-                opacity: 1;
-            }
-        }
-
-        .alert-success {
-            background: linear-gradient(135deg, rgba(220, 252, 231, 0.9) 0%, rgba(187, 247, 208, 0.9) 100%);
-            color: #166534;
-            border: 1px solid rgba(134, 239, 172, 0.5);
-        }
-
-        .alert-error {
-            background: linear-gradient(135deg, rgba(254, 226, 226, 0.9) 0%, rgba(254, 202, 202, 0.9) 100%);
-            color: #991b1b;
-            border: 1px solid rgba(252, 165, 165, 0.5);
+        .submit-btn:hover {
+            background: #0056b3;
         }
 
         @media (max-width: 768px) {
             .contact-container {
-                margin: 20px auto;
-                padding: 25px;
-                border-radius: 20px;
-            }
-
-            .contact-form {
-                padding: 20px;
-            }
-
-            .form-group {
                 flex-direction: column;
-                align-items: stretch;
-            }
-
-            .form-group label {
-                width: 100%;
-                margin-bottom: 8px;
-            }
-
-            .input-container {
-                width: 100%;
-            }
-
-            .submit-button {
-                width: 100%;
-                margin-top: 10px;
-            }
-
-            .contact-heading {
-                font-size: 24px;
-                margin-bottom: 25px;
             }
         }
     </style>
 </head>
 <body>
-    <main class="contact-container">
-        <h2 class="contact-heading">Contact Us</h2>
-        <?php if (isset($message_sent)) : ?>
-            <div class="alert <?php echo strpos($message_sent, 'sent') !== false ? 'alert-success' : 'alert-error'; ?>">
-                <?php echo $message_sent; ?>
+    <?php include 'header.php'; ?>
+
+    <?php if (isset($message_sent) && $message_sent): ?>
+        <div class="alert alert-success">
+            Message sent successfully!
+        </div>
+    <?php endif; ?>
+
+    <?php if (isset($error_message)): ?>
+        <div class="alert alert-danger">
+            <?php echo $error_message; ?>
+        </div>
+    <?php endif; ?>
+
+    <div class="contact-container">
+        <div class="contact-info">
+            <h2>Contact Information</h2>
+            <div class="info-item">
+                <i class="fas fa-map-marker-alt"></i>
+                <div class="content">
+                    <h3>Address</h3>
+                    <p>Route Nationale N-16, Souk Ahras, Algeria</p>
+                </div>
             </div>
-        <?php endif; ?>
-        
-        <form action="contact.php" method="post" class="contact-form">
-            <div class="form-group">
-                <label for="name">Full Name</label>
-                <div class="input-container">
+            <div class="info-item">
+                <i class="fas fa-phone"></i>
+                <div class="content">
+                    <h3>Phone</h3>
+                    <p>+213 794159854</p>
+                </div>
+            </div>
+            <div class="info-item">
+                <i class="fas fa-envelope"></i>
+                <div class="content">
+                    <h3>Email</h3>
+                    <p>lokmen13.messabhia@gmail.com</p>
+                </div>
+            </div>
+            <div class="info-item">
+                <i class="fas fa-clock"></i>
+                <div class="content">
+                    <h3>Working Hours</h3>
+                    <p>Mon - Sat: 9:00 AM - 8:00 PM</p>
+                </div>
+            </div>
+            <div class="social-links">
+                <a href="#"><i class="fab fa-facebook-f"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
+                <a href="#"><i class="fab fa-linkedin-in"></i></a>
+            </div>
+        </div>
+
+        <div class="contact-form">
+            <h2>Send Us a Message</h2>
+            <form id="contactForm" method="POST" action="contact.php">
+                <div class="form-group">
+                    <label for="name">Full Name</label>
                     <input type="text" id="name" name="name" required>
-                    
                 </div>
-            </div>
-            
-            <div class="form-group">
-                <label for="email">Email Address</label>
-                <div class="input-container">
+                <div class="form-group">
+                    <label for="email">Email</label>
                     <input type="email" id="email" name="email" required>
-                  
                 </div>
-            </div>
-            
-            <div class="form-group">
-                <label for="message">Message Content</label>
-                <div class="input-container">
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" id="phone" name="phone">
+                </div>
+                <div class="form-group">
+                    <label for="subject">Subject</label>
+                    <input type="text" id="subject" name="subject" required>
+                </div>
+                <div class="form-group">
+                    <label for="message">Message</label>
                     <textarea id="message" name="message" required></textarea>
-                    
                 </div>
-            </div>
-            
-            <div class="submit-section">
-                <button type="submit" class="submit-button">Send Message</button>
-            </div>
-        </form>
-    </main>
-    <?php
-include 'footer.php';
-?>
+                <button type="submit" class="submit-btn">Send Message</button>
+            </form>
+        </div>
+    </div>
+
+    <?php include 'footer.php'; ?>
 </body>
 </html>

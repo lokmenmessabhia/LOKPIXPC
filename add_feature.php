@@ -3,23 +3,25 @@ include 'db_connect.php'; // Ensure this path is correct
 
 // Handle Add Feature
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action']) && $_POST['action'] == 'add') {
-    $feature_name = $_POST['feature_name'];
-    $feature_description = $_POST['feature_description'];
-    $feature_image = '';
+    $title = $_POST['title'];
+    $description = $_POST['description'];
+    $photo = '';
+    $is_gold = isset($_POST['is_gold']) ? 1 : 0;
 
     // Handle file upload
-    if (isset($_FILES['feature_image']) && $_FILES['feature_image']['error'] === UPLOAD_ERR_OK) {
-        $tmp_name = $_FILES['feature_image']['tmp_name'];
-        $feature_image = basename($_FILES['feature_image']['name']);
-        move_uploaded_file($tmp_name, "uploads/$feature_image");
+    if (isset($_FILES['photo']) && $_FILES['photo']['error'] === UPLOAD_ERR_OK) {
+        $tmp_name = $_FILES['photo']['tmp_name'];
+        $photo = basename($_FILES['photo']['name']);
+        move_uploaded_file($tmp_name, "uploads/$photo");
     }
 
     // Insert into database
-    $stmt = $pdo->prepare("INSERT INTO features (title, description, photo, created_at) VALUES (:title, :description, :photo, NOW())");
+    $stmt = $pdo->prepare("INSERT INTO features (title, description, photo, is_gold, created_at) VALUES (:title, :description, :photo, :is_gold, NOW())");
     $stmt->execute([
-        ':title' => $feature_name,
-        ':description' => $feature_description,
-        ':photo' => $feature_image
+        ':title' => $title,
+        ':description' => $description,
+        ':photo' => $photo,
+        ':is_gold' => $is_gold
     ]);
 
     echo "Feature added successfully!";
@@ -28,23 +30,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action']) && $_POST['a
 // Handle Edit Feature
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action']) && $_POST['action'] == 'edit') {
     $id = $_POST['id'];
-    $feature_name = $_POST['feature_name'];
-    $feature_description = $_POST['feature_description'];
-    $feature_image = $_POST['existing_image'];
+    $title = $_POST['title'];
+    $description = $_POST['description'];
+    $photo = $_POST['existing_image'];
+    $is_gold = isset($_POST['is_gold']) ? 1 : 0;
 
     // Handle file upload
-    if (isset($_FILES['feature_image']) && $_FILES['feature_image']['error'] === UPLOAD_ERR_OK) {
-        $tmp_name = $_FILES['feature_image']['tmp_name'];
-        $feature_image = basename($_FILES['feature_image']['name']);
-        move_uploaded_file($tmp_name, "uploads/$feature_image");
+    if (isset($_FILES['photo']) && $_FILES['photo']['error'] === UPLOAD_ERR_OK) {
+        $tmp_name = $_FILES['photo']['tmp_name'];
+        $photo = basename($_FILES['photo']['name']);
+        move_uploaded_file($tmp_name, "uploads/$photo");
     }
 
     // Update database
-    $stmt = $pdo->prepare("UPDATE features SET title = :title, description = :description, photo = :photo WHERE id = :id");
+    $stmt = $pdo->prepare("UPDATE features SET title = :title, description = :description, photo = :photo, is_gold = :is_gold WHERE id = :id");
     $stmt->execute([
-        ':title' => $feature_name,
-        ':description' => $feature_description,
-        ':photo' => $feature_image,
+        ':title' => $title,
+        ':description' => $description,
+        ':photo' => $photo,
+        ':is_gold' => $is_gold,
         ':id' => $id
     ]);
 
@@ -331,16 +335,20 @@ $features = $stmt->fetchAll();
         <form action="add_feature.php" method="post" enctype="multipart/form-data">
             <input type="hidden" name="action" value="add">
             <div class="input-group">
-                <label for="feature-name">Feature Name</label>
-                <input type="text" id="feature-name" name="feature_name" required>
+                <label for="title">Feature Name</label>
+                <input type="text" id="title" name="title" required>
             </div>
             <div class="input-group">
-                <label for="feature-description">Description</label>
-                <textarea id="feature-description" name="feature_description" required></textarea>
+                <label for="description">Description</label>
+                <textarea id="description" name="description" required></textarea>
             </div>
             <div class="input-group">
-                <label for="feature-image">Feature Image</label>
-                <input type="file" id="feature-image" name="feature_image" accept="image/*">
+                <label for="photo">Feature Image</label>
+                <input type="file" id="photo" name="photo" accept="image/*">
+            </div>
+            <div class="input-group" style="display: flex; align-items: center; gap: 10px;">
+                <input type="checkbox" id="is_gold" name="is_gold" style="width: auto;">
+                <label for="is_gold">Make this a Gold Feature</label>
             </div>
             <button type="submit">Add Feature</button>
         </form>
@@ -358,31 +366,32 @@ $features = $stmt->fetchAll();
             <tbody>
                 <?php foreach ($features as $feature): ?>
                 <tr>
-                    <td>
-                        <input type="text" name="feature_name" value="<?php echo htmlspecialchars($feature['title']); ?>" required>
-                    </td>
-                    <td>
-                        <textarea name="feature_description" required><?php echo htmlspecialchars($feature['description']); ?></textarea>
-                    </td>
-                    <td>
-                        <img src="uploads/<?php echo htmlspecialchars($feature['photo']); ?>" alt="Image" class="feature-image">
-                    </td>
-                    <td class="table-actions">
-                        <!-- Edit Feature Form -->
-                        <form action="add_feature.php" method="post" enctype="multipart/form-data" style="display:inline;">
-                            <input type="hidden" name="action" value="edit">
-                            <input type="hidden" name="id" value="<?php echo $feature['id']; ?>">
-                            <input type="hidden" name="existing_image" value="<?php echo htmlspecialchars($feature['photo']); ?>">
+                    <form action="add_feature.php" method="post" enctype="multipart/form-data" style="display:inline;">
+                        <input type="hidden" name="action" value="edit">
+                        <input type="hidden" name="id" value="<?php echo $feature['id']; ?>">
+                        <input type="hidden" name="existing_image" value="<?php echo htmlspecialchars($feature['photo']); ?>">
+                        <td>
+                            <input type="text" name="title" value="<?php echo htmlspecialchars($feature['title']); ?>" required>
+                        </td>
+                        <td>
+                            <textarea name="description" required><?php echo htmlspecialchars($feature['description']); ?></textarea>
+                        </td>
+                        <td>
+                            <img src="uploads/<?php echo htmlspecialchars($feature['photo']); ?>" alt="Image" class="feature-image">
                             <div class="file-input-container">
-                                <label class="file-input-button" for="file-input-<?php echo $feature['id']; ?>">Add Photo</label>
-                                <input type="file" id="file-input-<?php echo $feature['id']; ?>" name="feature_image" accept="image/*">
+                                <label class="file-input-button" for="file-input-<?php echo $feature['id']; ?>">Change Photo</label>
+                                <input type="file" id="file-input-<?php echo $feature['id']; ?>" name="photo" accept="image/*">
+                            </div>
+                        </td>
+                        <td class="table-actions">
+                            <div style="margin-bottom: 10px;">
+                                <input type="checkbox" id="is_gold_<?php echo $feature['id']; ?>" name="is_gold" <?php echo $feature['is_gold'] ? 'checked' : ''; ?> style="width: auto;">
+                                <label for="is_gold_<?php echo $feature['id']; ?>">Gold Feature</label>
                             </div>
                             <button type="submit" class="btn-update">Update</button>
-                        </form>
-
-                        <!-- Delete Feature -->
-                        <a href="add_feature.php?action=delete&id=<?php echo $feature['id']; ?>" class="btn-delete" onclick="return confirm('Are you sure you want to delete this feature?');">Delete</a>
-                    </td>
+                            <a href="add_feature.php?action=delete&id=<?php echo $feature['id']; ?>" class="btn-delete" onclick="return confirm('Are you sure you want to delete this feature?');">Delete</a>
+                        </td>
+                    </form>
                 </tr>
                 <?php endforeach; ?>
             </tbody>

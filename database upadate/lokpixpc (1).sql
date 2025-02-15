@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 14, 2025 at 10:32 PM
+-- Generation Time: Feb 15, 2025 at 01:45 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -149,16 +149,17 @@ CREATE TABLE `features` (
   `title` varchar(255) NOT NULL,
   `description` text DEFAULT NULL,
   `photo` varchar(255) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `is_gold` tinyint(1) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `features`
 --
 
-INSERT INTO `features` (`id`, `title`, `description`, `photo`, `created_at`) VALUES
-(5, 'rtx 4060', 'dasd', '22.jpeg', '2025-02-14 16:32:36'),
-(6, '2024 Video Game Release Date Calendar', 'dasdad', 'X.png', '2025-02-14 16:32:44');
+INSERT INTO `features` (`id`, `title`, `description`, `photo`, `created_at`, `is_gold`) VALUES
+(7, 'sda', 'sda', 'ubma-logo.png', '2025-02-15 12:11:45', 1),
+(8, 'hahaha', 'hahaha', 'text logo.png', '2025-02-15 12:36:22', 0);
 
 -- --------------------------------------------------------
 
@@ -761,7 +762,7 @@ ALTER TABLE `contact_messages`
 -- AUTO_INCREMENT for table `features`
 --
 ALTER TABLE `features`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `notifications`
