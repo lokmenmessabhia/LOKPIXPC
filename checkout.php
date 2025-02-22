@@ -2,17 +2,45 @@
 session_start();
 include 'db_connect.php'; // Ensure this path is correct
 
-// Check if user is logged in
-if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
-    header("Location: login.php");
-    exit();
+// Function to check if the user is logged in
+
+    
+    // Check if the user is logged in
+    if (!isset($_SESSION['loggedin']) || !$_SESSION['loggedin']) {
+        die("Error: You must be logged in. Please log in to continue.");
+    }
+
+$user_id = $_SESSION['user_id'];
+
+// Debugging output
+
+// Check if user_id is set in the session
+if (!isset($_SESSION['user_id'])) {
+    die("Error: User ID not found in session.");
 }
+
+$data = [
+    'email' => $_POST['email'] ?? '',
+    'phone' => $_POST['phone'] ?? '',
+    'part_name' => $_POST['part_name'] ?? '',
+    'buying_year' => $_POST['buying_year'] ?? '',
+    'category_id' => $_POST['category_id'] ?? '',
+    'subcategory_id' => $_POST['subcategory_id'] ?? '',
+    'condition' => $_POST['condition'] ?? '',
+    'pickup' => $_POST['pickup'] ?? ''
+];
 
 // Fetch user email and phone
 try {
-    $stmt = $pdo->prepare("SELECT email, phone FROM users WHERE id = ?");
-    $stmt->execute([$_SESSION['userid']]);
+    $stmt = $pdo->prepare("SELECT id, email, phone FROM users WHERE id = ?");
+    $stmt->execute([$_SESSION['user_id']]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    // Check if user was found
+    if (!$user) {
+        die("Error: User not found.");
+    }
+
     $user_email = $user['email'];
     $user_phone = $user['phone'];
 } catch (PDOException $e) {
@@ -59,7 +87,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $order_stmt = $pdo->prepare("INSERT INTO orders (user_id, email, phone, address, wilaya_id, delivery_type, total_price, order_date, qrtoken) VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), ?)");
 
         // Insert the order itself (without the cart items yet)
-        $order_stmt->execute([$_SESSION['userid'], $user_email, $phone, $address, $wilaya_id, $delivery_type, $total_price, $token]);
+        $order_stmt->execute([$user_id, $user_email, $phone, $address, $wilaya_id, $delivery_type, $total_price, $token]);
 
         $order_id = $pdo->lastInsertId(); // Get last inserted order ID
 
@@ -106,7 +134,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         
         foreach ($admins as $admin) {
             $notification_stmt = $pdo->prepare("INSERT INTO notifications (admin_id, message, is_read) VALUES (?, ?, 0)"); // Set is_read to 0 for new notifications
-            $notification_message = "New order placed by user ID: " . $_SESSION['userid'] . " with total price: " . $total_price;
+            $notification_message = "New order placed by user ID: " . $user_id . " with total price: " . $total_price;
             $notification_stmt->execute([$admin['id'], $notification_message]);
         }
 
@@ -220,7 +248,7 @@ include 'header.php';
             border-radius: 3px;
         }
 
-        form {
+        .checkout-form {
             margin-bottom: 35px;
             padding: 25px;
             border-radius: 16px;
@@ -229,12 +257,12 @@ include 'header.php';
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
-        form:hover {
+        .checkout-form:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 16px rgba(59, 130, 246, 0.06);
         }
 
-        .form-group {
+        .checkout-form {
             margin-bottom: 25px;
             display: flex;
             align-items: center;
@@ -263,19 +291,19 @@ include 'header.php';
             transition: all 0.3s ease;
         }
 
-        .form-group:hover label::before {
+        .checkout-form:hover label::before {
             opacity: 1;
             color: #3b82f6;
         }
 
-        .form-group:hover label {
+        .checkout-form:hover label {
             color: #3b82f6;
             transform: translateX(5px);
         }
 
-        input[type="text"], 
-        input[type="email"],
-        select {
+        .checkout-form input[type="text"], 
+        .checkout-form input[type="email"],
+        .checkout-form select {
             width: 100%;
             padding: 14px 18px;
             border: 2px solid #e2e8f0;
@@ -285,20 +313,13 @@ include 'header.php';
             background-color: rgba(255, 255, 255, 0.9);
         }
 
-        input:hover,
-        select:hover {
+        .checkout-form input:hover,
+        .checkout-form select:hover {
             border-color: #cbd5e1;
             background-color: #ffffff;
         }
 
-        input:focus,
-        select:focus {
-            outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
-            background-color: #ffffff;
-            transform: translateY(-1px);
-        }
+        
 
         .checkout-button {
             padding: 14px 28px;
@@ -401,11 +422,11 @@ include 'header.php';
                 border-radius: 20px;
             }
 
-            form {
+            .checkout-form {
                 padding: 20px;
             }
 
-            .form-group {
+            .checkout-form {
                 flex-direction: column;
                 align-items: stretch;
             }
@@ -421,12 +442,56 @@ include 'header.php';
                 padding:20 px;
             }
         }
+
+        .order-button {
+            background-color: #4CAF50; /* Green background */
+            color: white; /* White text */
+            border: none; /* No border */
+            padding: 15px 32px; /* Padding */
+            text-align: center; /* Centered text */
+            text-decoration: none; /* No underline */
+            display: inline-block; /* Inline-block for proper spacing */
+            font-size: 16px; /* Font size */
+            margin: 4px 2px; /* Margin */
+            cursor: pointer; /* Pointer cursor on hover */
+            border-radius: 8px; /* Rounded corners */
+            transition: transform 0.2s ease, background-color 0.3s ease; /* Transition for smooth effect */
+            position: relative; /* Position relative for inner elements */
+        }
+
+        .order-button:hover {
+            background-color: #45a049; /* Darker green on hover */
+            transform: scale(1.05); /* Slightly enlarge the button */
+        }
+
+        .order-button:active {
+            transform: scale(0.95); /* Slightly shrink the button on click */
+        }
+
+        .order-button::after {
+            content: ''; /* Empty content for the pseudo-element */
+            position: absolute; /* Position absolute for the animation */
+            top: 50%; /* Center vertically */
+            left: 50%; /* Center horizontally */
+            width: 300%; /* Width for the ripple effect */
+            height: 300%; /* Height for the ripple effect */
+            background: rgba(255, 255, 255, 0.3); /* White color with transparency */
+            border-radius: 50%; /* Circular shape */
+            transform: translate(-50%, -50%) scale(0); /* Start from the center */
+            transition: transform 0.5s ease; /* Transition for the ripple effect */
+            pointer-events: none; /* Prevent interaction with the pseudo-element */
+        }
+
+        .order-button:focus::after,
+        .order-button:active::after {
+            transform: translate(-50%, -50%) scale(1); /* Scale up on focus or click */
+        }
     </style>
 </head>
 <body>
     <main>
         <h1>Checkout</h1>
-        <form action="" method="post">
+        <form action="" method="post" class="checkout-form">
             <input type="hidden" name="token" value="<?= htmlspecialchars($token) ?>">
             
             <label for="email">Email</label>

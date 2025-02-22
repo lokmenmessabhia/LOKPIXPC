@@ -1,4 +1,6 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 session_start();
 include 'db_connect.php';
 include 'header.php';
@@ -11,9 +13,17 @@ if (!isset($_SESSION['user_id'])) {
 
 // Handle AJAX requests
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
-    $response = ['success' => false, 'message' => 'Invalid request'];
-    $user_id = $_SESSION['user_id'];
-    
+    $response = ['success' => false];
+    $user_id = $_SESSION['user_id'] ?? null; // Ensure user_id is set
+
+    if ($user_id === null) {
+        // If user_id is not set, return an error
+        $response['message'] = 'User not logged in.';
+        header('Content-Type: application/json');
+        echo json_encode($response);
+        exit();
+    }
+
     if (isset($_POST['product_id'])) {
         $product_id = $_POST['product_id'];
         
@@ -22,20 +32,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 case 'add':
                     $stmt = $pdo->prepare("INSERT IGNORE INTO wishlists (user_id, product_id) VALUES (?, ?)");
                     $stmt->execute([$user_id, $product_id]);
-                    $response = ['success' => true, 'message' => 'Product added to wishlist'];
+                    $response['success'] = true;
                     break;
                     
                 case 'remove':
                     $stmt = $pdo->prepare("DELETE FROM wishlists WHERE user_id = ? AND product_id = ?");
                     $stmt->execute([$user_id, $product_id]);
-                    $response = ['success' => true, 'message' => 'Product removed from wishlist'];
+                    $response['success'] = true;
                     break;
             }
         } catch (PDOException $e) {
-            $response = ['success' => false, 'message' => 'Database error occurred'];
+            $response['message'] = 'Database error: ' . $e->getMessage();
         }
     }
     
+    // Ensure the content type is set to JSON
     header('Content-Type: application/json');
     echo json_encode($response);
     exit();
@@ -64,7 +75,11 @@ $wishlist_items = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Wishlist - LokPix PC</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
         .wishlist-container {
             max-width: 1200px;
             margin: 40px auto;
@@ -94,16 +109,19 @@ $wishlist_items = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
         .wishlist-item {
-            background: white;
-            border-radius: 15px;
+            background: linear-gradient(135deg, #ffffff, #f9f9f9);
+            border-radius: 20px;
             overflow: hidden;
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border 0.3s ease;
             position: relative;
+            border: 1px solid #e0e0e0;
         }
 
         .wishlist-item:hover {
-            transform: translateY(-10px);
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            border: 2px solid #3498db;
         }
 
         .product-image {
@@ -116,15 +134,18 @@ $wishlist_items = $stmt->fetchAll(PDO::FETCH_ASSOC);
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: transform 0.5s ease;
+            transition: transform 0.5s ease, filter 0.5s ease;
         }
 
         .wishlist-item:hover .product-image img {
-            transform: scale(1.1);
+            transform: scale(1.05);
+            filter: brightness(0.9);
         }
 
         .product-info {
             padding: 20px;
+            background-color: #f9f9f9;
+            text-align: center;
         }
 
         .product-info h3 {
@@ -134,9 +155,9 @@ $wishlist_items = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
         .price {
-            font-size: 1.2em;
-            color: #2ecc71;
-            font-weight: 600;
+            font-size: 1.8em;
+            color: #e67e22;
+            font-weight: 700;
             margin-bottom: 15px;
         }
 
@@ -154,7 +175,7 @@ $wishlist_items = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
         .added-date {
-            font-size: 0.85em;
+            font-size: 0.9em;
             color: #666;
             margin-bottom: 15px;
         }
@@ -163,13 +184,14 @@ $wishlist_items = $stmt->fetchAll(PDO::FETCH_ASSOC);
             display: flex;
             gap: 10px;
             margin-top: 15px;
+            justify-content: center;
         }
 
         .action-button {
             flex: 1;
-            padding: 10px;
+            padding: 12px;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
             font-weight: 500;
             transition: all 0.3s ease;
@@ -177,30 +199,35 @@ $wishlist_items = $stmt->fetchAll(PDO::FETCH_ASSOC);
             align-items: center;
             justify-content: center;
             gap: 8px;
+            font-size: 1em;
         }
 
         .remove-button {
-            background: #f1f1f1;
-            color: #666;
+            background: #e74c3c;
+            color: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         .remove-button:hover {
-            background: #e74c3c;
-            color: white;
+            background: #c0392b;
+            transform: translateY(-2px);
         }
 
         .cart-button {
             background: #3498db;
             color: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         .cart-button:hover {
             background: #2980b9;
+            transform: translateY(-2px);
         }
 
         .cart-button:disabled {
             background: #bdc3c7;
             cursor: not-allowed;
+            box-shadow: none;
         }
 
         .empty-wishlist {
@@ -328,13 +355,32 @@ $wishlist_items = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <div class="toast" id="toast"></div>
 
     <script>
-        function showToast(message, success = true) {
+        function showToast(message, type = 'success') {
             const toast = document.getElementById('toast');
             toast.textContent = message;
-            toast.style.background = success ? '#2ecc71' : '#e74c3c';
+
+            // Set background color based on message type
+            switch (type) {
+                case 'success':
+                    toast.style.background = '#2ecc71'; // Green for success
+                    break;
+                case 'error':
+                    toast.style.background = '#e74c3c'; // Red for error
+                    break;
+                case 'info':
+                    toast.style.background = '#3498db'; // Blue for info
+                    break;
+                case 'warning': // New message type added
+                    toast.style.background = '#f39c12'; // Orange for warning
+                    break;
+                default:
+                    toast.style.background = '#2ecc71'; // Default to success
+            }
+
             toast.classList.add('show');
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
+        
 
         function removeFromWishlist(productId) {
             fetch('wishlist.php', {
@@ -355,13 +401,13 @@ $wishlist_items = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             location.reload(); // Reload to show empty state
                         }
                     }, 300);
-                    showToast(data.message);
+                    showToast('Product removed from wishlist', 'success');
                 } else {
-                    showToast(data.message, false);
+                    showToast('An error occurred. Please try again.', 'error');
                 }
             })
             .catch(error => {
-                showToast('An error occurred. Please try again.', false);
+                showToast('An error occurred. Please try again.', 'error');
             });
         }
 
@@ -411,13 +457,14 @@ $wishlist_items = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             location.reload(); // Reload to show empty state
                         }
                     }, 300);
-                    showToast('Product moved to cart successfully');
+                    showToast('Product successfully added to your cart!', 'success');
+                    location.reload(); // Auto refresh the wishlist
                 } else {
-                    showToast(data.message, false);
+                    showToast(data.message, 'error');
                 }
             })
             .catch(error => {
-                showToast(error.message || 'An error occurred. Please try again.', false);
+                showToast(error.message || 'An error occurred. Please try again.', 'error');
                 console.error('Error:', error);
             });
         }

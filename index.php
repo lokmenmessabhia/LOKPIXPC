@@ -190,14 +190,19 @@ try {
 
         .features-list {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 40px;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
             max-width: 1400px;
             margin: 0 auto;
             padding: 0 20px;
         }
 
         .feature-item {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            height: 100%;
+            width: 300px;
             background: #ffffff;
             border-radius: 15px;
             overflow: hidden;
@@ -219,7 +224,7 @@ try {
         }
 
         .feature-item.gold::before {
-            content: '★ Premium Partner';
+            content: '★';
             position: absolute;
             top: 15px;
             right: 15px;
@@ -282,18 +287,18 @@ try {
         }
 
         .feature-item h3 {
-            padding: 15px 15px 5px;
+            padding: 10px;
             margin: 0;
-            font-size: 1.5em;
-            font-weight: 700;
+            font-size: 1.2em;
+            font-weight: 600;
             color: #2c3e50;
         }
 
         .feature-item p {
-            padding: 0 15px 20px;
+            padding: 0 10px 10px;
             color: #666;
-            font-size: 1.1em;
-            line-height: 1.5;
+            font-size: 0.9em;
+            line-height: 1.4;
         }
 
         /* Enhanced Product List */
@@ -901,6 +906,12 @@ try {
                 wishlistHeart.classList.add('animate');
                 setTimeout(() => wishlistHeart.classList.remove('animate'), 600);
 
+                // Update the heart immediately
+                wishlistHeart.classList.toggle('active');
+                wishlistHeart.title = wishlistHeart.classList.contains('active') ? 'Remove from Wishlist' : 'Add to Wishlist';
+                wishlistHeart.style.background = wishlistHeart.classList.contains('active') ? '#e74c3c' : 'rgba(255, 255, 255, 0.95)';
+                wishlistHeart.querySelector('i').style.color = wishlistHeart.classList.contains('active') ? 'white' : '#e74c3c';
+
                 fetch('wishlist.php', {
                     method: 'POST',
                     headers: {
@@ -911,17 +922,13 @@ try {
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        wishlistHeart.classList.toggle('active');
-                        if (wishlistHeart.classList.contains('active')) {
-                            wishlistHeart.style.background = '#e74c3c';
-                            wishlistHeart.querySelector('i').style.color = 'white';
-                        } else {
-                            wishlistHeart.style.background = 'rgba(255, 255, 255, 0.95)';
-                            wishlistHeart.querySelector('i').style.color = '#e74c3c';
-                        }
-                        wishlistHeart.title = wishlistHeart.classList.contains('active') ? 'Remove from Wishlist' : 'Add to Wishlist';
                         showToast(data.message);
                     } else {
+                        // Revert the heart state if the action failed
+                        wishlistHeart.classList.toggle('active');
+                        wishlistHeart.title = wishlistHeart.classList.contains('active') ? 'Remove from Wishlist' : 'Add to Wishlist';
+                        wishlistHeart.style.background = wishlistHeart.classList.contains('active') ? '#e74c3c' : 'rgba(255, 255, 255, 0.95)';
+                        wishlistHeart.querySelector('i').style.color = wishlistHeart.classList.contains('active') ? 'white' : '#e74c3c';
                         showToast(data.message, false);
                     }
                 })
@@ -933,53 +940,5 @@ try {
     </script>
 
     <div class="toast" id="toast"></div>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Wishlist functionality
-            const toast = document.getElementById('toast');
-            
-            function showToast(message, success = true) {
-                toast.textContent = message;
-                toast.style.background = success ? '#2ecc71' : '#e74c3c';
-                toast.classList.add('show');
-                setTimeout(() => toast.classList.remove('show'), 3000);
-            }
-
-            // Event delegation for wishlist hearts
-            document.querySelector('.product-grid').addEventListener('click', function(e) {
-                const wishlistHeart = e.target.closest('.wishlist-heart');
-                if (!wishlistHeart || wishlistHeart.tagName.toLowerCase() === 'a') return;
-
-                e.preventDefault();
-                const action = wishlistHeart.classList.contains('active') ? 'remove' : 'add';
-                const productId = wishlistHeart.dataset.productId;
-
-                // Add animation class
-                wishlistHeart.classList.add('animate');
-                setTimeout(() => wishlistHeart.classList.remove('animate'), 600);
-
-                fetch('wishlist.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: `action=${action}&product_id=${productId}`
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        wishlistHeart.classList.toggle('active');
-                        wishlistHeart.title = wishlistHeart.classList.contains('active') ? 'Remove from Wishlist' : 'Add to Wishlist';
-                        showToast(data.message);
-                    } else {
-                        showToast(data.message, false);
-                    }
-                })
-                .catch(error => {
-                    showToast('An error occurred. Please try again.', false);
-                });
-            });
-        });
-    </script>
 </body>
 </html>

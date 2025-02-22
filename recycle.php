@@ -11,13 +11,14 @@ require 'PHPMailer/src/Exception.php';
 require 'PHPMailer/src/PHPMailer.php';
 require 'PHPMailer/src/SMTP.php';
 
-
-
 // Handle form submission
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    if (!isset($_SESSION['userid'])) die("Error: You must be logged in.");
+    // Check if the user is logged in
+    if (!isset($_SESSION['loggedin']) || !$_SESSION['loggedin']) {
+        die("Error: You must be logged in. Please log in to continue.");
+    }
     
-    $user_id = $_SESSION['userid'];
+    $user_id = $_SESSION['user_id'];
     $data = [
         'email' => $_POST['email'] ?? '',
         'phone' => $_POST['phone'] ?? '',
@@ -271,6 +272,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             error_log("Failed to send confirmation email. Mailer Error: {$mail->ErrorInfo}");
         }
 
+        $_SESSION['loggedin'] = true; // Ensure this is set after successful login
+
         header('Content-Type: application/json');
         echo json_encode(['success' => true]);
         exit();
@@ -284,8 +287,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 // Fetch necessary data
 try {
+    // Check if the user is logged in
+    if (!isset($_SESSION['loggedin'])) {
+        die("Error: You must be logged in to access this page.");
+    }
+
     $stmt = $pdo->prepare("SELECT email, phone FROM users WHERE id = ?");
-    $stmt->execute([$_SESSION['userid']]);
+    $stmt->execute([$_SESSION['user_id']]);
     $user = $stmt->fetch();
     $categories = $pdo->query("
         SELECT id, name 

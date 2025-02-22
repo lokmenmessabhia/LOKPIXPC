@@ -34,6 +34,37 @@ try {
     die('Error: ' . $e->getMessage());
 }
 
+// Add this after fetching current user details
+if (isset($_POST['change_email'])) {
+    $new_email = $_POST['new_email'];
+    
+    // Check if email already exists
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM users WHERE email = :email AND id != :user_id");
+    $stmt->execute([
+        ':email' => $new_email,
+        ':user_id' => $user_id
+    ]);
+    
+    if ($stmt->fetchColumn() > 0) {
+        $error = "This email is already in use by another account.";
+    } elseif (filter_var($new_email, FILTER_VALIDATE_EMAIL)) {
+        try {
+            $stmt = $pdo->prepare("UPDATE users SET email = :new_email, email_verified = 0 WHERE id = :user_id");
+            $stmt->execute([
+                ':new_email' => $new_email,
+                ':user_id' => $user_id
+            ]);
+            $success_msg = "Email updated successfully! Please verify your new email.";
+            $user['email'] = $new_email;
+            $user['email_verified'] = 0;
+        } catch (PDOException $e) {
+            $error = "Error updating email: " . htmlspecialchars($e->getMessage());
+        }
+    } else {
+        $error = "Invalid email format!";
+    }
+}
+
 // Fetch user orders with product details
 try {
     $stmt = $pdo->prepare("
@@ -67,6 +98,49 @@ try {
 } catch (PDOException $e) {
     error_log('Error fetching orders: ' . $e->getMessage());
     $orders = [];
+}
+
+// Remake the recycling requests fetch system
+try {
+    $logged_in_user_id = $_SESSION['user_id'];
+    
+    // Prepare the query to fetch ALL requests for this user
+    $stmt = $pdo->prepare("
+        SELECT id, 
+               user_id,
+               email,
+               phone,
+               category_id,
+               subcategory_id,
+               component_condition,
+               photo,
+               pickup_option,
+               submitted_at,
+               status,
+               part_name,
+               buying_year
+        FROM recycle_requests
+        WHERE user_id = ?
+        ORDER BY submitted_at DESC
+    ");
+    
+    // Execute with the logged-in user's ID
+    $stmt->execute([$logged_in_user_id]);
+    
+    // Fetch all requests
+    $recycling_requests = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Debug output
+    error_log("Found " . count($recycling_requests) . " total recycling requests for user ID: " . $logged_in_user_id);
+
+} catch (PDOException $e) {
+    error_log('Error in recycling requests fetch: ' . $e->getMessage());
+    $recycling_requests = [];
+}
+
+// Debug: Log the results
+if (!empty($recycling_requests)) {
+    error_log('First request status: ' . $recycling_requests[0]['status']);
 }
 
 // Handle profile picture upload
@@ -202,16 +276,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
         }
         
-        // Change Email
+        // Email Update Form
         if (isset($_POST['change_email'])) {
             $new_email = $_POST['new_email'];
-            if (filter_var($new_email, FILTER_VALIDATE_EMAIL)) {
-                $stmt = $pdo->prepare("UPDATE users SET email = :new_email WHERE id = :user_id");
-                $stmt->bindParam(':new_email', $new_email);
-                $stmt->bindParam(':user_id', $user_id);
-                $stmt->execute();
-                $success_msg = "Email updated successfully!";
-                $user['email'] = $new_email;
+            
+            // Check if email already exists
+            $stmt = $pdo->prepare("SELECT COUNT(*) FROM users WHERE email = :email AND id != :user_id");
+            $stmt->execute([
+                ':email' => $new_email,
+                ':user_id' => $user_id
+            ]);
+            
+            if ($stmt->fetchColumn() > 0) {
+                $error = "This email is already in use by another account.";
+            } elseif (filter_var($new_email, FILTER_VALIDATE_EMAIL)) {
+                try {
+                    $stmt = $pdo->prepare("UPDATE users SET email = :new_email, email_verified = 0 WHERE id = :user_id");
+                    $stmt->execute([
+                        ':new_email' => $new_email,
+                        ':user_id' => $user_id
+                    ]);
+                    $success_msg = "Email updated successfully! Please verify your new email.";
+                    $user['email'] = $new_email;
+                    $user['email_verified'] = 0;
+                } catch (PDOException $e) {
+                    $error = "Error updating email: " . htmlspecialchars($e->getMessage());
+                }
             } else {
                 $error = "Invalid email format!";
             }
@@ -272,280 +362,50 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <title>Profile - Lokpix</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* Base Styles */
         body {
             font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #f0f2f5 0%, #e5e9f0 100%);
-            margin: 0;
-            color: #1a1a1a;
+            background: linear-gradient(135deg, #f0f4f8 0%, #e5eaf2 100%);
+            color: #334155;
             line-height: 1.6;
-            min-height: 100vh;
+            transition: all 0.3s ease;
         }
 
         .profile-container {
-            max-width: 800px;
-            margin: 40px auto;
-            padding: 40px;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 24px;
-            box-shadow: 
-                0 20px 40px rgba(0, 0, 0, 0.04),
-                0 8px 16px rgba(59, 130, 246, 0.03);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.8);
-        }
-
-        h1, h2 {
-            font-size: 32px;
-            margin-bottom: 35px;
-            color: #2d3748;
-            font-weight: 600;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #edf2f7;
-            position: relative;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        h1::after, h2::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            width: 100px;
-            height: 3px;
-            background: linear-gradient(90deg, #3b82f6, transparent);
-            border-radius: 3px;
-        }
-
-        .form-group {
-            margin-bottom: 25px;
-            display: flex;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 20px;
-            position: relative;
-        }
-
-        .form-group input[type="email"],
-        .form-group input[type="password"],
-        .form-group input[type="tel"],
-        .form-group input[type="file"] {
-            flex: 1;
-            min-width: 250px;
-            padding: 14px 18px;
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            font-size: 0.95rem;
-            transition: all 0.3s ease;
-            background-color: rgba(255, 255, 255, 0.9);
-        }
-
-        .form-group button {
-            padding: 14px 28px;
-            border: none;
-            border-radius: 12px;
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-            color: #ffffff;
-            cursor: pointer;
-            font-size: 0.95rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
-        }
-
-        /* Updated Orders Section Styling */
-        .orders-section {
-            margin-top: 30px;
-            padding: 25px;
-            background: rgba(248, 250, 252, 0.8);
-            border-radius: 16px;
-            border: 1px solid rgba(59, 130, 246, 0.1);
-        }
-
-        .order-card {
-            display: flex;
-            align-items: center;
-            gap: 24px;
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            transition: transform 0.3s ease;
-        }
-
-        .order-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        .order-image {
-            flex-shrink: 0;
-            width: 120px;
-            height: 120px;
-            border-radius: 12px;
-            overflow: hidden;
-        }
-
-        .order-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .order-details {
-            flex: 1;
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 2rem;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
-        }
-
-        .order-details p {
-            margin: 0;
-            font-size: 0.95rem;
-            color: #4a5568;
-        }
-
-        .order-details strong {
-            color: #2d3748;
-            font-weight: 600;
-        }
-
-        .view-details {
-            display: inline-block;
-            padding: 8px 16px;
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-            color: white;
-            text-decoration: none;
-            border-radius: 8px;
-            font-size: 0.9rem;
+            grid-template-columns: 350px 1fr;
+            gap: 2rem;
             transition: all 0.3s ease;
         }
 
-        .view-details:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 8px rgba(37, 99, 235, 0.2);
+        /* Left Sidebar */
+        .profile-sidebar {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 2rem;
+            height: fit-content;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            .order-card {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 16px;
-            }
-
-            .order-image {
-                width: 100%;
-                height: 200px;
-            }
-
-            .order-details {
-                grid-template-columns: 1fr;
-                gap: 12px;
-            }
-        }
-
-        /* Add these new styles */
-        .verification-group {
-            background: rgba(254, 243, 199, 0.5);
-            border: 1px solid rgba(251, 191, 36, 0.3);
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 30px;
-        }
-
-        .verification-info {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .verification-badge {
-            display: inline-block;
-            background: rgba(251, 191, 36, 0.2);
-            color: #b45309;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 500;
-        }
-
-        .verify-button {
-            background: linear-gradient(135deg, #b45309 0%, #92400e 100%) !important;
-        }
-
-        .verify-button:hover {
-            background: linear-gradient(135deg, #92400e 0%, #78350f 100%) !important;
-        }
-
-        .popup-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            backdrop-filter: blur(5px);
-        }
-
-        .popup {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
-            z-index: 1001;
-            max-width: 400px;
-            width: 90%;
-        }
-
-        .popup h3 {
-            margin-top: 0;
-            color: #2d3748;
-        }
-
-        .popup input {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-        }
-
-        .popup button {
-            width: 100%;
-            padding: 12px;
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-
-        .close-popup {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            cursor: pointer;
-            font-size: 20px;
-            color: #666;
+        .profile-sidebar:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 12px -1px rgba(0, 0, 0, 0.15);
         }
 
         .profile-picture {
-            width: 150px;  /* Reduced from default size */
-            height: 150px;
-            margin: 0 auto 20px;
+            width: 200px;
+            height: 200px;
             border-radius: 50%;
             overflow: hidden;
-            border: 3px solid #3b82f6;
+            border: 4px solid #3b82f6;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin: 0 auto 2rem;
         }
 
         .profile-picture img {
@@ -555,413 +415,1456 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         .profile-info {
-            background: rgba(255, 255, 255, 0.8);
-            padding: 25px;
-            border-radius: 16px;
-            margin: 30px 0;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            border: 1px solid rgba(59, 130, 246, 0.1);
+            text-align: center;
+            position: relative;
+        }
+
+        .email-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .verified-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            background: #3b82f6;
+            border-radius: 50%;
+            color: white;
+            font-size: 12px;
+            position: relative;
+            cursor: help;
+        }
+
+        .verified-badge::before {
+            content: '✓';
+            font-weight: bold;
+        }
+
+        .verified-badge:hover::after {
+            content: 'Verified Email';
+            position: absolute;
+            background: #1e293b;
+            color: white;
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            white-space: nowrap;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            margin-top: 0.5rem;
+            z-index: 10;
+        }
+
+        /* Add a subtle animation for the badge */
+        @keyframes verifiedPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .verified-badge:hover {
+            animation: verifiedPulse 1s infinite;
         }
 
         .profile-info p {
-            display: flex;
-            align-items: center;
-            margin: 15px 0;
-            padding: 12px;
-            background: rgba(248, 250, 252, 0.8);
-            border-radius: 10px;
-            transition: transform 0.2s ease;
-        }
-
-        .profile-info p:hover {
-            transform: translateX(5px);
-            background: rgba(239, 246, 255, 0.8);
+            margin: 0.5rem 0;
+            padding: 0.75rem;
+            background: #f8fafc;
+            border-radius: 0.5rem;
         }
 
         .profile-info strong {
-            min-width: 150px;
             color: #3b82f6;
-            font-weight: 600;
-            margin-right: 15px;
+            display: block;
+            margin-bottom: 0.25rem;
         }
 
-        /* Add these styles to your existing CSS */
-        .drag-area {
-            border: 2px dashed #3b82f6;
-            height: 200px;
-            border-radius: 15px;
+        /* Main Content Area */
+        .main-content {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             display: flex;
-            align-items: center;
-            justify-content: center;
             flex-direction: column;
-            padding: 20px;
-            margin: 20px 0;
-            background: rgba(255, 255, 255, 0.8);
-            cursor: pointer;
-            transition: all 0.3s ease;
+            gap: 2rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
-        .drag-area.active {
-            border: 2px solid #3b82f6;
-            background: rgba(59, 130, 246, 0.05);
-        }
-
-        .drag-area .icon {
-            font-size: 50px;
-            color: #3b82f6;
-        }
-
-        .drag-area header {
-            font-size: 20px;
-            font-weight: 500;
-            color: #2d3748;
-            margin: 10px 0;
-        }
-
-        .drag-area span {
-            font-size: 14px;
-            font-weight: 400;
-            color: #4a5568;
-            margin: 10px 0;
-        }
-
-        .drag-area .browse-btn {
-            padding: 10px 25px;
-            background: #3b82f6;
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            margin-top: 15px;
-            transition: all 0.3s ease;
-        }
-
-        .drag-area .browse-btn:hover {
-            background: #2563eb;
-        }
-
-        .drag-area img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-        }
-
-        .upload-btn {
-            width: 10%;
-            padding: 12px;
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            margin-top: 10px;
-            transition: all 0.3s ease;
-        }
-
-        .upload-btn:hover {
-            background: #2563eb;
-        }
-
-       /* Style Option 1 - Modern Gradient */
-       .back-to-top {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background: linear-gradient(145deg, #3498db, #2980b9);
-            color: white;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-decoration: none;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            cursor: pointer;
-            z-index: 1000;
-            border: none;
-        }
-
-        .back-to-top.visible {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .back-to-top:hover {
+        .main-content:hover {
             transform: translateY(-5px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-            background: linear-gradient(145deg, #2980b9, #3498db);
+            box-shadow: 0 8px 12px -1px rgba(0, 0, 0, 0.15);
         }
 
-        .back-to-top i {
-            font-size: 20px;
-            transition: transform 0.3s ease;
+        /* Settings Container */
+        .settings-container {
+            background: #f8fafc;
+            border-radius: 0.8rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
         }
 
-        .back-to-top:hover i {
-            transform: translateY(-2px);
-        }
-
-        /* Optional: Add a pulse animation */
-        @keyframes pulse {
-            0% {
-                box-shadow: 0 0 0 0 rgba(52, 152, 219, 0.4);
-            }
-            70% {
-                box-shadow: 0 0 0 10px rgba(52, 152, 219, 0);
-            }
-            100% {
-                box-shadow: 0 0 0 0 rgba(52, 152, 219, 0);
-            }
-        }
-
-        .back-to-top.visible {
-            animation: pulse 2s infinite;
-        }
-
-        /* New styles for the Choose File button */
-        .upload-form input[type="file"] {
-            display: none; /* Hide the default file input */
-        }
-
-        .upload-form .custom-file-upload {
-            display: inline-block;
-            padding: 10px 20px;
-            cursor: pointer;
-            border-radius: 8px;
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-            color: white;
-            font-weight: 500;
-            transition: background 0.3s ease;
-        }
-
-        .upload-form .custom-file-upload:hover {
-            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
-        }
-
-        /* Profile Action Buttons */
+        /* Profile Actions Container */
         .profile-actions {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-top: 30px;
-            padding: 0 20px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-top: 2rem;
         }
 
+        /* Profile Action Buttons - Complete Reset */
         .profile-action-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            padding: 15px 25px;
-            border-radius: 10px;
-            border: none;
-            color: white;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            text-align: center;
+            all: unset !important;
+            box-sizing: border-box !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            padding: 2rem 1.5rem !important;
+            background: #ffffff !important;
+            border: 1px solid #e2e8f0 !important;
+            border-radius: 8px !important;
+            cursor: pointer !important;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+            transition: all 0.3s ease !important;
+            color: inherit !important;
+            text-decoration: none !important;
         }
 
         .profile-action-btn i {
-            font-size: 1.2em;
+            font-size: 1.5rem !important;
+            margin-bottom: 0.5rem !important;
         }
 
-        .wishlist-btn {
-            background: linear-gradient(135deg, #e74c3c, #c0392b);
+        .profile-action-btn span {
+            color: #4b5563 !important;
+            font-size: 1rem !important;
+            font-weight: 500 !important;
         }
 
+        /* Individual Button Colors and Hover States */
+        .wishlist-btn i { 
+            color: #f43f5e !important;
+        }
+
+        .recycle-btn i { 
+            color: #10b981 !important;
+        }
+
+        .orders-btn i { 
+            color: #6366f1 !important;
+        }
+
+        /* Hover States */
         .wishlist-btn:hover {
-            background: linear-gradient(135deg, #c0392b, #e74c3c);
-            transform: translateY(-2px);
-        }
-
-        .recycle-btn {
-            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            background: #fff5f5 !important;
+            transform: translateY(-2px) !important;
         }
 
         .recycle-btn:hover {
-            background: linear-gradient(135deg, #2ecc71, #27ae60);
-            transform: translateY(-2px);
-        }
-
-        .orders-btn {
-            background: linear-gradient(135deg, #f39c12, #f1c40f);
+            background: #f0fff4 !important;
+            transform: translateY(-2px) !important;
         }
 
         .orders-btn:hover {
-            background: linear-gradient(135deg, #f1c40f, #f39c12);
-            transform: translateY(-2px);
+            background: #f5f5ff !important;
+            transform: translateY(-2px) !important;
         }
 
-        .settings-btn {
-            background: linear-gradient(135deg, #3498db, #2980b9);
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .profile-actions {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
 
-        .settings-btn:hover {
-            background: linear-gradient(135deg, #2980b9, #3498db);
+        @media (max-width: 480px) {
+            .profile-actions {
+                grid-template-columns: 1fr;
+            }
+            
+            .profile-action-btn {
+                padding: 1.5rem;
+            }
+            
+            .profile-action-btn i {
+                font-size: 2rem;
+            }
+            
+            .profile-action-btn span {
+                font-size: 1rem;
+            }
+        }
+
+        /* Forms */
+        .form-group {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 0.5rem;
+        }
+
+        /* Input Container */
+        .input-container {
+            flex: 1;
+        }
+
+        /* Form Labels */
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #1e293b;
+        }
+
+        /* Form Inputs */
+        .form-group input {
+            width: 100%;
+            padding: 0.625rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.375rem;
+            font-size: 0.95rem;
+        }
+
+        /* Simple Button Style */
+        .form-group button {
+            padding: 0.625rem 1.25rem;
+            border: none;
+            border-radius: 0.375rem;
+            font-weight: 500;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            min-width: 120px;
+            height: fit-content;
+            align-self: flex-end;
+        }
+
+        /* Button Colors */
+        button[name="verify_email"] {
+            background-color: #10b981;
+        }
+
+        button[name="change_email"] {
+            background-color: #6366f1;
+        }
+
+        button[name="change_password"] {
+            background-color: #f43f5e;
+        }
+
+        button[name="update_phone"] {
+            background-color: #8b5cf6;
+        }
+
+        /* Button Hover States */
+        button[name="verify_email"]:hover {
+            background-color: #059669;
+        }
+
+        button[name="change_email"]:hover {
+            background-color: #4f46e5;
+        }
+
+        button[name="change_password"]:hover {
+            background-color: #e11d48;
+        }
+
+        button[name="update_phone"]:hover {
+            background-color: #7c3aed;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 640px) {
+            .form-group {
+                flex-direction: column;
+            }
+            
+            .form-group button {
+                width: 100%;
+                margin-top: 0.5rem;
+                align-self: center;
+            }
+        }
+
+        /* Section Headers */
+        .section-header {
+            font-size: 1.5rem;
+            color: #1e293b;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e2e8f0;
+            position: relative;
+        }
+
+        .section-header::after {
+            
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100px;
+            height: 2px;
+            background: #3b82f6;
+        }
+
+        /* Cards */
+        .order-card, .recycling-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .order-card:hover, .recycling-card:hover {
             transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Status Badges */
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .status-badge.pending { background: #fef3c7; color: #92400e; }
+        .status-badge.validated { background: #dcfce7; color: #166534; }
+        .status-badge.rejected { background: #fee2e2; color: #991b1b; }
+
+        /* Upload Form Styling */
+        .upload-form {
+            margin-top: 2rem;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .custom-file-upload {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            border: none;
+            width: 100%;
+        }
+
+        .custom-file-upload:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+            filter: brightness(1.1);
+        }
+
+        .custom-file-upload::before {
+            
+            margin-right: 0.5rem;
+            font-size: 1.1em;
+        }
+
+        .upload-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            border: none;
+            width: 100%;
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+            filter: brightness(1.1);
+        }
+
+        .upload-btn::before {
+            
+            margin-right: 0.5rem;
+            font-size: 1.1em;
+        }
+
+        /* File input status text */
+        .file-selected {
+            font-size: 0.875rem;
+            color: #64748b;
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        /* Loading state for upload button */
+        .upload-btn.loading {
+            position: relative;
+            color: transparent;
+        }
+
+        .upload-btn.loading::after {
+            
+            position: absolute;
+            width: 1.25rem;
+            height: 1.25rem;
+            border: 2px solid white;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Disabled state */
+        .upload-btn:disabled,
+        .custom-file-upload.disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Focus states for accessibility */
+        .custom-file-upload:focus-within,
+        .upload-btn:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .profile-container {
+                grid-template-columns: 1fr;
+            }
+
+            .profile-sidebar {
+                position: static;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .profile-container {
+                margin: 1rem;
+                padding: 1rem;
+            }
+
+            .profile-actions {
+                grid-template-columns: 1fr;
+            }
+
+            .order-card, .recycling-card {
+                flex-direction: column;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .main-content {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        /* New Popup Styling */
+        .popup-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .popup {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 2.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            width: 90%;
+            max-width: 400px;
+            animation: slideIn 0.4s ease-out;
+        }
+
+        .popup h3 {
+            color: #1e293b;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .popup p {
+            color: #64748b;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+        }
+
+        .popup input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .popup input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            outline: none;
+        }
+
+        .popup button {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .popup button:hover {
+            filter: brightness(1.1);
+            transform: translateY(-1px);
+        }
+
+        .close-popup {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 1.5rem;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #f1f5f9;
+        }
+
+        .close-popup:hover {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+
+        /* Popup Animations */
+        @keyframes slideIn {
+            from {
+                transform: translate(-50%, -60%);
+                opacity: 0;
+            }
+            to {
+                transform: translate(-50%, -50%);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Update responsive design for buttons */
+        @media (max-width: 640px) {
+            .profile-actions {
+                grid-template-columns: 1fr;
+            }
+
+            .popup {
+                width: 95%;
+                padding: 2rem;
+            }
+        }
+
+        /* Settings Container Buttons */
+        .settings-container button {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 0.5rem;
+            width: auto;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .settings-container button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+            filter: brightness(1.1);
+        }
+
+        /* Verification Button Specific Style */
+        .verify-button {
+            background: linear-gradient(135deg, #10b981, #059669) !important;
+        }
+
+        /* Email Update Button */
+        button[name="change_email"] {
+            background: linear-gradient(135deg, #6366f1, #4f46e5) !important;
+        }
+
+        /* Password Update Button */
+        button[name="change_password"] {
+            background: linear-gradient(135deg, #f43f5e, #e11d48) !important;
+        }
+
+        /* Phone Update Button */
+        button[name="update_phone"] {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed) !important;
+        }
+
+        /* Add icons to buttons */
+        button[name="verify_email"]::before {
+            
+            margin-right: 0.5rem;
+        }
+
+        button[name="change_email"]::before {
+            
+            margin-right: 0.5rem;
+        }
+
+        button[name="change_password"]::before {
+            
+            margin-right: 0.5rem;
+        }
+
+        button[name="update_phone"]::before {
+            
+            margin-right: 0.5rem;
+        }
+
+        /* Button focus states */
+        .settings-container button:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+        }
+
+        /* Button disabled state */
+        .settings-container button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        /* Loading state for buttons */
+        .settings-container button.loading {
+            position: relative;
+            color: transparent;
+        }
+
+        .settings-container button.loading::after {
+            
+            position: absolute;
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid white;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 640px) {
+            .form-group button {
+                position: static;
+                width: 100%;
+                margin-top: 1rem;
+            }
+        }
+
+        /* Drag and Drop Zone Styles */
+        .drag-drop-zone {
+            border: 2px dashed #cbd5e1;
+            border-radius: 0.5rem;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8fafc;
+            margin-bottom: 1rem;
+        }
+
+        .drag-drop-zone.dragover {
+            border-color: #3b82f6;
+            background: #eff6ff;
+        }
+
+        .drag-drop-text {
+            color: #64748b;
+            margin-bottom: 0.5rem;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        /* File Info Display */
+        .file-info {
+            display: none;
+            margin-top: 1rem;
+            padding: 0.5rem;
+            background: #f1f5f9;
+            border-radius: 0.25rem;
+            color: #475569;
+        }
+
+        /* Orders Section Styling */
+        #orders-section {
+            padding: 2rem;
+            background: #ffffff;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-top: 2rem;
+        }
+
+        .filter-container {
+            margin-bottom: 2rem;
+        }
+
+        .status-filter {
+            padding: 0.75rem 1.5rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            background: white;
+            color: #1e293b;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .status-filter:hover {
+            border-color: #3b82f6;
+        }
+
+        .order-card-container {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .order-card {
+            background: white;
+            border-radius: 1rem;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            max-width: 100%;
+        }
+
+        .order-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.1);
+            border-color: #cbd5e1;
+        }
+
+        .order-image {
+            position: relative;
+            height: 100%;
+            min-height: 300px;
+            overflow: hidden;
+        }
+
+        .order-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .order-card:hover .order-image img {
+            transform: scale(1.05);
+        }
+
+        .order-details {
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .order-id {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-transform: capitalize;
+        }
+
+        .status-badge.pending { background: #fef3c7; color: #92400e; }
+        .status-badge.processing { background: #e0f2fe; color: #075985; }
+        .status-badge.shipped { background: #f0fdf4; color: #166534; }
+        .status-badge.delivered { background: #dcfce7; color: #166534; }
+        .status-badge.cancelled { background: #fee2e2; color: #991b1b; }
+
+        .order-info {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .info-group {
+            display: grid;
+            gap: 0.5rem;
+        }
+
+        .info-group strong {
+            color: #64748b;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .product-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            gap: 0.5rem;
+        }
+
+        .product-list li {
+            color: #1e293b;
+            font-size: 1rem;
+            padding: 0.5rem;
+            background: #f8fafc;
+            border-radius: 0.375rem;
+            transition: all 0.2s ease;
+        }
+
+        .product-list li:hover {
+            background: #f1f5f9;
+            padding-left: 1rem;
+        }
+
+        .price {
+            font-size: 1.25rem;
+            color: #10b981;
+            font-weight: 600;
+        }
+
+        .tracking-info {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 0.5rem;
+        }
+
+        .tracking-info strong {
+            color: #64748b;
+        }
+
+        .track-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+        }
+
+        .track-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 12px -2px rgba(37, 99, 235, 0.3);
+            filter: brightness(1.1);
+        }
+
+        .track-button i {
+            font-size: 1.1rem;
+        }
+
+        .no-orders {
+            text-align: center;
+            padding: 3rem;
+            background: #f8fafc;
+            border-radius: 1rem;
+            border: 2px dashed #e2e8f0;
+        }
+
+        .browse-products-btn {
+            display: inline-block;
+            margin-top: 1rem;
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .browse-products-btn:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .order-card {
+                grid-template-columns: 250px 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .order-card {
+                grid-template-columns: 1fr;
+            }
+
+            .order-image {
+                height: 250px;
+                min-height: unset;
+            }
+
+            .order-details {
+                padding: 1.5rem;
+            }
+
+            .tracking-info {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .track-button {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #orders-section {
+                padding: 1rem;
+            }
+
+            .order-details {
+                padding: 1rem;
+            }
+
+            .order-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+
+            .status-badge {
+                width: 100%;
+                text-align: center;
+            }
+        }
+
+        /* Recycling Section Styling */
+        .recycling-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            padding: 1rem;
+        }
+
+        .recycling-card {
+            background: white;
+            border-radius: 1rem;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            max-width: 400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .recycling-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.1);
+            border-color: #cbd5e1;
+        }
+
+        .recycling-image {
+            position: relative;
+            width: 100%;
+            height: 250px;
+            overflow: hidden;
+        }
+
+        .recycling-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .recycling-card:hover .recycling-image img {
+            transform: scale(1.05);
+        }
+
+        .recycling-details {
+            padding: 1.5rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .recycling-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .request-id {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .recycling-info {
+            display: grid;
+            gap: 0.75rem;
+        }
+
+        .recycling-info p {
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .recycling-info strong {
+            color: #64748b;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Status badges for recycling requests */
+        .recycling-card .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-transform: capitalize;
+        }
+
+        .recycling-card .status-badge.pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .recycling-card .status-badge.validated {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .recycling-card .status-badge.rejected {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Empty state styling */
+        .no-recycling {
+            text-align: center;
+            padding: 3rem;
+            background: #f8fafc;
+            border-radius: 1rem;
+            border: 2px dashed #e2e8f0;
+            margin: 2rem auto;
+            max-width: 600px;
+        }
+
+        .submit-recycling-btn {
+            display: inline-block;
+            margin-top: 1rem;
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .submit-recycling-btn:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 1024px) {
+            .recycling-grid {
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .recycling-grid {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 1.5rem;
+            }
+
+            .recycling-image {
+                height: 200px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .recycling-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .recycling-card {
+                max-width: 100%;
+            }
+
+            .recycling-details {
+                padding: 1rem;
+            }
+
+            .recycling-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+
+            .status-badge {
+                width: 100%;
+                text-align: center;
+            }
+        }
+
+        /* Add these styles to hide sections by default */
+        .dropdown-section {
+            display: none;
+        }
+
+        .dropdown-section.active {
+            display: block;
         }
     </style>
+    <!-- Option 1: Using jsDelivr CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
+
+    <!-- Option 2: Using unpkg CDN -->
+    <link rel="stylesheet" href="https://unpkg.com/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
+
+    <!-- Option 3: Using Font Awesome Kit (replace [your-kit-code] with actual kit code) -->
+    <script src="https://kit.fontawesome.com/[your-kit-code].js" crossorigin="anonymous"></script>
 </head>
 <body>
     <main>
         <div class="profile-container">
-            <div class="back-button">
-                <a href="index.php">
-                    <img src="back.png" alt="Back">
-                </a>
-            </div>
-            <h1>Profile</h1>
-
-            <div class="profile-picture">
-                <img src="<?php echo htmlspecialchars($user['profile_picture']) ? 'uploads/' . htmlspecialchars($user['profile_picture']) : 'https://i.top4top.io/p_3273sk4691.jpg'; ?>" alt="Profile Picture">
-            </div>
-
-            <div class="profile-info">
+            <!-- Left Sidebar -->
+            <div class="profile-sidebar">
+                <div class="profile-picture">
+                    <img src="<?php 
+                        if ($user['profile_picture']) {
+                            echo 'uploads/profiles/' . htmlspecialchars($user['profile_picture']);
+                        } else {
+                            echo 'https://i.top4top.io/p_3273sk4691.jpg';
+                        }
+                    ?>" alt="Profile Picture">
+                </div>
                 
-                <p><strong>Email Address:</strong> <?php echo htmlspecialchars($user['email']); ?></p>
-                <p><strong>Date of Creation:</strong> <?php echo htmlspecialchars($user['created_at']); ?></p>
-                <p><strong>Phone Number:</strong> <?php echo htmlspecialchars($user['phone']); ?></p>
+                <div class="profile-info">
+                    <div class="email-container">
+                        <p>
+                            <strong>Email Address</strong>
+                            <?php echo htmlspecialchars($user['email']); ?>
+                            <?php if ($user['email_verified']): ?>
+                                <span class="verified-badge" title="Verified Email"></span>
+                            <?php endif; ?>
+                        </p>
+                    </div>
+                    <p><strong>Date of Creation</strong> <?php echo htmlspecialchars($user['created_at']); ?></p>
+                    <p><strong>Phone Number</strong> <?php echo htmlspecialchars($user['phone']); ?></p>
+                </div>
+
+                <div class="upload-form">
+                    <form action="profile.php" method="post" enctype="multipart/form-data" id="uploadForm">
+                        <div class="drag-drop-zone" id="dragDropZone">
+                            <p class="drag-drop-text">Drag and drop your profile picture here</p>
+                            <p class="drag-drop-text">or</p>
+                            <button type="button" class="btn custom-file-upload" onclick="document.getElementById('profile_picture').click()">
+                                Choose File
+                            </button>
+                            <input type="file" id="profile_picture" name="profile_picture" class="file-input" accept="image/*">
+                        </div>
+                        <div class="file-info" id="fileInfo"></div>
+                        <button type="submit" class="btn upload-btn" id="uploadBtn" disabled>
+                            Upload Picture
+                        </button>
+                    </form>
+                </div>
             </div>
 
-       
-            <div class="upload-form">
-                <form action="profile.php" method="post" enctype="multipart/form-data">
-                    <label class="custom-file-upload">
-                        Choose File
-                        <input type="file" id="profile_picture" name="profile_picture" accept="image/*">
-                    </label>
-                    <button type="submit" class="upload-btn">Upload</button>
-                </form>
-
-            
-
-                <?php if (isset($success_msg)) : ?>
-                    <p class="alert success"><?php echo $success_msg; ?></p>
-                <?php endif; ?>
-
-                <?php if (isset($error)) : ?>
-                    <p class="alert error"><?php echo $error; ?></p>
-                <?php endif; ?>
-            </div>
-
-            
-
-            <div class="settings-section">
-                <h2>Account Settings</h2>
-                
-                <?php if (!$user['email_verified']): ?>
+            <!-- Main Content Area -->
+            <div class="main-content">
+                <div class="settings-container">
+                    <h2 class="section-header">Account Settings</h2>
+                    
                     <!-- Email Verification Form -->
-                    <form method="post" action="">
-                        <div class="form-group verification-group">
-                            <div class="verification-info">
-                                <span class="verification-badge">Unverified Email</span>
-                                <p>Your email (<?php echo htmlspecialchars($user['email']); ?>) is not verified.</p>
+                    <?php if (!$user['email_verified']): ?>
+                        <form method="post" action="">
+                            <div class="form-group verification-group">
+                                <div class="verification-info">
+                                    <span class="verification-badge">Unverified Email</span>
+                                    <p>Your email (<?php echo htmlspecialchars($user['email']); ?>) is not verified.</p>
+                                </div>
+                                <button type="submit" name="verify_email" class="btn btn-primary form-submit-btn verify-button">
+                                    Send Verification Email
+                                </button>
                             </div>
-                            <button type="submit" name="verify_email" class="verify-button">Send Verification Email</button>
+                        </form>
+                    <?php endif; ?>
+                    
+                    <!-- Email Update Form -->
+                    <form method="post" action="">
+                        <div class="form-group">
+                            <div class="input-container">
+                                <label for="new_email">Change Email</label>
+                                <input type="email" id="new_email" name="new_email" 
+                                       value="<?php echo htmlspecialchars($user['email']); ?>" required>
+                            </div>
+                            <button type="submit" name="change_email">Update</button>
                         </div>
                     </form>
-                <?php endif; ?>
-                
-                <!-- Email Update Form -->
-                
-                
-                <!-- Password Change Form -->
-                <form method="post" action="">
-                    <div class="form-group">
-                        <label for="old_password">Old Password</label>
-                        <input type="password" id="old_password" name="old_password" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="new_password">New Password</label>
-                        <input type="password" id="new_password" name="new_password" required>
-                        <button type="submit" name="change_password">Update Password</button>
-                    </div>
-                </form>
-
-                <!-- Add this form in the settings-section div, after the password change form -->
-                <form method="post" action="">
-                    <div class="form-group">
-                        <label for="phone">Edit Phone Number</label>
-                        <input type="tel" id="phone" name="phone" value="<?php echo htmlspecialchars($user['phone']); ?>" required>
-                        <button type="submit" name="update_phone">Edit Phone</button>
-                    </div>
-                </form>
-            </div>
-
-            <div class="profile-actions">
-                <a href="wishlist.php" class="profile-action-btn wishlist-btn">
-                    <i class="fas fa-heart"></i>
-                    My Wishlist
-                </a>
-                <a href="recycle.php" class="profile-action-btn recycle-btn">
-                    <i class="fas fa-recycle"></i>
-                    My Recycling
-                </a>
-                <a href="orders.php" class="profile-action-btn orders-btn">
-                    <i class="fas fa-shopping-bag"></i>
-                    My Orders
-                </a>
-                <a href="settings.php" class="profile-action-btn settings-btn">
-                    <i class="fas fa-cog"></i>
-                    Settings
-                </a>
-            </div>
-
-            <div class="orders-section">
-                <h2>Your Orders</h2>
-                <?php if (!empty($orders)): ?>
-                    <div class="order-card-container">
-                        <?php foreach ($orders as $order): ?>
-                            <div class="order-card">
-                                <div class="order-image">
-                                    <img src="<?php echo file_exists('uploads/products/' . $order['product_photo']) 
-                                        ? 'uploads/products/' . htmlspecialchars($order['product_photo'])
-                                        : 'path/to/default-image.jpg'; ?>" 
-                                         alt="<?php echo htmlspecialchars($order['product_name']); ?>">
-                                </div>
-                                <div class="order-details">
-                                    <div>
-                                        <p><strong>Order ID:</strong> #<?php echo htmlspecialchars($order['order_id']); ?></p>
-                                        <p><strong>Products:</strong> 
-                                            <?php 
-                                            if (count($order['product_names']) > 1) {
-                                                echo htmlspecialchars($order['product_name']) . ' and ' . (count($order['product_names']) - 1) . ' more items';
-                                            } else {
-                                                echo htmlspecialchars($order['product_name']);
-                                            }
-                                            ?>
-                                        </p>
-                                        <p><strong>Date:</strong> <?php echo date('F j, Y', strtotime($order['order_date'])); ?></p>
-                                    </div>
-                                    <div>
-                                        <p><strong>Total Price:</strong> <?php echo number_format($order['total_price'], 2); ?> DA</p>
-                                        <p><strong>Status:</strong> 
-                                            <span class="status-badge <?php echo strtolower($order['status']); ?>">
-                                                <?php echo htmlspecialchars($order['status']); ?>
-                                            </span>
-                                        </p>
-                                        <?php if (!empty($order['tracking_number'])): ?>
-                                            <p><strong>Tracking:</strong> <?php echo htmlspecialchars($order['tracking_number']); ?></p>
-                                            <a href="track_order.php?tracking_number=<?php echo htmlspecialchars($order['tracking_number']); ?>" 
-                                               class="view-details">Track Order</a>
-                                        <?php endif; ?>
-                                    </div>
-                                </div>
+                    
+                    <!-- Password Change Form -->
+                    <form method="post" action="">
+                        <div class="form-group">
+                            <div class="input-container">
+                                <label for="old_password">Old Password</label>
+                                <input type="password" id="old_password" name="old_password" required>
+                                <label for="new_password">New Password</label>
+                                <input type="password" id="new_password" name="new_password" required>
                             </div>
-                        <?php endforeach; ?>
+                            <button type="submit" name="change_password">Update</button>
+                        </div>
+                    </form>
+
+                    <!-- Phone Number Form -->
+                    <form method="post" action="">
+                        <div class="form-group">
+                            <div class="input-container">
+                                <label for="phone">Edit Phone Number</label>
+                                <input type="tel" id="phone" name="phone" 
+                                       value="<?php echo htmlspecialchars($user['phone']); ?>" required>
+                            </div>
+                            <button type="submit" name="update_phone">Update</button>
+                        </div>
+                    </form>
+
+                    <!-- Profile Actions -->
+                    <div class="profile-actions">
+                        <a href="wishlist.php" class="profile-action-btn wishlist-btn">
+                            <i class="fas fa-heart"></i>
+                            <span>My Wishlist</span>
+                        </a>
+                        <a href="#" class="profile-action-btn recycle-btn" onclick="handleActionButtonClick('recycling-section'); return false;">
+                            <i class="fas fa-recycle"></i>
+                            <span>My Recycling</span>
+                        </a>
+                        <a href="#" class="profile-action-btn orders-btn" onclick="handleActionButtonClick('orders-section'); return false;">
+                            <i class="fas fa-box"></i>
+                            <span>My Orders</span>
+                        </a>
                     </div>
-                <?php else: ?>
-                    <div class="no-orders">
-                        <p>You haven't placed any orders yet.</p>
-                        <a href="index.php" class="browse-products-btn">Browse Products</a>
+                </div>
+
+                <!-- Replace the existing dropdown sections with this updated structure -->
+                <div class="dropdown-sections">
+                    <!-- Orders Section -->
+                    <div class="dropdown-section" id="orders-section" style="display: none;">
+                        <h2 class="section-header">Your Orders</h2>
+                        <div class="filter-container">
+                            <select class="status-filter" onchange="filterOrders(this.value)">
+                                <option value="all">All Orders</option>
+                                <option value="pending">Pending</option>
+                                <option value="processing">Processing</option>
+                                <option value="shipped">Shipped</option>
+                                <option value="delivered">Delivered</option>
+                                <option value="cancelled">Cancelled</option>
+                            </select>
+                        </div>
+                        
+                        <?php if (!empty($orders)): ?>
+                            <div class="order-card-container">
+                                <?php foreach ($orders as $order): ?>
+                                    <div class="order-card" data-status="<?php echo strtolower($order['status']); ?>">
+                                        <div class="order-image">
+                                            <img src="<?php echo file_exists('uploads/products/' . $order['product_photo']) 
+                                                ? 'uploads/products/' . htmlspecialchars($order['product_photo'])
+                                                : 'path/to/default-image.jpg'; ?>" 
+                                                alt="<?php echo htmlspecialchars($order['product_name']); ?>">
+                                        </div>
+                                        <div class="order-details">
+                                            <div class="order-header">
+                                                <h3 class="order-id">Order #<?php echo htmlspecialchars($order['order_id']); ?></h3>
+                                                <span class="status-badge <?php echo strtolower($order['status']); ?>">
+                                                    <?php echo htmlspecialchars($order['status']); ?>
+                                                </span>
+                                            </div>
+                                            
+                                            <div class="order-info">
+                                                <div class="info-group">
+                                                    <strong>Products:</strong>
+                                                    <ul class="product-list">
+                                                        <?php foreach ($order['product_names'] as $index => $name): ?>
+                                                            <li><?php echo htmlspecialchars($name); ?></li>
+                                                        <?php endforeach; ?>
+                                                    </ul>
+                                                </div>
+                                                
+                                                <div class="info-group">
+                                                    <strong>Order Date:</strong>
+                                                    <span><?php echo date('F j, Y', strtotime($order['order_date'])); ?></span>
+                                                </div>
+                                                
+                                                <div class="info-group">
+                                                    <strong>Total Price:</strong>
+                                                    <span class="price"><?php echo number_format($order['total_price'], 2); ?> DA</span>
+                                                </div>
+                                                
+                                                <?php if (!empty($order['tracking_number'])): ?>
+                                                    <div class="tracking-info">
+                                                        <strong>Tracking Number:</strong>
+                                                        <span><?php echo htmlspecialchars($order['tracking_number']); ?></span>
+                                                        <a href="track_order.php?tracking_number=<?php echo htmlspecialchars($order['tracking_number']); ?>" 
+                                                           class="track-button">
+                                                            <i class="fas fa-truck"></i> Track Order
+                                                        </a>
+                                                    </div>
+                                                <?php endif; ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php else: ?>
+                            <div class="no-orders">
+                                <p>You haven't placed any orders yet.</p>
+                                <a href="index.php" class="browse-products-btn">Browse Products</a>
+                            </div>
+                        <?php endif; ?>
                     </div>
-                <?php endif; ?>
+
+                    <!-- Recycling Section -->
+                    <div class="dropdown-section" id="recycling-section" style="display: none;">
+                        <h2 class="section-header">Your Recycling Requests</h2>
+                        <div class="filter-container">
+                            <select class="status-filter" onchange="filterRecycling(this.value)">
+                                <option value="all">All Requests</option>
+                                <option value="pending">Pending</option>
+                                <option value="validated">Validated</option>
+                                <option value="rejected">Rejected</option>
+                            </select>
+                        </div>
+                        
+                        <?php if (!empty($recycling_requests)): ?>
+                            <div class="recycling-grid">
+                                <?php foreach ($recycling_requests as $request): ?>
+                                    <div class="recycling-card" data-status="<?php echo strtolower($request['status']); ?>">
+                                        <div class="recycling-image">
+                                            <img src="<?php echo htmlspecialchars($request['photo']); ?>" alt="Recycling Item">
+                                        </div>
+                                        <div class="recycling-details">
+                                            <div class="recycling-header">
+                                                <span class="request-id">Request #<?php echo htmlspecialchars($request['id']); ?></span>
+                                                <span class="status-badge <?php echo strtolower($request['status']); ?>">
+                                                    <?php echo htmlspecialchars($request['status']); ?>
+                                                </span>
+                                            </div>
+                                            <div class="recycling-info">
+                                                <p><strong>Part Name:</strong> <?php echo htmlspecialchars($request['part_name']); ?></p>
+                                                <p><strong>Condition:</strong> <?php echo htmlspecialchars($request['component_condition']); ?></p>
+                                                <p><strong>Buying Year:</strong> <?php echo htmlspecialchars($request['buying_year']); ?></p>
+                                                <p><strong>Submitted:</strong> <?php echo date('F j, Y', strtotime($request['submitted_at'])); ?></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php else: ?>
+                            <div class="no-recycling">
+                                <p>You haven't submitted any recycling requests yet.</p>
+                                <a href="recycle.php" class="submit-recycling-btn">Submit a Recycling Request</a>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
             </div>
         </div>
     </main>
@@ -969,11 +1872,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <div class="popup-overlay" id="verificationPopup">
         <div class="popup">
             <span class="close-popup" onclick="closePopup()">&times;</span>
-            <h3>Enter Verification Code</h3>
-            <p>Please enter the verification code sent to your email.</p>
+            <h3>Verify Your Email</h3>
+            <p>Please enter the 6-digit verification code sent to your email address.</p>
             <form method="post" action="">
-                <input type="text" name="verification_token" placeholder="Enter 6-digit code" required>
-                <button type="submit" name="verify_code">Verify</button>
+                <input type="text" 
+                       name="verification_token" 
+                       placeholder="Enter verification code" 
+                       maxlength="6" 
+                       pattern="\d{6}" 
+                       required>
+                <button type="submit" name="verify_code">Verify Email</button>
             </form>
         </div>
     </div>
@@ -986,7 +1894,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <?php if (isset($show_verification_popup) && $show_verification_popup): ?>
         document.getElementById('verificationPopup').style.display = 'block';
         <?php endif; ?>
-   
     </script>
 <?php   include'footer.php' ?>
     <button class="back-to-top" aria-label="Back to top">
@@ -1030,5 +1937,145 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <!-- Add Font Awesome for the upload icon -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
+    <script>
+        // Update the handleActionButtonClick function
+        function handleActionButtonClick(sectionId) {
+            const sectionsContainer = document.querySelector('.dropdown-sections');
+            const section = document.getElementById(sectionId);
+            const allSections = document.querySelectorAll('.dropdown-section');
+            
+            // Hide all sections first
+            allSections.forEach(s => {
+                s.style.display = 'none';
+                s.classList.remove('active');
+            });
+            
+            // Toggle the clicked section
+            if (section.style.display === 'none') {
+                section.style.display = 'block';
+                section.classList.add('active');
+                // Smooth scroll to the section
+                section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else {
+                section.style.display = 'none';
+                section.classList.remove('active');
+            }
+        }
+
+        // Remove or comment out the existing toggleDropdown function since we're not using it anymore
+        // function toggleDropdown(contentId) { ... }
+
+        // Add this function for filtering recycling requests
+        function filterRecycling(status) {
+            const recyclingCards = document.querySelectorAll('.recycling-card');
+            
+            recyclingCards.forEach(card => {
+                if (status === 'all' || card.dataset.status === status.toLowerCase()) {
+                    card.style.display = 'grid';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+    </script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const dragDropZone = document.getElementById('dragDropZone');
+        const fileInput = document.getElementById('profile_picture');
+        const fileInfo = document.getElementById('fileInfo');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const uploadForm = document.getElementById('uploadForm');
+
+        // Prevent default drag behaviors
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dragDropZone.addEventListener(eventName, preventDefaults, false);
+            document.body.addEventListener(eventName, preventDefaults, false);
+        });
+
+        // Highlight drop zone when dragging over it
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dragDropZone.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dragDropZone.addEventListener(eventName, unhighlight, false);
+        });
+
+        // Handle dropped files
+        dragDropZone.addEventListener('drop', handleDrop, false);
+
+        // Handle file input change
+        fileInput.addEventListener('change', handleFiles, false);
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        function highlight(e) {
+            dragDropZone.classList.add('dragover');
+        }
+
+        function unhighlight(e) {
+            dragDropZone.classList.remove('dragover');
+        }
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles({ target: { files: files } });
+        }
+
+        function handleFiles(e) {
+            const files = e.target.files;
+            if (files.length > 0) {
+                const file = files[0];
+                
+                // Validate file type
+                if (!file.type.match('image.*')) {
+                    alert('Please upload an image file');
+                    return;
+                }
+
+                // Validate file size (2MB max)
+                if (file.size > 2 * 1024 * 1024) {
+                    alert('File size should not exceed 2MB');
+                    return;
+                }
+
+                // Update file input
+                fileInput.files = files;
+                
+                // Show file info
+                fileInfo.style.display = 'block';
+                fileInfo.textContent = `Selected: ${file.name}`;
+                
+                // Enable upload button
+                uploadBtn.disabled = false;
+            }
+        }
+
+        // Handle form submission
+        uploadForm.addEventListener('submit', function(e) {
+            uploadBtn.disabled = true;
+            uploadBtn.textContent = 'Uploading...';
+        });
+    });
+    </script>
+
+    <script>
+        function filterOrders(status) {
+            const orderCards = document.querySelectorAll('.order-card');
+            
+            orderCards.forEach(card => {
+                if (status === 'all' || card.dataset.status === status.toLowerCase()) {
+                    card.style.display = 'grid';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+    </script>
 </body>
 </html>
