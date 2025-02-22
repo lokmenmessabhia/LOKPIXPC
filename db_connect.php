@@ -5,7 +5,7 @@ if (!defined('DB_HOST')) {
 }
 
 if (!defined('DB_NAME')) {
-    define('DB_NAME', 'tests');
+    define('DB_NAME', 'lokpixpc');
 }
 
 if (!defined('DB_USER')) {
