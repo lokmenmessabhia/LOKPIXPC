@@ -129,536 +129,914 @@ try {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary: #2563eb;
+            --primary-light: #3b82f6;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --text: #1f2937;
+            --text-light: #6b7280;
+            --bg: #f9fafb;
+            --bg-card: #ffffff;
+            --border: #e5e7eb;
+            --radius: 12px;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-    font-family: 'Poppins', sans-serif;
-    margin: 0;
-    display: flex;
-    background-color: #f5f7fa;
-    color: #2c3e50;
-}
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+        }
 
-/* Sidebar Styling */
-.sidebar {
-    width: 280px;
-    background: linear-gradient(180deg, #4a69a5 0%, #3b5a8c 100%);
-    color: white;
-    padding: 25px;
-    height: 100vh;
-    box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
-    position: fixed;
-    transition: transform 0.3s ease;
-}
+        /* Top Navigation */
+        .top-nav {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            padding: 0.75rem 1.5rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 40;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
 
-.sidebar h1 {
-    font-size: 28px;
-    margin-bottom: 40px;
-    font-weight: 600;
-    text-align: center;
-    letter-spacing: 1px;
-    padding-bottom: 15px;
-    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
-}
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            min-width: max-content;
+        }
 
-.sidebar nav a {
-    color: white;
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    padding: 15px 20px;
-    border-radius: 10px;
-    transition: all 0.3s ease;
-    margin-bottom: 12px;
-    font-weight: 500;
-}
+        .nav-brand h1 {
+            color: var(--primary);
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 0;
+        }
 
-.sidebar nav a:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-    transform: translateX(5px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex: 1;
+        }
 
-/* Menu Icon */
-.menu-icon {
-    font-size: 24px;
-    cursor: pointer;
-    display: none; /* Hidden by default */
-    margin-bottom: 20px;
-    text-align: center;
-}
+        .nav-menu a {
+            color: var(--text);
+            text-decoration: none;
+            padding: 0.5rem 0.75rem;
+            border-radius: var(--radius);
+            font-size: 0.875rem;
+            transition: 0.2s;
+            white-space: nowrap;
+        }
 
-/* Main Content Area */
-.content {
-    flex: 1;
-    padding: 35px;
-    margin-left: 280px;
-    overflow-y: auto;
-}
+        .nav-menu a:hover {
+            background: var(--bg);
+            color: var(--primary);
+        }
 
-.content h2 {
-    font-size: 32px;
-    margin-bottom: 30px;
-    color: #2c3e50;
-    font-weight: 600;
-}
+        .nav-end {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            min-width: max-content;
+        }
 
-/* Cards Section */
-.cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 25px;
-    margin-bottom: 40px;
-}
+        /* Main Content */
+        .main-content {
+            margin-top: 4rem;
+            padding: 2rem;
+        }
 
-.card {
-    background: white;
-    border-radius: 16px;
-    padding: 25px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
-    transition: all 0.3s ease;
-    border: 1px solid rgba(74, 105, 165, 0.1);
-}
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
 
-.card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
-}
+        .card {
+            background: var(--bg-card);
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+        }
 
-.card h3 {
-    font-size: 18px;
-    color: #4a69a5;
-    margin-bottom: 15px;
-    font-weight: 600;
-}
+        .card h2 {
+            color: var(--text-light);
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
 
-.card p {
-    font-size: 24px;
-    font-weight: 600;
-    color: #2c3e50;
-    margin: 0;
-}
+        .card p {
+            color: var(--text);
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
 
-/* Chart Section */
-.chart-section {
-    background: white;
-    border-radius: 16px;
-    padding: 20px;
-    margin: 0 auto 40px;
-    max-width: 500px;
-    height: 400px;
-    box-shadow: 0 4px 25px rgba(0, 0, 0, 0.05);
-    border: 1px solid rgba(226, 232, 240, 0.8);
-    position: relative;
-}
+        /* Chart */
+        .chart-container {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+            margin-top: 2rem;
+            min-height: 400px;
+            position: relative;
+        }
 
-.chart-section h3 {
-    text-align: center;
-    margin-bottom: 15px;
-    font-size: 16px;
-    color: #4f566b;
-    font-weight: 500;
-}
+        .chart-container h2 {
+            color: var(--text-light);
+            font-size: 0.875rem;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
 
-/* Notification Icon and Badge */
-.notification-icon {
-    position: fixed;
-    top: 15px;
-    right: 20px;
-    z-index: 1000;
-    width: 40px;
-    height: 40px;
-    background: white;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-}
+        .chart-container canvas {
+            width: 100% !important;
+            height: 350px !important;
+        }
 
-.notification-icon img {
-    width: 20px;
-    height: 20px;
-    filter: invert(31%) sepia(15%) saturate(2254%) hue-rotate(182deg) brightness(92%) contrast(87%);
-}
+        /* Notifications */
+        .notification-icon {
+            background: var(--bg);
+            width: 38px;
+            height: 38px;
+            border-radius: var(--radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.2s;
+            position: relative;
+        }
 
-#notificationCount {
-    position: absolute;
-    top: -6px;
-    right: -6px;
-    background: #3a4f7a;
-    color: white;
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    font-size: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 600;
-    border: 2px solid white;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-}
+        .notification-icon svg {
+            width: 18px;
+            height: 18px;
+            color: var(--text);
+        }
 
-.notification-icon:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-}
+        .notification-icon:hover {
+            background: var(--border);
+        }
 
-/* Notification Popup */
-.notification-popup {
-    position: fixed;
-    top: 70px;
-    right: 20px;
-    background: white;
-    border-radius: 12px;
-    width: 320px;
-    max-height: 400px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-    z-index: 999;
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(-10px);
-    transition: all 0.3s ease;
-    overflow: hidden;
-}
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--primary);
+            color: white;
+            min-width: 18px;
+            height: 18px;
+            border-radius: 9px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 5px;
+            border: 2px solid var(--bg-card);
+        }
 
-.notification-popup.show {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
-}
+        .notification-popup {
+            position: fixed;
+            top: 3.75rem;
+            right: 1.5rem;
+            width: 320px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            z-index: 1000;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            max-height: 400px;
+            overflow-y: auto;
+        }
 
-.popup-header {
-    padding: 15px 20px;
-    border-bottom: 1px solid #edf2f7;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: #f8fafc;
-}
+        .notification-popup.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
 
-.popup-header h3 {
-    margin: 0;
-    font-size: 16px;
-    color: #1a1f36;
-    font-weight: 600;
-}
+        .popup-header {
+            padding: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 1;
+        }
 
-.mark-read-btn {
-    padding: 6px 12px;
-    background: #3a4f7a;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-size: 12px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
+        .popup-header h3 {
+            margin: 0;
+            font-size: 1rem;
+            color: #1f2937;
+        }
 
-.mark-read-btn:hover {
-    background: #2c3e50;
-    transform: translateY(-1px);
-}
+        .mark-read-btn {
+            background: transparent;
+            color: var(--primary);
+            border: none;
+            font-size: 0.875rem;
+            cursor: pointer;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
 
-/* Notification Items */
-#notificationList {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    max-height: 300px;
-    overflow-y: auto;
-}
+        .mark-read-btn:hover {
+            background: rgba(37, 99, 235, 0.1);
+        }
 
-.notification-item {
-    padding: 12px 20px;
-    border-bottom: 1px solid #edf2f7;
-    transition: all 0.2s ease;
-}
+        .notification-list {
+            padding: 0;
+            margin: 0;
+            list-style: none;
+        }
 
-.notification-item:last-child {
-    border-bottom: none;
-}
+        .notification-item {
+            padding: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            transition: background-color 0.2s;
+            cursor: pointer;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
 
-.notification-item.unread {
-    background: #f8fafc;
-    border-left: 3px solid #3a4f7a;
-}
+        .notification-item:last-child {
+            border-bottom: none;
+        }
 
-.notification-item:hover {
-    background: #f1f5 f9;
-}
+        .notification-item:hover {
+            background-color: #f3f4f6;
+        }
 
-.notification-item small {
-    display: block;
-    font-size: 11px;
-    color: #64748b;
-    margin-top: 4px;
-}
+        .notification-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--primary);
+            border-radius: 50%;
+            margin-top: 0.5rem;
+        }
 
-/* Scrollbar Styling */
-#notificationList::-webkit-scrollbar {
-    width: 6px;
-}
+        .notification-content {
+            flex: 1;
+        }
 
-#notificationList::-webkit-scrollbar-track {
-    background: #f1f5f9;
-}
+        .notification-title {
+            font-weight: 500;
+            color: #1f2937;
+            margin-bottom: 0.25rem;
+        }
 
-#notificationList::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 3px;
-}
+        .notification-message {
+            color: #6b7280;
+            font-size: 0.875rem;
+            line-height: 1.25rem;
+        }
 
-#notificationList::-webkit-scrollbar-thumb:hover {
-    background: #94a3b8;
-}
+        .notification-time {
+            font-size: 0.75rem;
+            color: #9ca3af;
+            margin-top: 0.25rem;
+        }
 
-/* Responsive Design */
-@media (max-width: 1024px) {
-    .sidebar {
-        width: 240px;
-    }
-    
-    .content {
-        margin-left: 240px;
-    }
-    
-    .cards {
-        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    }
+        .empty-notifications {
+            padding: 2rem;
+            text-align: center;
+            color: #6b7280;
+        }
 
-    .menu-icon {
-        display: none; /* Hide on larger screens */
-    }
-}
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
 
-@media (max-width: 768px) {
-    .sidebar {
-        position: fixed;
-        top: 0;
-        left: -100%;
-        width: 80%;
-        height: 100vh;
-        z-index: 1000;
-        transition: left 0.3s ease;
-    }
+        .welcome-section h1 {
+            font-size: 1.875rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+        }
 
-    .sidebar.active {
-        left: 0;
-    }
+        .date {
+            color: var(--text-light);
+            font-size: 0.875rem;
+        }
 
-    .content {
-        margin-left: 0;
-        padding: 15px;
-        padding-top: 60px;
-        width: 100%;
-    }
+        .quick-actions {
+            display: flex;
+            gap: 1rem;
+        }
 
-    .content h2 {
-        margin-top: 20px;
-    }
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
 
-    /* Hamburger menu button */
-    .menu-toggle {
-        display: block;
-        position: fixed;
-        top: 15px;
-        left: 15px;
-        z-index: 1001;
-        background: #4a69a5;
-        padding: 10px;
-        border-radius: 5px;
-        cursor: pointer;
-    }
+        .action-btn:hover {
+            background: var(--primary-light);
+            transform: translateY(-1px);
+        }
 
-    /* Cards layout */
-    .cards {
-        grid-template-columns: 1fr;
-        gap: 15px;
-    }
+        .stats-overview {
+            margin-bottom: 2rem;
+        }
 
-    .card {
-        padding: 15px;
-    }
+        .card {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1.5rem;
+        }
 
-    /* Chart section */
-    .chart-section {
-        height: 300px;
-        margin: 15px 0;
-    }
+        .card.highlight {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+        }
 
-    /* Notification adjustments */
-    .notification-icon {
-        top: 15px;
-        right: 15px;
-    }
+        .card.highlight h3,
+        .card.highlight p {
+            color: white;
+        }
 
-    .notification-popup {
-        width: 90%;
-        right: 5%;
-        left: 5%;
-        top: 60px;
-    }
+        .card-icon {
+            padding: 0.75rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius);
+        }
 
-    /* Overlay for when sidebar is open */
-    .overlay {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: 999;
-    }
+        .card-content {
+            flex: 1;
+        }
 
-    .overlay.active {
-        display: block;
-    }
-}
+        .card h3 {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-light);
+            margin-bottom: 0.5rem;
+        }
+
+        .number {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .trend {
+            font-size: 0.875rem;
+            color: var(--success);
+        }
+
+        .subtitle {
+            font-size: 0.875rem;
+            color: var(--text-light);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-section {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .chart-period {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            background: var(--bg);
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .chart-period.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .recent-activity {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+        }
+
+        .activity-list {
+            margin-top: 1rem;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            padding: 0.5rem;
+            border-radius: var(--radius);
+            background: var(--bg);
+        }
+
+        .activity-icon.processing {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .activity-icon.completed {
+            background: rgba(34, 197, 94, 0.1);
+            color: var(--success);
+        }
+
+        .activity-details {
+            flex: 1;
+        }
+
+        .activity-title {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .activity-meta {
+            font-size: 0.875rem;
+            color: var(--text-light);
+        }
+
+        .activity-time {
+            font-size: 0.75rem;
+            color: var(--text-light);
+        }
+
+        .activity-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .activity-status.processing {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .activity-status.completed {
+            background: rgba(34, 197, 94, 0.1);
+            color: var(--success);
+        }
+
+        .admin-insights {
+            margin-top: 2rem;
+        }
+
+        .insights-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+
+        .insight-card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+        }
+
+        .category-list {
+            margin-top: 1rem;
+        }
+
+        .category-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .category-item:last-child {
+            border-bottom: none;
+        }
+
+        .category-info h4 {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .category-orders {
+            font-size: 0.875rem;
+            color: var(--text-light);
+        }
+
+        .inventory-status {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .inventory-item {
+            text-align: center;
+            padding: 1rem;
+            border-radius: var(--radius);
+        }
+
+        .inventory-item.critical {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .inventory-item.warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .inventory-item.success {
+            background: rgba(34, 197, 94, 0.1);
+            color: var(--success);
+        }
+
+        .inventory-item .count {
+            display: block;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .inventory-item .label {
+            font-size: 0.875rem;
+        }
+
+        @media (max-width: 1024px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .insights-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .quick-actions {
+                width: 100%;
+            }
+
+            .action-btn {
+                flex: 1;
+            }
+
+            .grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+        }
     </style>
 </head>
 <body>
-<div class="menu-toggle">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
-        <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
-    </svg>
-</div>
-<div class="overlay"></div>
-<div class="sidebar">
-    <h1>EcoTech</h1>
-    <nav>
-        <div class="menu-icon" id="menuIcon">...</div> <!-- Three dots icon -->
-        <?php if (isset($_SESSION['admin_role']) && $_SESSION['admin_role'] === 'superadmin'): ?>
-            <a href="add_admin.php" data-page="admins">Admins</a>
-        <?php endif; ?>
-        <a href="add_feature.php" data-page="features">Features</a>
-        <a href="dashboard_products.php" data-page="products">Products</a>
-        <a href="orders.php" data-page="orders">Orders</a>
-        <a href="manage_recycle.php" data-page="recycle">Recycling</a>
-        <a href="manage_slider.php" data-page="slider">Slider</a>
-    </nav>
-    <nav>
-        <a href="index.php">Go back to the website</a>
-    </nav>
-</div>
-
-    <div class="content">
-        <h2>Welcome to the Dashboard</h2>
-        <p><strong>Admin Name:</strong> <?php echo htmlspecialchars($admin['email']); ?></p>
-        
-        <div class="cards">
-            <div class="card">
-                <h3>Total Products</h3>
-                <p><?php 
-                    $stmt = $pdo->query('SELECT COUNT(*) FROM products');
-                    echo $stmt->fetchColumn(); 
-                ?> Products</p>
-            </div>
-
-            <div class="card">
-                <h3>Total Sales</h3>
-                <p><?php 
-                    $stmt = $pdo->query('SELECT SUM(quantity) FROM order_details');
-                    echo $stmt->fetchColumn(); 
-                ?> Units Sold</p>
-            </div>
-
-            <div class="card">
-                <h3>Total Stock Value</h3>
-                <p><?php 
-                    // Query to calculate total stock value (stock * price for each product)
-                    $stmt = $pdo->query('SELECT SUM(stock * price) FROM products');
-                    echo "   DZD" . number_format($stmt->fetchColumn(), 2); 
-                ?> Total Value</p>
-            </div>
-
-            <div class="card">
-                <h3>Most Sold Product</h3>
-                <p>
-                    <?php 
-                    try {
-                        $stmt = $pdo->query('
-                            SELECT p.name, SUM(od.quantity) AS total_sales
-                            FROM products p
-                            JOIN order_details od ON p.id = od.product_id
-                            GROUP BY p.id
-                            ORDER BY total_sales DESC
-                            LIMIT 1
-                        ');
-                        
-                        $most_sold = $stmt->fetch(PDO::FETCH_ASSOC);
-
-                        if ($most_sold) {
-                            echo htmlspecialchars($most_sold['name']) . " (Sold: " . htmlspecialchars($most_sold['total_sales']) . " units)";
-                        } else {
-                            echo "No sold product.";
-                        }
-                    } catch (PDOException $e) {
-                        echo "Error retrieving most sold product: " . htmlspecialchars($e->getMessage());
-                    }
-                    ?>
-                </p>
-            </div>
-
+    <nav class="top-nav">
+        <div class="nav-brand">
+            <h1>EcoTech</h1>
+        </div>
+        <div class="nav-menu">
             <?php if (isset($_SESSION['admin_role']) && $_SESSION['admin_role'] === 'superadmin'): ?>
-                <div class="card" style="color: green;">
-                    <h3>Total Profit</h3>
-                    <p><?php echo htmlspecialchars(number_format($total_profit, 2)); ?>   DZDs</p>
-                </div>
+                <a href="add_admin.php">Admins</a>
             <?php endif; ?>
+            <a href="add_feature.php">Features</a>
+            <a href="dashboard_products.php">Products</a>
+            <a href="orders.php">Orders</a>
+            <a href="manage_recycle.php">Recycling</a>
+            <a href="manage_slider.php">Slider</a>
+            <a href="manage_marketplace.php">Marketplace</a>
+            <a href="index.php">Website</a>
         </div>
-
-        <!-- Statistics Section -->
-        <div class="chart-section">
-            <h3>Total Product Sales</h3>
-            <canvas id="salesChart" width="300" height="300"></canvas>
+        <div class="nav-end">
+            <div class="notification-icon" id="notificationIcon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                <span class="notification-badge"><?php echo $new_orders_count; ?></span>
+            </div>
         </div>
+    </nav>
 
-        <div class="notification-icon" id="notificationIcon">
-    <img src="https://icons.veryicon.com/png/o/object/material-design-icons/notifications-1.png" alt="Notifications" />
-    <span id="notificationCount"><?php echo $new_orders_count; ?></span>
+    <div class="main-content">
+        <div class="dashboard-header">
+            <div class="welcome-section">
+                <h1>Welcome back, <?php echo htmlspecialchars($admin['email']); ?></h1>
+                <p class="date"><?php echo date('l, F j, Y'); ?></p>
+            </div>
+            <div class="quick-actions">
+            <button class="action-btn" onclick="location.href='add_product.php'">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 5v14M5 12h14"/>
+    </svg>
+    Add Product
+</button>
+
+
+
+   
 </div>
+        </div>
+
+        <div class="stats-overview">
+            <div class="grid">
+                <div class="card highlight">
+                    <div class="card-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12V8H6a2 2 0 01-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12c0 1.1.9 2 2 2h14v-4"/><path d="M18 12a2 2 0 000 4h4v-4z"/></svg>
+                    </div>
+                    <div class="card-content">
+                        <h3>Total Revenue</h3>
+                        <p class="number">
+                            <?php
+                                $stmt = $pdo->prepare('
+                                    SELECT COALESCE(SUM(p.price * od.quantity), 0) as total_revenue
+                                    FROM orders o
+                                    JOIN order_details od ON o.id = od.order_id
+                                    JOIN products p ON od.product_id = p.id
+                                ');
+                                $stmt->execute();
+                                echo number_format($stmt->fetchColumn(), 2) . ' DZD';
+                            ?>
+                        </p>
+                        <p class="trend">
+                            <?php
+                                $last_month = date('Y-m-d', strtotime('-1 month'));
+                                $stmt = $pdo->prepare('
+                                    SELECT COALESCE(SUM(p.price * od.quantity), 0) as last_month_revenue
+                                    FROM orders o
+                                    JOIN order_details od ON o.id = od.order_id
+                                    JOIN products p ON od.product_id = p.id
+                                    WHERE DATE(o.order_date) >= ?
+                                ');
+                                $stmt->execute([$last_month]);
+                                $monthly_revenue = $stmt->fetchColumn();
+                                echo 'Last 30 days: ' . number_format($monthly_revenue, 2) . ' DZD';
+                            ?>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="card">
+    <div class="card-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7h-7L10 4H4a2 2 0 00-2 2v12c0 1.1.9 2 2 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/></svg>
+    </div>
+    <div class="card-content">
+        <h3>Total Products</h3>
+        <p class="number">
+            <?php
+                $stmt = $pdo->prepare('SELECT COUNT(*) FROM products');
+                $stmt->execute();
+                echo $stmt->fetchColumn();
+            ?>
+        </p>
+        <p class="subtitle">In Store</p>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+    </div>
+    <div class="card-content">
+        <h3>Total Sales</h3>
+        <p class="number">
+            <?php
+                $stmt = $pdo->prepare('
+                    SELECT COUNT(*) 
+                    FROM orders
+                ');
+                $stmt->execute();
+                echo $stmt->fetchColumn();
+            ?>
+        </p>
+        <p class="subtitle">All Time</p>
+    </div>
+</div>
+
+                <div class="card">
+                    <div class="card-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7h-7L10 4H4a2 2 0 00-2 2v12c0 1.1.9 2 2 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/></svg>
+                    </div>
+                    <div class="card-content">
+                        <h3>Low Stock Items</h3>
+                        <p class="number">
+                            <?php
+                                $stmt = $pdo->prepare('SELECT COUNT(*) FROM products WHERE stock <= 10');
+                                $stmt->execute();
+                                echo $stmt->fetchColumn();
+                            ?>
+                        </p>
+                        <p class="subtitle">Need Attention</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="chart-section">
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h2>Sales Overview</h2>
+                        <div class="chart-actions">
+                            <button class="chart-period active" data-period="week">Week</button>
+                            <button class="chart-period" data-period="month">Month</button>
+                            <button class="chart-period" data-period="year">Year</button>
+                        </div>
+                    </div>
+                    <canvas id="salesChart"></canvas>
+                </div>
+            </div>
+
+            <div class="recent-activity">
+                <h2>Recent Activity</h2>
+                <div class="activity-list">
+                    <?php
+                        // Fetch recent orders
+                        $stmt = $pdo->prepare('
+                            SELECT o.id, o.order_date, u.email, o.status,
+                                   SUM(p.price * od.quantity) as total_amount
+                            FROM orders o
+                            JOIN users u ON o.user_id = u.id
+                            JOIN order_details od ON o.id = od.order_id
+                            JOIN products p ON od.product_id = p.id
+                            GROUP BY o.id, o.order_date, u.email, o.status
+                            ORDER BY o.order_date DESC
+                            LIMIT 5
+                        ');
+                        $stmt->execute();
+                        $recent_orders = $stmt->fetchAll();
+
+                        foreach ($recent_orders as $order):
+                    ?>
+                    <div class="activity-item">
+                        <div class="activity-icon <?php echo $order['status']; ?>">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/></svg>
+                        </div>
+                        <div class="activity-details">
+                            <p class="activity-title">New order #<?php echo $order['id']; ?></p>
+                            <p class="activity-meta">
+                                <?php echo htmlspecialchars($order['email']); ?> •
+                                <?php echo number_format($order['total_amount'], 2); ?> DZD
+                            </p>
+                            <p class="activity-time"><?php echo date('g:i A', strtotime($order['order_date'])); ?></p>
+                        </div>
+                        <div class="activity-status <?php echo $order['status']; ?>">
+                            <?php echo ucfirst($order['status']); ?>
+                        </div>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </div>
+
+        <?php if (isset($_SESSION['admin_role']) && $_SESSION['admin_role'] === 'superadmin'): ?>
+        <div class="admin-insights">
+            <h2>Business Insights</h2>
+            <div class="insights-grid">
+                <div class="insight-card">
+                    <h3>Top Performing Categories</h3>
+                    <div class="category-list">
+                        <?php
+                            $stmt = $pdo->prepare('
+                                SELECT c.name, COUNT(o.id) as order_count, SUM(p.price * od.quantity) as revenue
+                                FROM categories c
+                                JOIN products p ON c.id = p.category_id
+                                JOIN order_details od ON p.id = od.product_id
+                                JOIN orders o ON od.order_id = o.id
+                                GROUP BY c.id
+                                ORDER BY revenue DESC
+                                LIMIT 3
+                            ');
+                            $stmt->execute();
+                            $top_categories = $stmt->fetchAll();
+
+                            foreach ($top_categories as $category):
+                        ?>
+                        <div class="category-item">
+                            <div class="category-info">
+                                <h4><?php echo htmlspecialchars($category['name']); ?></h4>
+                                <p><?php echo number_format($category['revenue'], 2); ?> DZD</p>
+                            </div>
+                            <div class="category-orders">
+                                <?php echo $category['order_count']; ?> orders
+                            </div>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+
+                <div class="insight-card">
+                    <h3>Inventory Status</h3>
+                    <div class="inventory-status">
+                        <?php
+                            $stmt = $pdo->prepare('
+                                SELECT 
+                                    SUM(CASE WHEN stock = 0 THEN 1 ELSE 0 END) as out_of_stock,
+                                    SUM(CASE WHEN stock BETWEEN 1 AND 10 THEN 1 ELSE 0 END) as low_stock,
+                                    SUM(CASE WHEN stock > 10 THEN 1 ELSE 0 END) as in_stock
+                                FROM products
+                            ');
+                            $stmt->execute();
+                            $inventory = $stmt->fetch();
+                        ?>
+                        <div class="inventory-item critical">
+                            <span class="count"><?php echo $inventory['out_of_stock']; ?></span>
+                            <span class="label">Out of Stock</span>
+                        </div>
+                        <div class="inventory-item warning">
+                            <span class="count"><?php echo $inventory['low_stock']; ?></span>
+                            <span class="label">Low Stock</span>
+                        </div>
+                        <div class="inventory-item success">
+                            <span class="count"><?php echo $inventory['in_stock']; ?></span>
+                            <span class="label">In Stock</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <?php endif; ?>
+    </div>
 
 <div class="notification-popup" id="notificationPopup">
     <div class="popup-header">
-        <h3>Unread Notifications</h3>
-        <button id="markAsRead" class="mark-read-btn">Mark All as Read</button>
+        <h3>Notifications</h3>
+        <button id="markAsRead" class="mark-read-btn">Mark all as read</button>
     </div>
-    
-    <!-- Unread Notifications Section -->
-    <div id="unreadNotificationsSection">
-        <ul id="notificationList">
-            <?php if (count($notifications) > 0): ?>
-                <?php foreach ($notifications as $notification): ?>
-                    <li class="notification-item unread">
-                        <?php echo htmlspecialchars($notification['message']); ?>
-                        <small><?php echo htmlspecialchars($notification['created_at']); ?></small>
-                    </li>
-                <?php endforeach; ?>
-            <?php else: ?>
-                <li>No new notifications.</li>
-            <?php endif; ?>
-        </ul>
-    </div>
-
-    <!-- Read Notifications Section -->
-    <div id="readNotificationsSection" style="display: none;">
-        <h3>Read Notifications</h3>
-        <ul id="readNotificationList">
-            <!-- Read notifications will be populated here -->
-        </ul>
+    <div class="notification-list" id="notificationList">
+        <!-- Notifications will be dynamically inserted here -->
+        <div class="empty-notifications">
+            <p>No new notifications</p>
+        </div>
     </div>
 </div>
 
 <script>
-    document.getElementById('menuIcon').addEventListener('click', function() {
-    const sidebar = document.querySelector('.sidebar');
-    sidebar.classList.toggle('active');
-});
-document.getElementById('notificationIcon').addEventListener('click', function(event) {
+    document.getElementById('notificationIcon').addEventListener('click', function(event) {
     const popup = document.getElementById('notificationPopup');
     const currentDisplay = popup.style.display;
 

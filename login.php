@@ -616,9 +616,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <label for="email">Email</label>
             </div>
             <div class="field">
-                <input type="password" id="password" name="password" required placeholder=" ">
-                <label for="password">Password</label>
-            </div>
+    <input type="password" id="password" name="password" required placeholder=" ">
+    <label for="password">Password</label>
+    <button type="button" id="togglePassword" onclick="togglePasswordVisibility()">Show</button>
+</div>
             <div class="content">
                 <div class="checkbox">
                     <input type="checkbox" id="remember-me" name="remember-me">
@@ -721,6 +722,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             submitBtn.textContent = 'Send Reset Link';
         });
     }
+    
     </script>
 </body>
 </html>
