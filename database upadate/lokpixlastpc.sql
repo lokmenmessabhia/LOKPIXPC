@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 22, 2025 at 11:13 PM
+-- Generation Time: Feb 23, 2025 at 04:11 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `tests`
+-- Database: `lokpixpc`
 --
 
 -- --------------------------------------------------------
@@ -163,6 +163,61 @@ INSERT INTO `features` (`id`, `title`, `description`, `photo`, `created_at`, `is
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `marketplace_items`
+--
+
+CREATE TABLE `marketplace_items` (
+  `id` int(11) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `price` decimal(10,2) NOT NULL,
+  `image_url` varchar(255) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `approved` tinyint(1) DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `email` varchar(255) DEFAULT NULL,
+  `category_id` int(11) NOT NULL,
+  `subcategory_id` int(11) NOT NULL,
+  `description` text DEFAULT NULL,
+  `condition` enum('New','Like New','Very Good','Good','Acceptable','For Parts') DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `marketplace_items`
+--
+
+INSERT INTO `marketplace_items` (`id`, `name`, `price`, `image_url`, `user_id`, `approved`, `created_at`, `email`, `category_id`, `subcategory_id`, `description`, `condition`) VALUES
+(1, 'Badji', 2790.00, 'uploads/marketplace/lokmen15.messabhia@gmail.com/67ba658fbd19c.png', 1, 1, '2025-02-23 00:02:23', 'lokmen15.messabhia@gmail.com', 1, 8, 'holla', NULL),
+(3, 'Badji', 2790.00, 'uploads/marketplace/lokmen15.messabhia@gmail.com/67ba719333f64.jpeg', 1, 1, '2025-02-23 00:53:39', 'lokmen15.messabhia@gmail.com', 1, 2, 'sdfdf', 'New');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `messages`
+--
+
+CREATE TABLE `messages` (
+  `id` int(11) NOT NULL,
+  `sender_email` varchar(255) NOT NULL,
+  `receiver_email` varchar(255) NOT NULL,
+  `message` text NOT NULL,
+  `product_name` varchar(255) DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  `read_at` datetime DEFAULT NULL,
+  `read_status` tinyint(1) DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `messages`
+--
+
+INSERT INTO `messages` (`id`, `sender_email`, `receiver_email`, `message`, `product_name`, `created_at`, `read_at`, `read_status`) VALUES
+(54, 'lokmen16.messabhia@gmail.com', 'lokmen15.messabhia@gmail.com', 'Salam', 'Badji', '2025-02-23 14:33:38', '2025-02-23 14:34:03', 1),
+(55, 'lokmen16.messabhia@gmail.com', 'lokmen15.messabhia@gmail.com', 'Khouaaa', 'Badji', '2025-02-23 14:33:49', '2025-02-23 14:34:03', 1),
+(56, 'lokmen15.messabhia@gmail.com', 'lokmen16.messabhia@gmail.com', 'wa casque', 'Badji', '2025-02-23 14:34:11', NULL, 0);
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `notifications`
 --
 
@@ -203,10 +258,10 @@ INSERT INTO `notifications` (`id`, `admin_id`, `message`, `is_read`, `created_at
 (24, 2, 'New order placed by user ID: 1 with total price: 60000', 1, '2025-02-11 14:40:30'),
 (25, 10, 'New order placed by user ID: 2 with total price: 54900', 1, '2025-02-17 22:12:42'),
 (26, 2, 'New order placed by user ID: 2 with total price: 54900', 1, '2025-02-17 22:12:42'),
-(27, 10, 'New order placed by user ID: 1 with total price: 54900', 0, '2025-02-21 22:43:44'),
-(28, 2, 'New order placed by user ID: 1 with total price: 54900', 0, '2025-02-21 22:43:44'),
-(29, 10, 'New order placed by user ID: 1 with total price: 67500', 0, '2025-02-22 21:55:35'),
-(30, 2, 'New order placed by user ID: 1 with total price: 67500', 0, '2025-02-22 21:55:35');
+(27, 10, 'New order placed by user ID: 1 with total price: 54900', 1, '2025-02-21 22:43:44'),
+(28, 2, 'New order placed by user ID: 1 with total price: 54900', 1, '2025-02-21 22:43:44'),
+(29, 10, 'New order placed by user ID: 1 with total price: 67500', 1, '2025-02-22 21:55:35'),
+(30, 2, 'New order placed by user ID: 1 with total price: 67500', 1, '2025-02-22 21:55:35');
 
 -- --------------------------------------------------------
 
@@ -236,7 +291,7 @@ CREATE TABLE `orders` (
 INSERT INTO `orders` (`id`, `email`, `phone`, `address`, `delivery_type`, `total_price`, `order_date`, `status`, `qrtoken`, `user_id`, `wilaya_id`, `tracking_number`) VALUES
 (41, 'lokmen16.messabhia@gmail.com', '0657415715', '28 logement madjerda', 'Express', 230000.00, '2025-01-29 17:05:26', '', 'ad45d4a959b99d6e7226203d376824da', 2, 17, NULL),
 (42, 'lokmen16.messabhia@gmail.com', '0657415715', '7XM4+RCM, Ex Rue Victor Hugo, Souk-Ahras', 'Standard', 115000.00, '2025-02-10 10:19:02', 'validated', '2e5c45b926f465a939bc4e94aeb96810', 2, 5, NULL),
-(43, 'lokmen16.messabhia@gmail.com', '0657415715', '7XM4+RCM, Ex Rue Victor Hugo, Souk-Ahras', 'Standard', 60000.00, '2025-02-10 10:32:29', '', '0663b6298c49d821078b6b085798f9b7', 2, 5, NULL),
+(43, 'lokmen16.messabhia@gmail.com', '0657415715', '7XM4+RCM, Ex Rue Victor Hugo, Souk-Ahras', 'Standard', 60000.00, '2025-02-10 10:32:29', 'pending', '0663b6298c49d821078b6b085798f9b7', 2, 5, NULL),
 (46, 'lokmen16.messabhia@gmail.com', '0657415715', '28 logement madjerda', 'Standard', 54900.00, '2025-02-17 22:12:42', '', '3a19502b34c02648d600a7345e71eda6', 2, 16, NULL),
 (48, 'lokmen15.messabhia@gmail.com', '0657415715', '28 logement madjerda', 'Standard', 67500.00, '2025-02-22 21:55:35', '', '082b262b39d7021f21c4515705885077', 1, 19, 'Yfhh');
 
@@ -289,7 +344,7 @@ CREATE TABLE `products` (
 
 INSERT INTO `products` (`id`, `name`, `description`, `price`, `buying_price`, `stock`, `category_id`, `created_at`, `updated_at`, `subcategory_id`) VALUES
 (10, 'AMD Ryzen 7 5800X', 'A high-performance 8-core, 16-thread unlocked desktop processor designed for gaming and content creation.', 60000.00, 50000.00, 23, 1, '2024-12-30 13:40:48', '2025-02-11 14:40:29', 2),
-(11, 'Intel Core i9-13900K', 'A 13th Gen Intel Core desktop processor featuring 24 cores (8 Performance-cores and 16 Efficient-cores) and 32 threads, optimized for gaming and productivity.', 115000.00, 92000.00, 7, 1, '2024-12-30 13:46:42', '2025-02-10 10:19:02', 2),
+(11, 'Intel Core i9-13900K', 'A 13th Gen Intel Core desktop processor featuring 24 cores (8 Performance-cores and 16 Efficient-cores) and 32 threads, optimized for gaming and productivity.', 115000.00, 92000.00, 0, 1, '2024-12-30 13:46:42', '2025-02-23 13:58:41', 2),
 (12, 'AMD Ryzen 5 5600G', 'A 6-core, 12-thread processor with integrated Radeon graphics, suitable for gaming and general computing.', 45000.00, 37000.00, 12, 1, '2024-12-30 13:48:56', '2024-12-30 13:48:56', 2),
 (14, 'NVIDIA GeForce RTX 4070 Ti', 'A high-end graphics card offering advanced ray tracing and AI capabilities for gaming and creative applications.', 114000.00, 99000.00, 8, 1, '2024-12-30 13:52:04', '2024-12-30 13:52:04', 3),
 (15, 'AMD Radeon RX 7900 XTX', 'A flagship GPU delivering exceptional performance for gaming and professional workloads.', 152000.00, 130000.00, 3, 1, '2024-12-30 13:54:27', '2025-02-11 14:37:34', 3),
@@ -364,6 +419,19 @@ INSERT INTO `product_images` (`id`, `product_id`, `image_url`, `is_primary`, `di
 (44, 37, '6772b28ce60d2_7311-lg-ultragear-27gp850-b-27-led-nanoips-qhd-165hz-g-sync-compatible-8c8bfa12-6f86-4764-a40b-3e7bfae9d278.webp', 1, 1, '2024-12-30 14:47:40'),
 (45, 37, '6772b28ce702b_my-11134207-7r98y-ll4vmuxzsrp00e.jpeg', 0, 2, '2024-12-30 14:47:40'),
 (46, 38, '6772b36990ad3_20201217110844_37a1b847.jpeg', 1, 1, '2024-12-30 14:51:21');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `push_subscriptions`
+--
+
+CREATE TABLE `push_subscriptions` (
+  `id` int(11) NOT NULL,
+  `user_email` varchar(255) NOT NULL,
+  `subscription_data` text NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -512,18 +580,20 @@ CREATE TABLE `users` (
   `profile_picture` varchar(255) DEFAULT NULL,
   `reset_token` varchar(255) DEFAULT NULL,
   `reset_token_expiry` datetime DEFAULT NULL,
-  `username` varchar(255) DEFAULT NULL
+  `username` varchar(255) DEFAULT NULL,
+  `storage_used` bigint(20) DEFAULT 0,
+  `storage_limit` bigint(20) DEFAULT 104857600
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `email`, `phone`, `password`, `verification_token`, `email_verified`, `created_at`, `profile_picture`, `reset_token`, `reset_token_expiry`, `username`) VALUES
-(1, 'lokmen15.messabhia@gmail.com', '0657415715', '$2y$10$4PArXtWrKRMqI7gHbSaTRuEGBS4R6T4DKPt9fj8x3P.Mt2Lq4oJdm', 'f1473b', 1, '2024-12-22 22:18:21', '1740237347_1740236763_240917-Sean-Diddy-Combs-ew-219p-9208ee.jpg', NULL, NULL, NULL),
-(2, 'lokmen16.messabhia@gmail.com', '0657415715', '$2y$10$TnYAV6cWlaGVeX3Yxr/Xl.O9Fm9g5jL8VPOSPpdchIiO24wNaLTAi', NULL, 1, '2024-12-19 20:14:58', '459177720_508171588647853_6761848684807922403_n.jpg', '5d14799dba15b25333c259941b9ee1544b825e6e9d8c32b923b9a451ce215732', '2025-02-15 15:44:12', NULL),
-(107, 'lokmen14.messabhia@gmail.com', '', '$2y$10$O9wjcDEADVQKI4EitPTxreatk5G55lKJKS69oxQa8VLFG35skXUUu', NULL, 1, '2024-12-23 17:35:21', NULL, NULL, NULL, NULL),
-(108, 'hammoudiwajdi@gmail.com', '0657415715', '$2y$10$nTcM6dXOBmur38Ric1PNAOTzN.eIY.iNu5ZrhvA4xcKPrA4xUMH3y', NULL, 1, '2024-12-30 10:08:30', NULL, NULL, NULL, NULL);
+INSERT INTO `users` (`id`, `email`, `phone`, `password`, `verification_token`, `email_verified`, `created_at`, `profile_picture`, `reset_token`, `reset_token_expiry`, `username`, `storage_used`, `storage_limit`) VALUES
+(1, 'lokmen15.messabhia@gmail.com', '0657415715', '$2y$10$4PArXtWrKRMqI7gHbSaTRuEGBS4R6T4DKPt9fj8x3P.Mt2Lq4oJdm', 'f1473b', 1, '2024-12-22 22:18:21', '1740306021_ubma-logo.png', NULL, NULL, NULL, 0, 104857600),
+(2, 'lokmen16.messabhia@gmail.com', '0657415715', '$2y$10$TnYAV6cWlaGVeX3Yxr/Xl.O9Fm9g5jL8VPOSPpdchIiO24wNaLTAi', NULL, 1, '2024-12-19 20:14:58', '1740275447_1000008277.jpg', '5d14799dba15b25333c259941b9ee1544b825e6e9d8c32b923b9a451ce215732', '2025-02-15 15:44:12', NULL, 0, 104857600),
+(107, 'lokmen14.messabhia@gmail.com', '', '$2y$10$O9wjcDEADVQKI4EitPTxreatk5G55lKJKS69oxQa8VLFG35skXUUu', NULL, 1, '2024-12-23 17:35:21', NULL, NULL, NULL, NULL, 0, 104857600),
+(108, 'hammoudiwajdi@gmail.com', '0657415715', '$2y$10$nTcM6dXOBmur38Ric1PNAOTzN.eIY.iNu5ZrhvA4xcKPrA4xUMH3y', NULL, 1, '2024-12-30 10:08:30', NULL, NULL, NULL, NULL, 0, 104857600);
 
 -- --------------------------------------------------------
 
@@ -619,7 +689,8 @@ CREATE TABLE `wishlists` (
 
 INSERT INTO `wishlists` (`id`, `user_id`, `product_id`, `created_at`) VALUES
 (48, 2, 33, '2025-02-22 13:05:36'),
-(50, 1, 31, '2025-02-22 14:17:53');
+(50, 1, 31, '2025-02-22 14:17:53'),
+(52, 1, 38, '2025-02-23 14:49:44');
 
 --
 -- Indexes for dumped tables
@@ -665,6 +736,22 @@ ALTER TABLE `features`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `marketplace_items`
+--
+ALTER TABLE `marketplace_items`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`);
+
+--
+-- Indexes for table `messages`
+--
+ALTER TABLE `messages`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_sender` (`sender_email`),
+  ADD KEY `idx_receiver` (`receiver_email`),
+  ADD KEY `idx_created_at` (`created_at`);
+
+--
 -- Indexes for table `notifications`
 --
 ALTER TABLE `notifications`
@@ -699,6 +786,13 @@ ALTER TABLE `products`
 ALTER TABLE `product_images`
   ADD PRIMARY KEY (`id`),
   ADD KEY `product_id` (`product_id`);
+
+--
+-- Indexes for table `push_subscriptions`
+--
+ALTER TABLE `push_subscriptions`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_user` (`user_email`);
 
 --
 -- Indexes for table `recycle_requests`
@@ -758,7 +852,7 @@ ALTER TABLE `wishlists`
 -- AUTO_INCREMENT for table `admins`
 --
 ALTER TABLE `admins`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `buildyourpc_orders`
@@ -791,6 +885,18 @@ ALTER TABLE `features`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
+-- AUTO_INCREMENT for table `marketplace_items`
+--
+ALTER TABLE `marketplace_items`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT for table `messages`
+--
+ALTER TABLE `messages`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=57;
+
+--
 -- AUTO_INCREMENT for table `notifications`
 --
 ALTER TABLE `notifications`
@@ -819,6 +925,12 @@ ALTER TABLE `products`
 --
 ALTER TABLE `product_images`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=47;
+
+--
+-- AUTO_INCREMENT for table `push_subscriptions`
+--
+ALTER TABLE `push_subscriptions`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `recycle_requests`
@@ -860,7 +972,7 @@ ALTER TABLE `wilayas`
 -- AUTO_INCREMENT for table `wishlists`
 --
 ALTER TABLE `wishlists`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=53;
 
 --
 -- Constraints for dumped tables
@@ -872,6 +984,12 @@ ALTER TABLE `wishlists`
 ALTER TABLE `buildyourpc_orders`
   ADD CONSTRAINT `buildyourpc_orders_ibfk_1` FOREIGN KEY (`wilaya_id`) REFERENCES `wilayas` (`id`),
   ADD CONSTRAINT `buildyourpc_orders_ibfk_2` FOREIGN KEY (`user_email`) REFERENCES `users` (`email`);
+
+--
+-- Constraints for table `marketplace_items`
+--
+ALTER TABLE `marketplace_items`
+  ADD CONSTRAINT `marketplace_items_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
 
 --
 -- Constraints for table `notifications`
