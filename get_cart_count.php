@@ -1,11 +1,15 @@
 <?php
 session_start();
 
-// Calculate cart count
-$cartCount = isset($_SESSION['cart']) ? count($_SESSION['cart']) : 0;
-
-// Return JSON response
+// Return cart count as JSON
 header('Content-Type: application/json');
-echo json_encode(['cartCount' => $cartCount]);
+
+$count = isset($_SESSION['cart']) ? count($_SESSION['cart']) : 0;
+
+echo json_encode([
+    'success' => true,
+    'count' => $count
+]);
+?>
 
     

@@ -56,346 +56,412 @@ $stmt->execute();
 $admins = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Admins - Lokpix</title>
-    <link rel="stylesheet" href="add_admins.css">
+    <title>Manage Admins - EcoTech</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-      /* Modern CSS Reset */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+        :root {
+            --primary: #4361ee;
+            --primary-light: #4895ef;
+            --primary-dark: #3f37c9;
+            --success: #4cc9f0;
+            --success-dark: #4895ef;
+            --danger: #f72585;
+            --warning: #f8961e;
+            --text: #2b2d42;
+            --text-light: #6c757d;
+            --bg: #f8f9fa;
+            --bg-card: #ffffff;
+            --border: #e9ecef;
+            --radius: 12px;
+            --radius-sm: 8px;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
 
-:root {
-    --primary-gradient: linear-gradient(135deg, #6366f1, #3b82f6);
-    --secondary-gradient: linear-gradient(135deg, #f43f5e, #ec4899);
-    --surface-color: #ffffff;
-    --background-color: #f8fafc;
-    --text-primary: #1e293b;
-    --text-secondary: #64748b;
-}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-body {
-    font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
-    line-height: 1.6;
-    background-color: var(--background-color);
-    color: var(--text-primary);
-    min-height: 100vh;
-}
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+        }
 
-/* Header Styles */
-header {
-    background: var(--primary-gradient);
-    color: white;
-    padding: 2rem;
-    box-shadow: 0 4px 20px rgba(99, 102, 241, 0.2);
-}
+        /* Top Navigation */
+        .top-nav {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            padding: 0.85rem 1.75rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 40;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            box-shadow: var(--shadow-sm);
+        }
 
-header h1 {
-    font-size: 2rem;
-    font-weight: 700;
-    letter-spacing: -0.5px;
-    margin-bottom: 0.5rem;
-}
+        /* Header Styles */
+        header {
+            background: linear-gradient(45deg, var(--primary), var(--primary-light));
+            color: white;
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+        }
 
-header a {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: white;
-    text-decoration: none;
-    padding: 0.5rem 1rem;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-    backdrop-filter: blur(10px);
-    transition: all 0.3s ease;
-}
+        header h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin: 0;
+        }
 
-header a:hover {
-    background: rgba(255, 255, 255, 0.2);
-    transform: translateY(-2px);
-}
+        header a {
+            display: inline-flex;
+            align-items: center;
+            color: white;
+            text-decoration: none;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+            transition: var(--transition);
+        }
 
-/* Main Content Styles */
-.main-content {
-    max-width: 1200px;
-    margin: 2rem auto;
-    padding: 0 2rem;
-    animation: fadeIn 0.5s ease-out;
-}
+        header a:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
 
-/* Form Styles */
-form {
-    background: var(--surface-color);
-    padding: 2.5rem;
-    border-radius: 16px;
-    box-shadow: 0 4px 25px rgba(0, 0, 0, 0.05);
-    margin-bottom: 2.5rem;
-    transition: transform 0.3s ease;
-}
+        /* Main Content */
+        .main-content {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
 
-form:hover {
-    transform: translateY(-5px);
-}
+        /* Success/Error Messages */
+        .success-message {
+            background: linear-gradient(to right, #dcfce7, #bbf7d0);
+            color: #166534;
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius);
+            margin-bottom: 1.5rem;
+            animation: slideIn 0.5s ease-out;
+        }
 
-.input-group {
-    margin-bottom: 1.5rem;
-}
+        .error-message {
+            background: linear-gradient(to right, #fee2e2, #fecaca);
+            color: #991b1b;
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius);
+            margin-bottom: 1.5rem;
+            animation: slideIn 0.5s ease-out;
+        }
 
-label {
-    display: block;
-    margin-bottom: 0.5rem;
-    color: var(--text-primary);
-    font-weight: 600;
-    font-size: 0.95rem;
-}
+        /* Form Styles */
+        form {
+            background: var(--bg-card);
+            padding: 2rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 2rem;
+            transition: var(--transition);
+            border: 1px solid var(--border);
+        }
 
-input, select {
-    width: 100%;
-    padding: 1rem;
-    border: 2px solid #e2e8f0;
-    border-radius: 8px;
-    font-size: 1rem;
-    transition: all 0.3s ease;
-    background-color: #f8fafc;
-}
+        form:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow);
+        }
 
-input:focus, select:focus {
-    outline: none;
-    border-color: #6366f1;
-    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
-    background-color: white;
-}
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
 
-/* Button Styles */
-.button {
-    background: var(--primary-gradient);
-    color: white;
-    padding: 1rem 2rem;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 1rem;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.2);
-}
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text);
+        }
 
-.button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.3);
-}
+        input, select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
 
-/* Delete Button Styles */
-button.delete {
-    background-color: #3b82f6; /* Exact match to 'Add Admin' button */
-    color: white;
-    border: none;
-    padding: 10px 25px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background-color 0.3s, transform 0.2s;
-    font-size: 16px;
-    font-weight: bold;
-}
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+        }
 
-button.delete:hover {
-    background-color: #2563eb; /* Darker shade on hover */
-    transform: translateY(-2px);
-}
+        button.button {
+            background: linear-gradient(45deg, var(--primary), var(--primary-light));
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: 'Poppins', sans-serif;
+            box-shadow: 0 4px 10px rgba(67, 97, 238, 0.2);
+        }
 
-/* Table Styles */
-table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    background: var(--surface-color);
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow: 0 4px 25px rgba(0, 0, 0, 0.05);
-}
+        button.button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(67, 97, 238, 0.3);
+        }
 
-th, td {
-    padding: 1.25rem;
-    text-align: left;
-}
+        button.delete {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
 
-th {
-    background-color: #f1f5f9;
-    font-weight: 600;
-    color: var(--text-primary);
-    text-transform: uppercase;
-    font-size: 0.85rem;
-    letter-spacing: 0.5px;
-}
+        button.delete:hover {
+            background: #e5156c;
+            transform: translateY(-2px);
+        }
 
-tr:not(:last-child) td {
-    border-bottom: 1px solid #e2e8f0;
-}
+        /* Table Styles */
+        h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--text);
+            border-left: 4px solid var(--primary);
+            padding-left: 1rem;
+        }
 
-tr td {
-    transition: all 0.3s ease;
-}
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 2rem;
+        }
 
-tr:hover td {
-    background-color: #f8fafc;
-}
+        th {
+            background-color: #f8f9fa;
+            color: var(--text);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+            text-align: left;
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
 
-/* Success/Error Messages */
-p[style*="color: green"] {
-    background: linear-gradient(to right, #dcfce7, #bbf7d0);
-    color: #166534 !important;
-    padding: 1rem 1.5rem;
-    border-radius: 8px;
-    margin-bottom: 1.5rem;
-    animation: slideIn 0.5s ease-out;
-}
+        td {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            color: var(--text);
+        }
 
-p[style*="color: red"] {
-    background: linear-gradient(to right, #fee2e2, #fecaca);
-    color: #991b1b !important;
-    padding: 1rem 1.5rem;
-    border-radius: 8px;
-    margin-bottom: 1.5rem;
-    animation: slideIn 0.5s ease-out;
-}
+        tr:last-child td {
+            border-bottom: none;
+        }
 
-/* Footer Styles */
-footer {
-    text-align: center;
-    padding: 2.5rem;
-    color: var(--text-secondary);
-    background-color: var(--surface-color);
-    border-top: 1px solid #e2e8f0;
-    margin-top: 4rem;
-}
+        tr:hover td {
+            background-color: rgba(67, 97, 238, 0.05);
+        }
 
-/* Animations */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
+        td.actions {
+            text-align: center;
+        }
 
-@keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateX(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
+        /* Footer Styles */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            background-color: var(--bg-card);
+            color: var(--text-light);
+            border-top: 1px solid var(--border);
+            margin-top: 3rem;
+        }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-    header {
-        padding: 1.5rem;
-    }
-    
-    .main-content {
-        padding: 0 1rem;
-    }
-    
-    form {
-        padding: 1.5rem;
-    }
-    
-    table {
-        display: block;
-        overflow-x: auto;
-    }
-    
-    .button {
-        width: 100%;
-    }
-}
+        /* Animations */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
-/* Glass Morphism Effects */
-.glass-effect {
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-}
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 0 1rem;
+            }
+            
+            form, .card {
+                padding: 1.5rem;
+            }
+            
+            th, td {
+                padding: 1rem;
+            }
+            
+            header {
+                padding: 1rem;
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+            
+            header a {
+                width: 100%;
+                justify-content: center;
+            }
+        }
 
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
-}
+        /* Add these styles to match dashboard navigation */
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            min-width: max-content;
+        }
 
-::-webkit-scrollbar-track {
-    background: #f1f5f9;
-}
+        .nav-brand h1 {
+            background: linear-gradient(45deg, var(--primary), var(--primary-light));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin: 0;
+            letter-spacing: -0.5px;
+        }
 
-::-webkit-scrollbar-thumb {
-    background: #94a3b8;
-    border-radius: 5px;
-}
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex: 1;
+        }
 
-::-webkit-scrollbar-thumb:hover {
-    background: #64748b;
-}
+        .nav-menu a {
+            color: var(--text);
+            text-decoration: none;
+            padding: 0.6rem 0.9rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
 
-.actions {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-around;
-    align-items: center;
-    gap: 10px;
-    margin-top: 20px;
-}
+        .nav-menu a:hover, .nav-menu a.active {
+            background: var(--bg);
+            color: var(--primary);
+            transform: translateY(-2px);
+        }
 
-.actions button {
-    padding: 10px 20px;
-    flex: none;
-    background-color: #ff3366;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s, transform 0.2s;
-    font-size: 16px;
-    font-weight: bold;
-}
+        .nav-menu a.active {
+            background-color: rgba(67, 97, 238, 0.1);
+            color: var(--primary);
+            font-weight: 600;
+        }
 
-.actions button:hover {
-    background-color: #ff0033;
-    transform: translateY(-2px);
-}
+        .nav-end {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            min-width: max-content;
+        }
+        
+        .back-button {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.875rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+            background-color: var(--bg);
+        }
+        
+        .back-button:hover {
+            background-color: var(--primary-light);
+            color: white;
+        }
 
-td.actions {
-    background: transparent;
-    box-shadow: none;
-}
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--text);
+            border-left: 4px solid var(--primary);
+            padding-left: 1rem;
+        }
     </style>
 </head>
 <body>
-    <header style="display: flex; justify-content: space-between; align-items: center; padding: 1rem;">
-        <h1 style="font-size: 2rem;">Manage Admins</h1>
-        <a href="dashboard.php" style="text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; color: white; background: rgba(255, 255, 255, 0.1); padding: 0.5rem 1rem; border-radius: 8px; backdrop-filter: blur(10px); transition: all 0.3s ease;">
-            <img src="back.png" alt="Back" style="width: 20px; height: 20px;">
-            <span style="font-size: 16px;">Back to Dashboard</span>
-        </a>
-    </header>
+    <!-- Replace the header with top navigation like in dashboard.php -->
+    <div class="top-nav">
+        <div class="nav-brand">
+            <h1>EcoTech Admin</h1>
+        </div>
+        <div class="nav-menu">
+            <a href="add_admin.php" class="active">Manage Admins</a>
+            <!-- Add other menu items as needed -->
+        </div>
+        <div class="nav-end">
+            <a href="dashboard.php" class="back-button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                <span>Back to Dashboard</span>
+            </a>
+        </div>
+    </div>
 
-    <main class="main-content">
+    <main class="main-content" style="margin-top: 4.5rem;">
+        <h1 class="page-title">Manage Admins</h1>
+        
         <?php if (isset($success)) : ?>
-            <p style="color: green;"><?php echo htmlspecialchars($success); ?></p>
+            <div class="success-message"><?php echo htmlspecialchars($success); ?></div>
         <?php elseif (isset($error)) : ?>
-            <p style="color: red;"><?php echo htmlspecialchars($error); ?></p>
+            <div class="error-message"><?php echo htmlspecialchars($error); ?></div>
         <?php endif; ?>
 
         <form action="add_admin.php" method="post">
@@ -434,9 +500,9 @@ td.actions {
                         <td><?php echo htmlspecialchars($admin['email']); ?></td>
                         <td><?php echo htmlspecialchars($admin['role']); ?></td>
                         <td class="actions">
-                            <form action="add_admin.php" method="post" style="display: inline;">
+                            <form action="add_admin.php" method="post" style="display: inline; margin: 0; padding: 0; box-shadow: none; background: none; transform: none;">
                                 <input type="hidden" name="admin_id" value="<?php echo htmlspecialchars($admin['id']); ?>">
-                                <button type="submit" name="delete_admin" class="delete button">Delete</button>
+                                <button type="submit" name="delete_admin" class="delete">Delete</button>
                             </form>
                         </td>
                     </tr>
@@ -446,7 +512,7 @@ td.actions {
     </main>
 
     <footer>
-        <p>&copy; 2024 Lokpix. All rights reserved.</p>
+        <p>&copy; <?php echo date('Y'); ?> Lokpix. All rights reserved.</p>
     </footer>
 </body>
 </html>

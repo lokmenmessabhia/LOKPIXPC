@@ -497,7 +497,7 @@ try {
             }
 
             .features-list, .product-grid {
-                gap: 25px;
+                gap:25 px;
             }
 
             
@@ -518,6 +518,31 @@ try {
                 min-width: 160px;
             }
         }
+        /* For screens smaller than 768px (typical mobile devices) */
+@media (max-width: 768px) {
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr); /* 2 columns for mobile */
+    gap: 20px; /* Adjust the gap for smaller screens */
+  }
+
+  /* Optional: Adjust product item styles for mobile */
+  .product-item {
+    opacity: 1; /* Ensure items are visible */
+    transform: translateY(0); /* Reset any animations */
+  }
+
+  .product-image {
+    height: 200px; /* Adjust image height for mobile */
+  }
+
+  .product-item h3 {
+    font-size: 1.1em; /* Adjust font size for mobile */
+  }
+
+  .product-item p {
+    font-size: 0.9em; /* Adjust font size for mobile */
+  }
+}
 
         @media (max-width: 480px) {
             .hero {
@@ -546,7 +571,31 @@ try {
                 height: 10px;
             }
         }
+/* For screens smaller than 480px (very small mobile devices) */
+@media (max-width: 480px) {
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr); /* 2 columns for mobile */
+    gap: 20px; /* Adjust the gap for smaller screens */
+  }
 
+  /* Optional: Adjust product item styles for mobile */
+  .product-item {
+    opacity: 1; /* Ensure items are visible */
+    transform: translateY(0); /* Reset any animations */
+  }
+
+  .product-image {
+    height: 200px; /* Adjust image height for mobile */
+  }
+
+  .product-item h3 {
+    font-size: 1.1em; /* Adjust font size for mobile */
+  }
+
+  .product-item p {
+    font-size: 0.9em; /* Adjust font size for mobile */
+  }
+}
         /* Animations */
         @keyframes slideUp {
             to {

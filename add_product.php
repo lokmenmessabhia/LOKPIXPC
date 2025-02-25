@@ -130,20 +130,26 @@ $subcategories_json = json_encode($subcategories);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Product</title>
     <style>
-       /* Modern CSS Reset */
-       * {
+        /* Modern CSS Reset */
+        * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
         :root {
-            --primary-gradient: linear-gradient(135deg, #6366f1, #3b82f6);
-            --secondary-gradient: linear-gradient(135deg, #f43f5e, #ec4899);
+            --primary-color: #4f46e5;
+            --primary-hover: #4338ca;
+            --primary-gradient: linear-gradient(135deg, #4f46e5, #3b82f6);
             --surface-color: #ffffff;
             --background-color: #f8fafc;
             --text-primary: #1e293b;
             --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --error-bg: #fee2e2;
+            --error-text: #b91c1c;
+            --success-bg: #d1fae5;
+            --success-text: #065f46;
         }
 
         body {
@@ -153,184 +159,155 @@ $subcategories_json = json_encode($subcategories);
             color: var(--text-primary);
             min-height: 100vh;
         }
-/* Header Styles */
-header {
-    background: linear-gradient(135deg, #4f46e5, #3b82f6); /* Gradient background */
-    color: white;
-    padding: 1.5rem 2rem; /* Adjusted padding */
-    box-shadow: 0 4px 20px rgba(99, 102, 241, 0.2);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border: none; /* Remove border radius for straight edges */
-}
 
-header h1 {
-    font-size: 2rem;
-    font-weight: 700;
-    margin: 0; /* Remove default margin */
-}
-
-header a {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: white;
-    text-decoration: none;
-    padding: 0.5rem 1rem;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 4px; /* Slightly rounded corners */
-    transition: all 0.3s ease;
-}
-
-header a:hover {
-    background: rgba(255, 255, 255, 0.2);
-    transform: translateY(-2px);
-}
-
-        /* Main Content Styles */
-        .content {
+        /* Container */
+        .container {
             max-width: 1200px;
-            margin: 2rem auto;
-            padding: 0 2rem;
-            animation: fadeIn 0.5s ease-out;
+            margin: 0 auto;
+            padding: 0 1rem;
         }
 
-       /* Input Styles */
-input, textarea, select {
-    border: 2px solid #e2e8f0;
-    border-radius: 4px; /* Slightly rounded corners */
-    transition: all 0.3s ease;
-}
-input:focus, textarea:focus, select:focus {
-    border-color: #4f46e5; /* Focus color */
-    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
-}
-
-        form:hover {
-            transform: translateY(-5px);
+        /* Header Styles */
+        header {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
         }
 
-        .input-group {
+        header h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        header a {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        header a:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Form Styles */
+        form {
+            background: var(--surface-color);
+            padding: 2rem;
+            border-radius: 4px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
             margin-bottom: 1.5rem;
         }
 
         label {
             display: block;
             margin-bottom: 0.5rem;
-            color: var(--text-primary);
             font-weight: 600;
             font-size: 0.95rem;
         }
 
         input, textarea, select {
             width: 100%;
-            padding: 1rem;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
             font-size: 1rem;
             transition: all 0.3s ease;
-            background-color: #f8fafc;
+            background-color: var(--surface-color);
         }
 
         input:focus, textarea:focus, select:focus {
             outline: none;
-            border-color: #4f46e5;
-            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
-            background-color: white;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
         }
 
-       /* Button Styles */
-button {
-    background: linear-gradient(135deg, #4f46e5, #3b82f6); /* Button gradient */
-    color: white;
-    padding: 0.5rem 1rem;
-    border: none;
-    border-radius: 4px; /* Slightly rounded corners */
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.3);
-}
-
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.3);
-        }
-
-        /* Smaller Button */
-        .small-button {
-            padding: 0.3rem 0.8rem;
-            font-size: 0.75rem;
-        }
-
-        /* Footer */
-        footer {
+        /* Button Styles */
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
             text-align: center;
-            padding: 2rem;
-            color: var(--text-secondary);
-            background-color: var(--surface-color);
-            border-top: 1px solid #e2e8f0;
-            margin-top: 4rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
 
-        /* Animations */
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .btn-primary {
+            background: var(--primary-gradient);
+            color: white;
         }
 
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Success and Error Messages */
+        .success-message, .error-messages {
+            margin: 1rem 0;
+            padding: 1rem;
+            border-radius: 4px;
+        }
+
+        .success-message {
+            background-color: var(--success-bg);
+            color: var(--success-text);
+        }
+
+        .error-messages {
+            background-color: var(--error-bg);
+            color: var(--error-text);
         }
 
         /* Responsive Design */
         @media (max-width: 768px) {
             header {
-                padding: 1.5rem;
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1.25rem;
             }
             
-            .content {
-                padding: 0 1rem;
+            header a {
+                width: 100%;
+                justify-content: center;
             }
             
             form {
                 padding: 1.5rem;
             }
             
-            button {
+            .btn {
                 width: 100%;
-                margin-bottom: 0.5rem;
             }
-        }
-
-        /* Glass Morphism Effects */
-        .glass-effect {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         /* Custom Scrollbar */
         ::-webkit-scrollbar {
-            width: 10px;
-            height: 10px;
+            width: 8px;
+            height: 8px;
         }
 
         ::-webkit-scrollbar-track {
@@ -339,125 +316,217 @@ button:hover {
 
         ::-webkit-scrollbar-thumb {
             background: #94a3b8;
-            border-radius: 5px;
+            border-radius: 4px;
         }
 
         ::-webkit-scrollbar-thumb:hover {
             background: #64748b;
         }
 
-        /* Success and Error Messages */
-.success-message, .error-messages {
-    margin: 1rem 0;
-    padding: 1rem;
-    border-radius: 8px;
-}
+        /* Add these styles to match dashboard navigation */
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            min-width: max-content;
+        }
 
-.success-message {
-    background-color: #d1fae5; /* Light green */
-    color: #065f46; /* Dark green */
-}
+        .nav-brand h1 {
+            background: linear-gradient(135deg, #4f46e5, #3b82f6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin: 0;
+            letter-spacing: -0.5px;
+        }
 
-.error-messages {
-    background-color: #fee2e2; /* Light red */
-    color: #b91c1c; /* Dark red */
-}
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex: 1;
+        }
 
-/* Form Styles */
-form {
-    background: var(--surface-color);
-    padding: 2.5rem;
-    border-radius: 8px; /* Slightly rounded corners */
-    box-shadow: 0 4px 25px rgba(0, 0, 0, 0.05);
-    margin-bottom: 2.5rem;
-    transition: transform 0.3s ease;
-}
+        .nav-menu a {
+            color: var(--text-primary);
+            text-decoration: none;
+            padding: 0.6rem 0.9rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .nav-menu a:hover, .nav-menu a.active {
+            background: var(--background-color);
+            color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        .nav-menu a.active {
+            background-color: rgba(79, 70, 229, 0.1);
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .nav-end {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            min-width: max-content;
+        }
+        
+        .back-button {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.875rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            background-color: var(--background-color);
+        }
+        
+        .back-button:hover {
+            background-color: var(--primary-hover);
+            color: white;
+        }
+
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+            border-left: 4px solid var(--primary-color);
+            padding-left: 1rem;
+        }
+
+        .top-nav {
+            background: var(--surface-color);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0.85rem 1.75rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 40;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Adjust main content to account for fixed top nav */
+        .main-content {
+            margin-top: 4.5rem;
+        }
     </style>
 </head>
 <body>
-
     <div class="container">
-    <header>
-    <h1>Add New Product</h1>
-    <a href="dashboard_products.php" class="btn btn-secondary">Back to manage products</a>
-</header>
-
-        <?php if (!empty($errors)): ?>
-            <div class="error-messages">
-                <?php foreach ($errors as $error): ?>
-                    <p class="error"><?php echo htmlspecialchars($error); ?></p>
-                <?php endforeach; ?>
+        <div class="top-nav">
+            <div class="nav-brand">
+                <h1>EcoTech Admin</h1>
             </div>
-        <?php endif; ?>
-
-        <?php if ($success_message): ?>
-            <div class="success-message">
-                <?php echo htmlspecialchars($success_message); ?>
+            <div class="nav-menu">
+                <a href="add_product.php" class="active">Add Product</a>
+                <!-- Add other menu items as needed -->
             </div>
-        <?php endif; ?>
-
-        <form action="add_product.php" method="POST" enctype="multipart/form-data">
-            <div class="form-group">
-                <label for="name">Product Name:</label>
-                <input type="text" id="name" name="name" required 
-                       value="<?php echo isset($_POST['name']) ? htmlspecialchars($_POST['name']) : ''; ?>">
+            <div class="nav-end">
+                <a href="dashboard_products.php" class="back-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 12H5M12 19l-7-7 7-7"/>
+                    </svg>
+                    <span>Back to manage products</span>
+                </a>
             </div>
+        </div>
 
-            <div class="form-group">
-                <label for="description">Description:</label>
-                <textarea id="description" name="description" required><?php echo isset($_POST['description']) ? htmlspecialchars($_POST['description']) : ''; ?></textarea>
-            </div>
+        <div class="main-content">
+            <h1 class="page-title">Add New Product</h1>
 
-            <div class="form-group">
-                <label for="price">Price:</label>
-                <input type="number" id="price" name="price" step="0.01" required 
-                       value="<?php echo isset($_POST['price']) ? htmlspecialchars($_POST['price']) : ''; ?>">
-            </div>
-
-            <div class="form-group">
-                <label for="stock">Stock:</label>
-                <input type="number" id="stock" name="stock" required 
-                       value="<?php echo isset($_POST['stock']) ? htmlspecialchars($_POST['stock']) : ''; ?>">
-            </div>
-
-            <div class="form-group">
-                <label for="category_id">Category:</label>
-                <select id="category_id" name="category_id" required>
-                    <option value="">Select a category</option>
-                    <?php foreach ($categories as $category): ?>
-                        <option value="<?php echo $category['id']; ?>">
-                            <?php echo htmlspecialchars($category['name']); ?>
-                        </option>
+            <?php if (!empty($errors)): ?>
+                <div class="error-messages">
+                    <?php foreach ($errors as $error): ?>
+                        <p class="error"><?php echo htmlspecialchars($error); ?></p>
                     <?php endforeach; ?>
-                </select>
-            </div>
+                </div>
+            <?php endif; ?>
 
-            <div class="form-group">
-                <label for="subcategory_id">Subcategory:</label>
-                <select id="subcategory_id" name="subcategory_id" required>
-                    <option value="">Select a subcategory</option>
-                    <!-- Subcategories will be populated by JavaScript -->
-                </select>
-            </div>
+            <?php if ($success_message): ?>
+                <div class="success-message">
+                    <?php echo htmlspecialchars($success_message); ?>
+                </div>
+            <?php endif; ?>
+            
+            <form action="add_product.php" method="POST" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="name">Product Name:</label>
+                    <input type="text" id="name" name="name" required 
+                           value="<?php echo isset($_POST['name']) ? htmlspecialchars($_POST['name']) : ''; ?>">
+                </div>
 
-            <div class="form-group">
-                <label for="buying_price">Buying Price:</label>
-                <input type="number" id="buying_price" name="buying_price" step="0.01" required 
-                       value="<?php echo isset($_POST['buying_price']) ? htmlspecialchars($_POST['buying_price']) : ''; ?>">
-            </div>
+                <div class="form-group">
+                    <label for="description">Description:</label>
+                    <textarea id="description" name="description" required><?php echo isset($_POST['description']) ? htmlspecialchars($_POST['description']) : ''; ?></textarea>
+                </div>
 
-            <div class="form-group">
-                <label for="images">Product Images:</label>
-                <input type="file" id="images" name="images[]" multiple accept="image/*">
-                <small>You can select multiple images. The first image will be set as the primary image.</small>
-            </div>
+                <div class="form-group">
+                    <label for="price">Price:</label>
+                    <input type="number" id="price" name="price" step="0.01" required 
+                           value="<?php echo isset($_POST['price']) ? htmlspecialchars($_POST['price']) : ''; ?>">
+                </div>
 
-            <div class="form-group">
-                <button type="submit" class="btn btn-primary">Add Product</button>
-            </div>
-        </form>
+                <div class="form-group">
+                    <label for="stock">Stock:</label>
+                    <input type="number" id="stock" name="stock" required 
+                           value="<?php echo isset($_POST['stock']) ? htmlspecialchars($_POST['stock']) : ''; ?>">
+                </div>
+
+                <div class="form-group">
+                    <label for="category_id">Category:</label>
+                    <select id="category_id" name="category_id" required>
+                        <option value="">Select a category</option>
+                        <?php foreach ($categories as $category): ?>
+                            <option value="<?php echo $category['id']; ?>">
+                                <?php echo htmlspecialchars($category['name']); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="subcategory_id">Subcategory:</label>
+                    <select id="subcategory_id" name="subcategory_id" required>
+                        <option value="">Select a subcategory</option>
+                        <!-- Subcategories will be populated by JavaScript -->
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="buying_price">Buying Price:</label>
+                    <input type="number" id="buying_price" name="buying_price" step="0.01" required 
+                           value="<?php echo isset($_POST['buying_price']) ? htmlspecialchars($_POST['buying_price']) : ''; ?>">
+                </div>
+
+                <div class="form-group">
+                    <label for="images">Product Images:</label>
+                    <input type="file" id="images" name="images[]" multiple accept="image/*">
+                    <small>You can select multiple images. The first image will be set as the primary image.</small>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Add Product</button>
+                </div>
+            </form>
+        </div>
     </div>
-
 
     <script>
         const subcategories = <?php echo $subcategories_json; ?>;

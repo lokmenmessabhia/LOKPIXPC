@@ -2,6 +2,44 @@
 session_start();
 include 'db_connect.php';
 
+// AJAX handler for notifications
+if (isset($_GET['ajax']) && $_GET['ajax'] === 'notifications') {
+    $action = isset($_GET['action']) ? $_GET['action'] : 'fetch';
+    
+    if ($action === 'mark_read') {
+        // Mark all notifications as read
+        try {
+            $sql = "UPDATE notifications SET is_read = 1 WHERE is_read = 0";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute();
+            
+            header('Content-Type: application/json');
+            echo json_encode(['success' => true]);
+        } catch (PDOException $e) {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+        }
+        exit; // Stop execution after handling AJAX request
+    } else {
+        // Fetch notifications (default action)
+        try {
+            $query = "SELECT id, message, created_at FROM notifications WHERE is_read = 0 ORDER BY created_at DESC";
+            $stmt = $pdo->prepare($query);
+            $stmt->execute();
+            
+            $notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Return notifications as JSON
+            header('Content-Type: application/json');
+            echo json_encode($notifications);
+        } catch (PDOException $e) {
+            header('Content-Type: application/json');
+            echo json_encode(['error' => $e->getMessage()]);
+        }
+        exit; // Stop execution after handling AJAX request
+    }
+}
+
 $isAdmin = false; // Default to false
 if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
     try {
@@ -130,18 +168,23 @@ try {
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #2563eb;
-            --primary-light: #3b82f6;
-            --success: #22c55e;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --text: #1f2937;
-            --text-light: #6b7280;
-            --bg: #f9fafb;
+            --primary: #4361ee;
+            --primary-light: #4895ef;
+            --primary-dark: #3f37c9;
+            --success: #4cc9f0;
+            --success-dark: #4895ef;
+            --danger: #f72585;
+            --warning: #f8961e;
+            --text: #2b2d42;
+            --text-light: #6c757d;
+            --bg: #f8f9fa;
             --bg-card: #ffffff;
-            --border: #e5e7eb;
+            --border: #e9ecef;
             --radius: 12px;
-            --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --radius-sm: 8px;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
         }
 
         * {
@@ -161,7 +204,7 @@ try {
         .top-nav {
             background: var(--bg-card);
             border-bottom: 1px solid var(--border);
-            padding: 0.75rem 1.5rem;
+            padding: 0.85rem 1.75rem;
             position: fixed;
             top: 0;
             left: 0;
@@ -170,6 +213,7 @@ try {
             display: flex;
             align-items: center;
             gap: 2rem;
+            box-shadow: var(--shadow-sm);
         }
 
         .nav-brand {
@@ -180,32 +224,38 @@ try {
         }
 
         .nav-brand h1 {
-            color: var(--primary);
-            font-size: 1.25rem;
-            font-weight: 600;
+            background: linear-gradient(45deg, var(--primary), var(--primary-light));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-size: 1.4rem;
+            font-weight: 700;
             margin: 0;
+            letter-spacing: -0.5px;
         }
 
         .nav-menu {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.75rem;
             flex: 1;
         }
 
         .nav-menu a {
             color: var(--text);
             text-decoration: none;
-            padding: 0.5rem 0.75rem;
-            border-radius: var(--radius);
+            padding: 0.6rem 0.9rem;
+            border-radius: var(--radius-sm);
             font-size: 0.875rem;
-            transition: 0.2s;
+            font-weight: 500;
+            transition: var(--transition);
             white-space: nowrap;
         }
 
         .nav-menu a:hover {
             background: var(--bg);
             color: var(--primary);
+            transform: translateY(-2px);
         }
 
         .nav-end {
@@ -217,7 +267,7 @@ try {
 
         /* Main Content */
         .main-content {
-            margin-top: 4rem;
+            margin-top: 4.5rem;
             padding: 2rem;
         }
 
@@ -230,9 +280,16 @@ try {
 
         .card {
             background: var(--bg-card);
-            padding: 1.5rem;
+            padding: 1.75rem;
             border-radius: var(--radius);
             border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow);
         }
 
         .card h2 {
@@ -253,11 +310,17 @@ try {
         .chart-container {
             background: var(--bg-card);
             border-radius: var(--radius);
-            padding: 1.5rem;
+            padding: 1.75rem;
             border: 1px solid var(--border);
             margin-top: 2rem;
             min-height: 400px;
             position: relative;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+        }
+
+        .chart-container:hover {
+            box-shadow: var(--shadow);
         }
 
         .chart-container h2 {
@@ -276,14 +339,14 @@ try {
         /* Notifications */
         .notification-icon {
             background: var(--bg);
-            width: 38px;
-            height: 38px;
-            border-radius: var(--radius);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: 0.2s;
+            transition: var(--transition);
             position: relative;
         }
 
@@ -294,41 +357,49 @@ try {
         }
 
         .notification-icon:hover {
-            background: var(--border);
+            background: var(--primary-light);
+            transform: scale(1.05);
+        }
+
+        .notification-icon:hover svg {
+            color: white;
         }
 
         .notification-badge {
             position: absolute;
-            top: -5px;
-            right: -5px;
-            background: var(--primary);
+            top: -6px;
+            right: -6px;
+            background: var(--danger);
             color: white;
-            min-width: 18px;
-            height: 18px;
-            border-radius: 9px;
+            min-width: 20px;
+            height: 20px;
+            border-radius: 10px;
             font-size: 0.75rem;
-            font-weight: 500;
+            font-weight: 600;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 0 5px;
+            padding: 0 6px;
             border: 2px solid var(--bg-card);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .notification-popup {
             position: fixed;
-            top: 3.75rem;
+            top: 4rem;
             right: 1.5rem;
-            width: 320px;
+            width: 350px;
             background: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
             z-index: 1000;
             opacity: 0;
             transform: translateY(-10px);
             transition: opacity 0.3s ease, transform 0.3s ease;
-            max-height: 400px;
+            max-height: 450px;
             overflow-y: auto;
+            border: 1px solid var(--border);
+            display: none; /* Start hidden */
         }
 
         .notification-popup.show {
@@ -337,8 +408,8 @@ try {
         }
 
         .popup-header {
-            padding: 1rem;
-            border-bottom: 1px solid #e5e7eb;
+            padding: 1.25rem;
+            border-bottom: 1px solid var(--border);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -346,12 +417,15 @@ try {
             top: 0;
             background: white;
             z-index: 1;
+            border-top-left-radius: var(--radius);
+            border-top-right-radius: var(--radius);
         }
 
         .popup-header h3 {
             margin: 0;
-            font-size: 1rem;
-            color: #1f2937;
+            font-size: 1.1rem;
+            color: var(--text);
+            font-weight: 600;
         }
 
         .mark-read-btn {
@@ -359,14 +433,15 @@ try {
             color: var(--primary);
             border: none;
             font-size: 0.875rem;
+            font-weight: 500;
             cursor: pointer;
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
-            transition: background-color 0.2s;
+            padding: 0.35rem 0.75rem;
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
         }
 
         .mark-read-btn:hover {
-            background: rgba(37, 99, 235, 0.1);
+            background: rgba(67, 97, 238, 0.1);
         }
 
         .notification-list {
@@ -376,13 +451,13 @@ try {
         }
 
         .notification-item {
-            padding: 1rem;
-            border-bottom: 1px solid #e5e7eb;
-            transition: background-color 0.2s;
+            padding: 1.25rem;
+            border-bottom: 1px solid var(--border);
+            transition: var(--transition);
             cursor: pointer;
             display: flex;
             align-items: flex-start;
-            gap: 0.75rem;
+            gap: 0.85rem;
         }
 
         .notification-item:last-child {
@@ -390,12 +465,12 @@ try {
         }
 
         .notification-item:hover {
-            background-color: #f3f4f6;
+            background-color: #f0f4ff;
         }
 
         .notification-dot {
-            width: 8px;
-            height: 8px;
+            width: 10px;
+            height: 10px;
             background-color: var(--primary);
             border-radius: 50%;
             margin-top: 0.5rem;
@@ -406,46 +481,52 @@ try {
         }
 
         .notification-title {
-            font-weight: 500;
-            color: #1f2937;
-            margin-bottom: 0.25rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 0.35rem;
         }
 
         .notification-message {
-            color: #6b7280;
+            color: var(--text-light);
             font-size: 0.875rem;
-            line-height: 1.25rem;
+            line-height: 1.4;
         }
 
         .notification-time {
             font-size: 0.75rem;
-            color: #9ca3af;
-            margin-top: 0.25rem;
+            color: var(--text-light);
+            margin-top: 0.35rem;
         }
 
         .empty-notifications {
-            padding: 2rem;
+            padding: 2.5rem;
             text-align: center;
-            color: #6b7280;
+            color: var(--text-light);
+            font-size: 0.95rem;
         }
 
         .dashboard-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 2rem;
+            margin-bottom: 2.5rem;
         }
 
         .welcome-section h1 {
-            font-size: 1.875rem;
-            font-weight: 600;
+            font-size: 2rem;
+            font-weight: 700;
             color: var(--text);
             margin-bottom: 0.5rem;
+            background: linear-gradient(45deg, var(--text), var(--primary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
         }
 
         .date {
             color: var(--text-light);
-            font-size: 0.875rem;
+            font-size: 0.925rem;
+            font-weight: 500;
         }
 
         .quick-actions {
@@ -456,36 +537,43 @@ try {
         .action-btn {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            padding: 0.75rem 1.5rem;
-            background: var(--primary);
+            gap: 0.75rem;
+            padding: 0.85rem 1.75rem;
+            background: linear-gradient(45deg, var(--primary), var(--primary-light));
             color: white;
             border: none;
             border-radius: var(--radius);
-            font-weight: 500;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: var(--transition);
+            box-shadow: 0 4px 10px rgba(67, 97, 238, 0.25);
         }
 
         .action-btn:hover {
-            background: var(--primary-light);
-            transform: translateY(-1px);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(67, 97, 238, 0.35);
+        }
+
+        .action-btn svg {
+            width: 18px;
+            height: 18px;
         }
 
         .stats-overview {
-            margin-bottom: 2rem;
+            margin-bottom: 2.5rem;
         }
 
         .card {
             display: flex;
             align-items: flex-start;
-            gap: 1rem;
-            padding: 1.5rem;
+            gap: 1.25rem;
+            padding: 1.75rem;
         }
 
         .card.highlight {
             background: linear-gradient(135deg, var(--primary), var(--primary-light));
             color: white;
+            box-shadow: 0 10px 20px rgba(67, 97, 238, 0.2);
         }
 
         .card.highlight h3,
@@ -494,9 +582,10 @@ try {
         }
 
         .card-icon {
-            padding: 0.75rem;
-            background: rgba(255, 255, 255, 0.1);
+            padding: 0.85rem;
+            background: rgba(255, 255, 255, 0.2);
             border-radius: var(--radius);
+            backdrop-filter: blur(10px);
         }
 
         .card-content {
@@ -504,47 +593,58 @@ try {
         }
 
         .card h3 {
-            font-size: 0.875rem;
+            font-size: 0.925rem;
             font-weight: 500;
             color: var(--text-light);
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.65rem;
         }
 
         .number {
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin-bottom: 0.25rem;
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.35rem;
         }
 
         .trend {
-            font-size: 0.875rem;
+            font-size: 0.925rem;
             color: var(--success);
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
         }
 
         .subtitle {
             font-size: 0.875rem;
             color: var(--text-light);
+            opacity: 0.9;
         }
 
         .dashboard-grid {
             display: grid;
             grid-template-columns: 2fr 1fr;
-            gap: 2rem;
-            margin-bottom: 2rem;
+            gap: 2.25rem;
+            margin-bottom: 2.5rem;
         }
 
         .chart-section {
             background: var(--bg-card);
             border-radius: var(--radius);
-            padding: 1.5rem;
+            padding: 0;
             border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .chart-section:hover {
+            box-shadow: var(--shadow);
         }
 
         .chart-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.75rem;
         }
 
         .chart-actions {
@@ -553,38 +653,64 @@ try {
         }
 
         .chart-period {
-            padding: 0.5rem 1rem;
+            padding: 0.5rem 1.1rem;
             border: 1px solid var(--border);
-            border-radius: var(--radius);
+            border-radius: var(--radius-sm);
             background: var(--bg);
             color: var(--text);
             cursor: pointer;
-            transition: all 0.2s;
+            transition: var(--transition);
+            font-weight: 500;
+            font-size: 0.85rem;
+        }
+
+        .chart-period:hover {
+            background: #edf2ff;
+            border-color: var(--primary-light);
         }
 
         .chart-period.active {
             background: var(--primary);
             color: white;
             border-color: var(--primary);
+            box-shadow: 0 4px 8px rgba(67, 97, 238, 0.25);
         }
 
         .recent-activity {
             background: var(--bg-card);
             border-radius: var(--radius);
-            padding: 1.5rem;
+            padding: 1.75rem;
             border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+        }
+
+        .recent-activity:hover {
+            box-shadow: var(--shadow);
+        }
+
+        .recent-activity h2 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 1.25rem;
         }
 
         .activity-list {
-            margin-top: 1rem;
+            margin-top: 1.25rem;
         }
 
         .activity-item {
             display: flex;
             align-items: flex-start;
-            gap: 1rem;
-            padding: 1rem 0;
+            gap: 1.1rem;
+            padding: 1.1rem 0;
             border-bottom: 1px solid var(--border);
+            transition: var(--transition);
+        }
+
+        .activity-item:hover {
+            transform: translateX(4px);
         }
 
         .activity-item:last-child {
@@ -592,18 +718,21 @@ try {
         }
 
         .activity-icon {
-            padding: 0.5rem;
+            padding: 0.65rem;
             border-radius: var(--radius);
             background: var(--bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .activity-icon.processing {
-            background: rgba(245, 158, 11, 0.1);
+            background: rgba(248, 150, 30, 0.15);
             color: var(--warning);
         }
 
         .activity-icon.completed {
-            background: rgba(34, 197, 94, 0.1);
+            background: rgba(76, 201, 240, 0.15);
             color: var(--success);
         }
 
@@ -612,8 +741,9 @@ try {
         }
 
         .activity-title {
-            font-weight: 500;
-            margin-bottom: 0.25rem;
+            font-weight: 600;
+            margin-bottom: 0.35rem;
+            color: var(--text);
         }
 
         .activity-meta {
@@ -624,53 +754,80 @@ try {
         .activity-time {
             font-size: 0.75rem;
             color: var(--text-light);
+            margin-top: 0.25rem;
         }
 
         .activity-status {
-            padding: 0.25rem 0.75rem;
+            padding: 0.35rem 0.85rem;
             border-radius: 9999px;
             font-size: 0.75rem;
-            font-weight: 500;
+            font-weight: 600;
         }
 
         .activity-status.processing {
-            background: rgba(245, 158, 11, 0.1);
+            background: rgba(248, 150, 30, 0.15);
             color: var(--warning);
         }
 
         .activity-status.completed {
-            background: rgba(34, 197, 94, 0.1);
+            background: rgba(76, 201, 240, 0.15);
             color: var(--success);
         }
 
         .admin-insights {
-            margin-top: 2rem;
+            margin-top: 2.5rem;
+        }
+
+        .admin-insights h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1.25rem;
+            color: var(--text);
         }
 
         .insights-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 2rem;
-            margin-top: 1rem;
+            gap: 2.25rem;
+            margin-top: 1.25rem;
         }
 
         .insight-card {
             background: var(--bg-card);
             border-radius: var(--radius);
-            padding: 1.5rem;
+            padding: 1.75rem;
             border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+        }
+
+        .insight-card:hover {
+            box-shadow: var(--shadow);
+            transform: translateY(-4px);
+        }
+
+        .insight-card h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 1.25rem;
         }
 
         .category-list {
-            margin-top: 1rem;
+            margin-top: 1.25rem;
         }
 
         .category-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 1rem 0;
+            padding: 1.1rem 0;
             border-bottom: 1px solid var(--border);
+            transition: var(--transition);
+        }
+
+        .category-item:hover {
+            transform: translateX(4px);
         }
 
         .category-item:last-child {
@@ -678,52 +835,64 @@ try {
         }
 
         .category-info h4 {
-            font-weight: 500;
-            margin-bottom: 0.25rem;
+            font-weight: 600;
+            margin-bottom: 0.35rem;
+            color: var(--text);
         }
 
         .category-orders {
             font-size: 0.875rem;
             color: var(--text-light);
+            padding: 0.35rem 0.75rem;
+            background: var(--bg);
+            border-radius: var(--radius-sm);
+            font-weight: 500;
         }
 
         .inventory-status {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 1rem;
-            margin-top: 1rem;
+            gap: 1.25rem;
+            margin-top: 1.25rem;
         }
 
         .inventory-item {
             text-align: center;
-            padding: 1rem;
+            padding: 1.5rem 1rem;
             border-radius: var(--radius);
+            transition: var(--transition);
+        }
+
+        .inventory-item:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-sm);
         }
 
         .inventory-item.critical {
-            background: rgba(239, 68, 68, 0.1);
+            background: rgba(247, 37, 133, 0.1);
             color: var(--danger);
         }
 
         .inventory-item.warning {
-            background: rgba(245, 158, 11, 0.1);
+            background: rgba(248, 150, 30, 0.1);
             color: var(--warning);
         }
 
         .inventory-item.success {
-            background: rgba(34, 197, 94, 0.1);
+            background: rgba(76, 201, 240, 0.1);
             color: var(--success);
         }
 
         .inventory-item .count {
             display: block;
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin-bottom: 0.25rem;
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
         }
 
         .inventory-item .label {
             font-size: 0.875rem;
+            font-weight: 500;
         }
 
         @media (max-width: 1024px) {
@@ -740,7 +909,7 @@ try {
             .dashboard-header {
                 flex-direction: column;
                 align-items: flex-start;
-                gap: 1rem;
+                gap: 1.25rem;
             }
 
             .quick-actions {
@@ -1038,11 +1207,13 @@ try {
 <script>
     document.getElementById('notificationIcon').addEventListener('click', function(event) {
     const popup = document.getElementById('notificationPopup');
-    const currentDisplay = popup.style.display;
+    const currentDisplay = window.getComputedStyle(popup).display;
 
     // Toggle popup visibility with smooth animation
     if (currentDisplay === 'none' || currentDisplay === '') {
         popup.style.display = 'block';
+        // Fetch notifications when opening the popup
+        fetchNotifications();
         setTimeout(() => popup.classList.add('show'), 10); // Ensure smooth fade-in
     } else {
         popup.classList.remove('show');
@@ -1058,7 +1229,7 @@ window.addEventListener('click', function(event) {
     const notificationIcon = document.getElementById('notificationIcon');
     
     // Ensure click outside of the notification popup or icon closes the popup
-    if (!event.target.matches('#notificationIcon') && !popup.contains(event.target)) {
+    if (!popup.contains(event.target) && !notificationIcon.contains(event.target)) {
         popup.classList.remove('show');
         setTimeout(() => popup.style.display = 'none', 300);
     }
@@ -1066,34 +1237,96 @@ window.addEventListener('click', function(event) {
 
 // Handle the "Mark All as Read" functionality
 document.getElementById('markAsRead').addEventListener('click', function() {
-    const unreadItems = document.querySelectorAll('.unread');
-    const readList = document.getElementById('readNotificationList');
-    
-    // Move unread notifications to read section in the UI
-    unreadItems.forEach(function(item) {
-        // Mark the notification as read by changing its class and moving it to the read section
-        item.classList.remove('unread');
-        item.classList.add('read-notification-item');
-        
-        // Append the notification to the read section
-        readList.appendChild(item);
-    });
-
-    // Hide the unread notifications section and show the read notifications section
-    document.getElementById('unreadNotificationsSection').style.display = 'none';
-    document.getElementById('readNotificationsSection').style.display = 'block';
-
-    // Optionally, hide the notification count if no more unread notifications
-    const notificationCount = document.getElementById('notificationCount');
-    if (notificationCount) {
-        notificationCount.style.display = 'none';
-    }
-
-    // Make AJAX request to update the database
-   
-
+    console.log('Marking all as read...');
+    // Make AJAX request to mark all notifications as read in the database
+    fetch('dashboard.php?ajax=notifications&action=mark_read')
+        .then(response => {
+            console.log('Mark as read response:', response);
+            return response.json();
+        })
+        .then(data => {
+            console.log('Mark as read data:', data);
+            if(data.success) {
+                // After successfully marking as read in database, update the UI
+                const notificationBadge = document.querySelector('.notification-badge');
+                if(notificationBadge) {
+                    notificationBadge.textContent = '0';
+                    notificationBadge.style.display = 'none';
+                }
+                
+                // Update the notification list to show no unread notifications
+                document.getElementById('notificationList').innerHTML = 
+                    '<div class="empty-notifications"><p>No new notifications</p></div>';
+            }
+        })
+        .catch(error => console.error('Error marking notifications as read:', error));
 });
 
+// Function to fetch notifications
+function fetchNotifications() {
+    console.log('Fetching notifications...');
+    fetch('dashboard.php?ajax=notifications')
+        .then(response => {
+            console.log('Fetch response:', response);
+            return response.json();
+        })
+        .then(data => {
+            console.log('Notification data:', data);
+            const notificationList = document.getElementById('notificationList');
+            notificationList.innerHTML = ''; // Clear existing notifications
+
+            if (data && Array.isArray(data) && data.length > 0) {
+                data.forEach(notification => {
+                    // Create notification item with proper structure to match CSS
+                    const notificationItem = document.createElement('div');
+                    notificationItem.className = 'notification-item';
+                    
+                    // Format date to a more readable format
+                    const createdDate = new Date(notification.created_at);
+                    const formattedDate = createdDate.toLocaleString();
+                    
+                    notificationItem.innerHTML = `
+                        <div class="notification-dot"></div>
+                        <div class="notification-content">
+                            <div class="notification-message">${notification.message}</div>
+                            <div class="notification-time">${formattedDate}</div>
+                        </div>
+                    `;
+                    
+                    notificationList.appendChild(notificationItem);
+                });
+                
+                // Also update badge
+                const notificationBadge = document.querySelector('.notification-badge');
+                if(notificationBadge) {
+                    notificationBadge.textContent = data.length;
+                    notificationBadge.style.display = data.length > 0 ? 'flex' : 'none';
+                }
+            } else {
+                notificationList.innerHTML = '<div class="empty-notifications"><p>No new notifications</p></div>';
+                
+                // Hide badge when no notifications
+                const notificationBadge = document.querySelector('.notification-badge');
+                if(notificationBadge) {
+                    notificationBadge.style.display = 'none';
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching notifications:', error);
+            document.getElementById('notificationList').innerHTML = 
+                '<div class="empty-notifications"><p>Error loading notifications</p></div>';
+        });
+}
+
+// Initialize popup as hidden
+document.getElementById('notificationPopup').style.display = 'none';
+
+// Initial fetch of notifications
+fetchNotifications();
+
+// Fetch notifications every 30 seconds
+setInterval(fetchNotifications, 30000);
 </script>
 
 
@@ -1204,36 +1437,66 @@ document.getElementById('markAsRead').addEventListener('click', function() {
                     }
                 }
             });
+
+            // Add event listeners to period buttons
+            document.querySelectorAll('.chart-period').forEach(button => {
+                button.addEventListener('click', function() {
+                    // Remove active class from all buttons
+                    document.querySelectorAll('.chart-period').forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    
+                    // Add active class to clicked button
+                    this.classList.add('active');
+                    
+                    // Get the selected period
+                    const period = this.getAttribute('data-period');
+                    
+                    // Fetch data for the selected period
+                    fetchSalesDataByPeriod(period);
+                });
+            });
+
+            // Function to fetch sales data by period
+            function fetchSalesDataByPeriod(period) {
+                // Show loading state
+                document.getElementById('salesChart').style.opacity = '0.5';
+                
+                // Make AJAX request to fetch data
+                fetch(`get_sales_data.php?period=${period}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Update chart with new data
+                        salesChart.data.labels = data.productNames;
+                        salesChart.data.datasets[0].data = data.soldQuantities;
+                        
+                        // Calculate new percentages
+                        const totalSales = data.soldQuantities.reduce((a, b) => a + b, 0);
+                        const newPercentages = data.soldQuantities.map(qty => 
+                            totalSales > 0 ? (qty / totalSales) * 100 : 0
+                        );
+                        
+                        // Update chart tooltip to use new percentages
+                        salesChart.options.plugins.tooltip.callbacks.label = function(context) {
+                            const label = context.label || '';
+                            const value = context.parsed;
+                            const percentage = newPercentages[context.dataIndex].toFixed(1);
+                            return ` ${label}: ${value} units (${percentage}%)`;
+                        };
+                        
+                        // Update chart
+                        salesChart.update();
+                        
+                        // Remove loading state
+                        document.getElementById('salesChart').style.opacity = '1';
+                    })
+                    .catch(error => {
+                        console.error('Error fetching sales data:', error);
+                        // Remove loading state
+                        document.getElementById('salesChart').style.opacity = '1';
+                    });
+            }
         }
-
-        // Function to fetch notifications
-        function fetchNotifications() {
-            fetch('fetch_notifications.php')
-                .then(response => response.json())
-                .then(data => {
-                    const notificationList = document.getElementById('notificationList');
-                    notificationList.innerHTML = ''; // Clear existing notifications
-
-                    if (data.length > 0) {
-                        data.forEach(notification => {
-                            const li = document.createElement('li');
-                            li.innerHTML = `${notification.message} <small>${notification.created_at}</small>`;
-                            notificationList.appendChild(li);
-                        });
-                    } else {
-                        notificationList.innerHTML = '<li>No new notifications.</li>';
-                    }
-                })
-                .catch(error => console.error('Error fetching notifications:', error));
-        }
-
-
-
-        // Fetch notifications every 10 seconds
-        setInterval(fetchNotifications, 10000); // 10000 milliseconds = 10 seconds
-
-        // Initial fetch of notifications
-        fetchNotifications();
     </script>
 
     <script>

@@ -65,290 +65,334 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Products - Lokpix</title>
-    <link rel="stylesheet" href="dashboard_products.css"> <!-- Ensure this path is correct -->
+    <title>Manage Products - EcoTech</title>
     <style>
-       /* Modern CSS Reset */
-       * {
+        :root {
+            --primary: #4361ee;
+            --primary-light: #4895ef;
+            --primary-dark: #3f37c9;
+            --success: #4cc9f0;
+            --success-dark: #4895ef;
+            --danger: #f72585;
+            --warning: #f8961e;
+            --text: #2b2d42;
+            --text-light: #6c757d;
+            --bg: #f8f9fa;
+            --bg-card: #ffffff;
+            --border: #e9ecef;
+            --radius: 12px;
+            --radius-sm: 8px;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        /* Global Styles */
+        * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-        }
-
-        :root {
-            --primary-gradient: linear-gradient(135deg, #6366f1, #3b82f6);
-            --secondary-gradient: linear-gradient(135deg, #f43f5e, #ec4899);
-            --surface-color: #ffffff;
-            --background-color: #f8fafc;
-            --text-primary: #1e293b;
-            --text-secondary: #64748b;
+            font-family: 'Inter', 'Segoe UI', sans-serif;
         }
 
         body {
-            font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
             line-height: 1.6;
-            background-color: var(--background-color);
-            color: var(--text-primary);
             min-height: 100vh;
-        }
-
-        /* Header Styles */
-        header {
-            background: var(--primary-gradient);
-            color: white;
-            padding: 2rem;
-            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.2);
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
+        }
+
+        /* Top Navigation */
+        .top-nav {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            padding: 0.85rem 1.75rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 40;
+            display: flex;
             align-items: center;
+            gap: 2rem;
+            box-shadow: var(--shadow-sm);
         }
 
-        header h1 {
-            font-size: 2rem;
+        /* Nav brand and menu */
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            min-width: max-content;
+        }
+
+        .nav-brand h1 {
+            background: linear-gradient(45deg, var(--primary), var(--primary-light));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-size: 1.4rem;
             font-weight: 700;
+            margin: 0;
             letter-spacing: -0.5px;
-            margin-bottom: 0.5rem;
         }
 
-        header a {
-            display: inline-flex;
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex: 1;
+        }
+
+        .nav-menu a {
+            color: var(--text);
+            text-decoration: none;
+            padding: 0.6rem 0.9rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+
+        .nav-menu a:hover, .nav-menu a.active {
+            background: var(--bg);
+            color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .nav-menu a.active {
+            background-color: rgba(67, 97, 238, 0.1);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .nav-end {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            min-width: max-content;
+        }
+
+        .back-button {
+            display: flex;
             align-items: center;
             gap: 0.5rem;
-            color: white;
+            color: var(--text);
             text-decoration: none;
-            padding: 0.5rem 1rem;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
-        }
-
-        header a:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateY(-2px);
-        }
-
-        /* Main Content Styles */
-        .main-content {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 0 2rem;
-            animation: fadeIn 0.5s ease-out;
-        }
-
-        /* Form Styles */
-        form {
-            background: var(--surface-color);
-            padding: 2.5rem;
-            border-radius: 16px;
-            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.05);
-            margin-bottom: 2.5rem;
-            transition: transform 0.3s ease;
-        }
-
-        form:hover {
-            transform: translateY(-5px);
-        }
-
-        .input-group {
-            margin-bottom: 1.5rem;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: var(--text-primary);
-            font-weight: 600;
-            font-size: 0.95rem;
-        }
-
-        input, textarea {
-            width: 100%;
-            padding: 1rem;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            background-color: #f8fafc;
-        }
-
-        input:focus, textarea:focus {
-            outline: none;
-            border-color: #6366f1;
-            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
-            background-color: white;
-        }
-
-        /* Button Styles */
-        button {
-            background: var(--primary-gradient);
-            color: white;
-            padding: 0.5rem 1rem;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
+            font-weight: 500;
             font-size: 0.875rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.2);
-            display: inline-block;
-            margin-right: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+            background-color: var(--bg);
         }
 
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.3);
-        }
-
-        /* Smaller Edit Button */
-        .edit-button {
-            padding: 0.3rem 0.8rem;
-            font-size: 0.75rem;
-        }
-
-        /* Delete Button Styles */
-        button.delete {
-            background-color: #ff3366; /* Match the specific shade */
+        .back-button:hover {
+            background-color: var(--primary-light);
             color: white;
-            border: none;
-            padding: 10px 25px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.3s, transform 0.2s;
-            font-size: 16px;
-            font-weight: bold;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
 
-        button.delete:hover {
-            background-color: #ff1a4d; /* Darker shade on hover */
-            transform: translateY(-2px);
+        /* Main Content - adjust to account for fixed header */
+        .main-content {
+            margin-top: 4.5rem;
+            flex: 1;
+            padding: 2rem;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+            width: 100%;
+        }
+
+        .page-title {
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            color: var(--text);
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 0.75rem;
         }
 
         /* Table Styles */
         table {
             width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-            background: var(--surface-color);
-            border-radius: 16px;
+            border-collapse: collapse;
+            margin-bottom: 2rem;
+            background-color: var(--bg-card);
+            border-radius: var(--radius);
             overflow: hidden;
-            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.05);
+            box-shadow: var(--shadow-sm);
         }
 
         th, td {
-            padding: 1.25rem;
+            padding: 1rem;
             text-align: left;
+            border-bottom: 1px solid var(--border);
         }
 
         th {
-            background-color: #f1f5f9;
-            font-weight: 600;
-            color: var(--text-primary);
-            text-transform: uppercase;
-            font-size: 0.85rem;
-            letter-spacing: 0.5px;
-        }
-
-        tr:not(:last-child) td {
-            border-bottom: 1px solid #e2e8f0;
-        }
-
-        tr td {
-            transition: all 0.3s ease;
-        }
-
-        tr:hover td {
-            background-color: #f8fafc;
-        }
-
-        /* Actions Container */
-        .actions {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .actions button {
-            background-color: #6366f1;
+            background-color: var(--primary-light);
             color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s, transform 0.2s;
-            font-size: 16px;
-            font-weight: bold;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            font-weight: 600;
         }
 
-        .actions button:hover {
-            background-color: #4f46e5;
+        tr:hover {
+            background-color: rgba(242, 242, 242, 0.6);
+        }
+
+        /* Button Styles */
+        .btn-update, .btn-delete, button[type="submit"] {
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-weight: 500;
+            border: none;
+            transition: var(--transition);
+            display: inline-block;
+            text-decoration: none;
+            text-align: center;
+        }
+
+        .btn-update, button[type="submit"] {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-update:hover, button[type="submit"]:hover {
+            background-color: var(--primary-dark);
             transform: translateY(-2px);
         }
 
-        /* Image Preview */
-        td img {
-            border-radius: 4px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        .btn-delete {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-delete:hover {
+            filter: brightness(0.9);
+            transform: translateY(-2px);
+        }
+
+        /* Action Buttons Container */
+        .actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        /* Modal Overlay */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Edit Form Styles - Popup Version */
+        .edit-form-container {
+            display: block;
+            background-color: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+            animation: fadeIn 0.3s ease;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-light);
+            transition: var(--transition);
+        }
+
+        .close-modal:hover {
+            color: var(--danger);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Edit Form Styles */
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .input-group input, .input-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .input-group input:focus, .input-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+        }
+
+        .input-group textarea {
+            resize: vertical;
+            min-height: 100px;
         }
 
         /* Footer */
         footer {
+            background-color: var(--bg-card);
+            color: var(--text-light);
+            padding: 1.5rem;
             text-align: center;
-            padding: 2rem;
-            color: var(--text-secondary);
-            background-color: var(--surface-color);
-            border-top: 1px solid #e2e8f0;
-            margin-top: 4rem;
-        }
-
-        /* Animations */
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
+            margin-top: auto;
+            border-top: 1px solid var(--border);
         }
 
         /* Responsive Design */
         @media (max-width: 768px) {
-            header {
-                padding: 1.5rem;
+            .top-nav {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
             }
-            
-            .main-content {
-                padding: 0 1rem;
+
+            .nav-menu, .nav-end {
+                width: 100%;
+                justify-content: center;
             }
-            
-            form {
-                padding: 1.5rem;
-            }
-            
+
             table {
                 display: block;
                 overflow-x: auto;
             }
-            
-            button, a[href*="delete"] {
-                width: 100%;
-                margin-bottom: 0.5rem;
+
+            th, td {
+                padding: 0.75rem;
             }
 
             .actions {
@@ -356,43 +400,38 @@ try {
             }
         }
 
-        /* Glass Morphism Effects */
-        .glass-effect {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
+        @media (max-width: 576px) {
+            .main-content {
+                padding: 1rem;
+            }
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 10px;
-            height: 10px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #f1f5f9;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #94a3b8;
-            border-radius: 5px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: #64748b;
+            .edit-form-container {
+                padding: 1rem;
+            }
         }
     </style>
 </head>
 <body>
-    <header>
-        <h1>Manage Products</h1>
-        <a href="dashboard.php" style="text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; color: white; background: rgba(255, 255, 255, 0.1); padding: 0.5rem 1rem; border-radius: 8px; backdrop-filter: blur(10px); transition: all 0.3s ease;">
-            <img src="back.png" alt="Back" style="width: 20px; height: 20px;">
-            <span style="font-size: 16px;">Back to Dashboard</span>
-        </a>
-    </header>
+    <div class="top-nav">
+        <div class="nav-brand">
+            <h1>EcoTech</h1>
+        </div>
+        <div class="nav-menu">
+            <a href="dashboard_products.php" class="active">Products</a>
+        </div>
+        <div class="nav-end">
+            <a href="add_product.php" class="btn-update">Add Product</a>
+            <a href="dashboard.php" class="back-button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                <span>Back to Dashboard</span>
+            </a>
+        </div>
+    </div>
+
     <main class="main-content">
-        <h2>Manage Products</h2>
+        <h2 class="page-title">Manage Products</h2>
         <table>
             <thead>
                 <tr>
@@ -415,37 +454,12 @@ try {
                         <td>
                             <div class="actions">
                                 <!-- View product details (Non-editable) -->
-                                <button onclick="toggleEditForm(<?php echo $product['id']; ?>)">Edit</button>
+                                <button onclick="toggleEditForm(<?php echo $product['id']; ?>)" class="btn-update">Edit</button>
 
                                 <!-- Delete form -->
-                                <form action="dashboard_products.php" method="post" style="display:inline;">
+                                <form action="dashboard_products.php" method="post" style="display:inline; margin: 0; padding: 0; box-shadow: none; border: none;">
                                     <input type="hidden" name="product_id" value="<?php echo htmlspecialchars($product['id']); ?>">
-                                    <button type="submit" name="delete" class="delete" onclick="return confirm('Are you sure you want to delete this product?');">Delete</button>
-                                </form>
-                            </div>
-
-                            <!-- Edit product form (Hidden by default) -->
-                            <div id="editForm_<?php echo $product['id']; ?>" style="display:none; margin-top: 10px;">
-                                <form action="dashboard_products.php" method="post">
-                                    <input type="hidden" name="product_id" value="<?php echo htmlspecialchars($product['id']); ?>">
-
-                                    <!-- Name input field -->
-                                    <label for="name_<?php echo $product['id']; ?>">Name:</label>
-                                    <input type="text" id="name_<?php echo $product['id']; ?>" name="name" value="<?php echo htmlspecialchars($product['name']); ?>" required>
-
-                                    <!-- Description input field -->
-                                    <label for="description_<?php echo $product['id']; ?>">Description:</label>
-                                    <input type="text" id="description_<?php echo $product['id']; ?>" name="description" value="<?php echo htmlspecialchars($product['description']); ?>" required>
-
-                                    <!-- Stock input field -->
-                                    <label for="stock_<?php echo $product['id']; ?>">Stock:</label>
-                                    <input type="number" id="stock_<?php echo $product['id']; ?>" name="stock" value="<?php echo htmlspecialchars($product['stock']); ?>" min="0" required>
-
-                                    <!-- Price input field -->
-                                    <label for="price_<?php echo $product['id']; ?>">Price:</label>
-                                    <input type="number" id="price_<?php echo $product['id']; ?>" name="price" value="<?php echo htmlspecialchars($product['price']); ?>" step="0.01" required>
-
-                                    <button type="submit" name="update">Update</button>
+                                    <button type="submit" name="delete" class="btn-delete" onclick="return confirm('Are you sure you want to delete this product?');">Delete</button>
                                 </form>
                             </div>
                         </td>
@@ -453,24 +467,74 @@ try {
                 <?php endforeach; ?>
             </tbody>
         </table>
-
-        <button class="button"><a href="add_product.php" style="color: white; text-decoration: none;">Add Product</a></button>
     </main>
 
+    <!-- Edit forms as modals (outside the table) -->
+    <?php foreach ($products as $product): ?>
+        <div id="editForm_<?php echo $product['id']; ?>" class="modal-overlay">
+            <div class="edit-form-container">
+                <button class="close-modal" onclick="toggleEditForm(<?php echo $product['id']; ?>)">&times;</button>
+                <h3>Edit Product</h3>
+                <form action="dashboard_products.php" method="post">
+                    <input type="hidden" name="product_id" value="<?php echo htmlspecialchars($product['id']); ?>">
+                    
+                    <!-- Name input field -->
+                    <div class="input-group">
+                        <label for="name_<?php echo $product['id']; ?>">Name:</label>
+                        <input type="text" id="name_<?php echo $product['id']; ?>" name="name" value="<?php echo htmlspecialchars($product['name']); ?>" required>
+                    </div>
+                    
+                    <!-- Description input field -->
+                    <div class="input-group">
+                        <label for="description_<?php echo $product['id']; ?>">Description:</label>
+                        <textarea id="description_<?php echo $product['id']; ?>" name="description" required><?php echo htmlspecialchars($product['description']); ?></textarea>
+                    </div>
+                    
+                    <!-- Stock input field -->
+                    <div class="input-group">
+                        <label for="stock_<?php echo $product['id']; ?>">Stock:</label>
+                        <input type="number" id="stock_<?php echo $product['id']; ?>" name="stock" value="<?php echo htmlspecialchars($product['stock']); ?>" min="0" required>
+                    </div>
+                    
+                    <!-- Price input field -->
+                    <div class="input-group">
+                        <label for="price_<?php echo $product['id']; ?>">Price:</label>
+                        <input type="number" id="price_<?php echo $product['id']; ?>" name="price" value="<?php echo htmlspecialchars($product['price']); ?>" step="0.01" required>
+                    </div>
+                    
+                    <button type="submit" name="update">Update</button>
+                </form>
+            </div>
+        </div>
+    <?php endforeach; ?>
+
     <footer>
-        <p>&copy; 2024 Lokpix. All rights reserved.</p>
+        <p>&copy; 2024 EcoTech. All rights reserved.</p>
     </footer>
 
     <script>
-        // Function to toggle the visibility of the edit form
+        // Function to toggle the visibility of the edit form modal
         function toggleEditForm(productId) {
             var editForm = document.getElementById("editForm_" + productId);
             if (editForm.style.display === "none" || editForm.style.display === "") {
-                editForm.style.display = "block";
+                editForm.style.display = "flex";
+                document.body.style.overflow = "hidden"; // Prevent scrolling when modal is open
             } else {
                 editForm.style.display = "none";
+                document.body.style.overflow = ""; // Re-enable scrolling
             }
         }
+        
+        // Close modal when clicking outside the content
+        document.addEventListener('click', function(event) {
+            const modals = document.querySelectorAll('.modal-overlay');
+            modals.forEach(function(modal) {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                    document.body.style.overflow = "";
+                }
+            });
+        });
     </script>
 </body>
 </html>
