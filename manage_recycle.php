@@ -216,202 +216,286 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Recycling Requests</title>
+    <title>Manage Recycling Requests</title>
     <style>
-       /* Modern CSS Reset */
-       * {
+        :root {
+            --primary: #4361ee;
+            --primary-light: #4895ef;
+            --primary-dark: #3f37c9;
+            --success: #4cc9f0;
+            --success-dark: #4895ef;
+            --danger: #f72585;
+            --warning: #f8961e;
+            --text: #2b2d42;
+            --text-light: #6c757d;
+            --bg: #f8f9fa;
+            --bg-card: #ffffff;
+            --border: #e9ecef;
+            --radius: 12px;
+            --radius-sm: 8px;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        /* Global Styles */
+        * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-        }
-
-        :root {
-            --primary-gradient: linear-gradient(135deg, #6366f1, #3b82f6);
-            --secondary-gradient: linear-gradient(135deg, #f43f5e, #ec4899);
-            --surface-color: #ffffff;
-            --background-color: #f8fafc;
-            --text-primary: #1e293b;
-            --text-secondary: #64748b;
+            font-family: 'Inter', 'Segoe UI', sans-serif;
         }
 
         body {
-            font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
             line-height: 1.6;
-            background-color: var(--background-color);
-            color: var(--text-primary);
             min-height: 100vh;
-        }
-
-        /* Header Styles */
-        header {
-            background: var(--primary-gradient);
-            color: white;
-            padding: 2rem;
-            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.2);
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap; /* Allow wrapping for smaller screens */
+            flex-direction: column;
         }
 
-        header h1 {
-            font-size: 2rem;
+        /* Top Navigation */
+        .top-nav {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            padding: 0.85rem 1.75rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 40;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* Nav brand and menu */
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            min-width: max-content;
+        }
+
+        .nav-brand h1 {
+            background: linear-gradient(45deg, var(--primary), var(--primary-light));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-size: 1.4rem;
             font-weight: 700;
+            margin: 0;
             letter-spacing: -0.5px;
-            margin-bottom: 0.5rem;
         }
 
-        header a {
-            display: inline-flex;
+        .nav-menu {
+            display: flex;
             align-items: center;
-            gap: 0.5rem;
-            color: white;
-            text-decoration: none;
-            padding: 0.5rem 1rem;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
+            gap: 0.75rem;
+            flex: 1;
         }
 
-        header a:hover {
-            background: rgba(255, 255, 255, 0.2);
+        .nav-menu a {
+            color: var(--text);
+            text-decoration: none;
+            padding: 0.6rem 0.9rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+
+        .nav-menu a:hover, .nav-menu a.active {
+            background: var(--bg);
+            color: var(--primary);
             transform: translateY(-2px);
         }
 
-        /* Main Content Styles */
-        .content {
-            max-width: 100%; /* Allow content to take full width */
-            margin: 2rem auto;
-            padding: 0 1rem; /* Adjust padding for better spacing */
-            animation: fadeIn 0.5s ease-out;
-            overflow-x: hidden; /* Prevent horizontal scrolling */
+        .nav-menu a.active {
+            background-color: rgba(67, 97, 238, 0.1);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .nav-end {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            min-width: max-content;
+        }
+
+        .back-button {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.875rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+            background-color: var(--bg);
+        }
+
+        .back-button:hover {
+            background-color: var(--primary-light);
+            color: white;
+        }
+
+        /* Main Content - adjust to account for fixed header */
+        .main-content {
+            margin-top: 4.5rem;
+            flex: 1;
+            padding: 2rem;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+            width: 100%;
+        }
+
+        .page-title, .section-title {
+            width: 100%;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            color: var(--text);
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 0.75rem;
+        }
+
+        .section-title {
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            font-size: 1.4rem;
+        }
+
+        /* Table container */
+        .table-container {
+            width: 100%;
+            margin-bottom: 2rem;
+            margin-left: auto;
+            margin-right: auto;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
         }
 
         /* Table Styles */
         table {
             width: 100%;
-            border-collapse: collapse; /* Use collapse for better alignment */
-            background: var(--surface-color);
-            border-radius: 16px;
+            border-collapse: collapse;
+            background-color: var(--bg-card);
             overflow: hidden;
-            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.05);
-            margin-bottom: 2rem;
+            margin: 0 auto;
+            table-layout: fixed;
         }
 
         th, td {
-            padding: 1rem; /* Adjust padding for better spacing */
+            padding: 0.8rem;
             text-align: left;
-            vertical-align: middle; /* Align text vertically in the middle */
+            border-bottom: 1px solid var(--border);
+            word-wrap: break-word;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
+
+        /* Specific column widths */
+        th:nth-child(1), td:nth-child(1) { width: 5%; } /* ID */
+        th:nth-child(2), td:nth-child(2) { width: 10%; } /* User Email */
+        th:nth-child(3), td:nth-child(3) { width: 10%; } /* Contact Email */
+        th:nth-child(4), td:nth-child(4) { width: 7%; } /* Phone */
+        th:nth-child(5), td:nth-child(5) { width: 7%; } /* Category */
+        th:nth-child(6), td:nth-child(6) { width: 8%; } /* Subcategory */
+        th:nth-child(7), td:nth-child(7) { width: 7%; } /* Condition */
+        th:nth-child(8), td:nth-child(8) { width: 10%; } /* Photo */
+        th:nth-child(9), td:nth-child(9) { width: 7%; } /* Pickup Option */
+        th:nth-child(10), td:nth-child(10) { width: 9%; } /* Submitted At */
+        th:nth-child(11), td:nth-child(11) { width: 7%; } /* Status */
+        th:nth-child(12), td:nth-child(12) { width: 13%; } /* Actions */
 
         th {
-            background-color: #f1f5f9;
+            background-color: var(--primary-light);
+            color: white;
             font-weight: 600;
-            color: var(--text-primary);
-            text-transform: uppercase;
-            font-size: 0.85rem;
-            letter-spacing: 0.5px;
         }
 
-        tr:not(:last-child) td {
-            border-bottom: 1px solid #e2e8f0;
-        }
-
-        tr td {
-            transition: all 0.3s ease;
-        }
-
-        tr:hover td {
-            background-color: #f8fafc;
+        tr:hover {
+            background-color: rgba(242, 242, 242, 0.6);
         }
 
         /* Button Styles */
-        button {
-            background: var(--primary-gradient);
-            color: white;
+        .btn-validate, .btn-delete, .btn-view, button[type="submit"] {
             padding: 0.5rem 1rem;
-            border: none;
-            border-radius: 8px;
+            border-radius: var(--radius-sm);
             cursor: pointer;
-            font-size: 0.875rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.2);
+            font-weight: 500;
+            border: none;
+            transition: var(--transition);
             display: inline-block;
-            margin-right: 0.5rem;
-        }
-
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.3);
-        }
-
-        /* Smaller Button */
-        .small-button {
-            padding: 0.3rem 0.8rem;
-            font-size: 0.75rem;
-        }
-
-        /* Footer */
-        footer {
+            text-decoration: none;
             text-align: center;
-            padding: 2rem;
-            color: var(--text-secondary);
-            background-color: var(--surface-color);
-            border-top: 1px solid #e2e8f0;
-            margin-top: 4rem;
         }
 
-        /* Animations */
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .btn-validate, button[name="validate_request"], .btn-view, button[type="button"] {
+            background-color: var(--primary);
+            color: white;
         }
 
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
+        .btn-validate:hover, button[name="validate_request"]:hover, .btn-view:hover, button[type="button"]:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
         }
 
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            header {
-                padding: 1.5rem;
-            }
-            
-            .content {
-                padding: 0 1rem;
-            }
-            
-            table {
-                display: block;
-                overflow-x: auto;
-            }
-            
-            button {
-                width: 100%;
-                margin-bottom: 0.5rem;
-            }
+        .btn-delete, button[name="delete_request"] {
+            background-color: var(--danger);
+            color: white;
         }
 
-        /* Glass Morphism Effects */
-        .glass-effect {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+        .btn-delete:hover, button[name="delete_request"]:hover {
+            filter: brightness(0.9);
+            transform: translateY(-2px);
+        }
+
+        /* Action Buttons Container */
+        .actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        /* Status Badge */
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-validated {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .status-pending {
+            background-color: var(--warning);
+            color: white;
+        }
+
+        /* Image styles */
+        img {
+            max-width: 100px;
+            height: auto;
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        img:hover {
+            transform: scale(1.05);
         }
 
         /* Modal Styles */
@@ -452,135 +536,199 @@ try {
             color: #bbb;
         }
 
-        img {
-            max-width: 100%;
-            height: auto;
-            display: block;
+        /* Footer */
+        footer {
+            background-color: var(--bg-card);
+            color: var(--text-light);
+            padding: 1.5rem;
+            text-align: center;
+            margin-top: auto;
+            border-top: 1px solid var(--border);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .table-container {
+                width: 100%;
+            }
+            
+            th, td {
+                padding: 0.6rem;
+                font-size: 0.9rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .top-nav {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+
+            .nav-menu, .nav-end {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            /* Allow for scrolling on mobile only */
+            .table-container {
+                overflow-x: auto;
+            }
+            
+            table {
+                min-width: 800px; /* Force minimum width on mobile */
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .main-content {
+                padding: 1rem;
+            }
         }
     </style>
 </head>
 <body>
-    <header style="display: flex; justify-content: space-between; align-items: center; padding: 1rem;">
-        <h1 style="font-size: 2rem;">Manage Recycling Requests</h1>
-        <a href="dashboard.php" style="text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; color: white; background: rgba(255, 255, 255, 0.1); padding: 0.5rem 1rem; border-radius: 8px; backdrop-filter: blur(10px); transition: all 0.3s ease;">
-            <img src="back.png" alt="Back" style="width: 20px; height: 20px;">
-            <span style="font-size: 16px;">Back to Dashboard</span>
-        </a>
-    </header>
+    <div class="top-nav">
+        <div class="nav-brand">
+            <h1>Lokpix</h1>
+        </div>
+        <div class="nav-menu">
+            <a href="manage_recycle.php" class="active">Recycling Requests</a>
+        </div>
+        <div class="nav-end">
+            <a href="dashboard.php" class="back-button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                <span>Back to Dashboard</span>
+            </a>
+        </div>
+    </div>
 
-    <div class="content">
-        <h2>Recycling Requests</h2>
+    <main class="main-content">
+        <h2 class="page-title">Manage Recycling Requests</h2>
         
-        <h3>Pending Requests</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Request ID</th>
-                    <th>User Email</th>
-                    <th>Contact Email</th>
-                    <th>Phone</th>
-                    <th>Category</th>
-                    <th>Subcategory</th>
-                    <th>Condition</th>
-                    <th>Photo</th>
-                    <th>Pickup Option</th>
-                    <th>Submitted At</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($pending_requests as $request) : ?>
+        <h3 class="section-title">Pending Requests</h3>
+        <div class="table-container">
+            <table>
+                <thead>
                     <tr>
-                        <td><?php echo htmlspecialchars($request['id']); ?></td>
-                        <td><?php echo htmlspecialchars($request['user_email']); ?></td>
-                        <td><?php echo htmlspecialchars($request['email']); ?></td>
-                        <td><?php echo htmlspecialchars($request['phone']); ?></td>
-                        <td><?php echo htmlspecialchars($request['category_id']); ?></td>
-                        <td><?php echo htmlspecialchars($request['subcategory_id']); ?></td>
-                        <td><?php echo htmlspecialchars($request['component_condition']); ?></td>
-                        <td><img src="<?php echo htmlspecialchars($request['photo']); ?>" 
-                                 alt="Item Photo" 
-                                 style="max-width: 100px; cursor: pointer;" 
-                                 onclick="openModal('<?php echo htmlspecialchars($request['photo']); ?>')"></td>
-                        <td><?php echo htmlspecialchars($request['pickup_option']); ?></td>
-                        <td><?php echo htmlspecialchars($request['submitted_at']); ?></td>
-                        <td>
-                            <span class="status-badge <?php echo $request['status'] === 'validated' ? 'status-validated' : 'status-pending'; ?>">
-                                <?php echo htmlspecialchars($request['status'] ?? 'pending'); ?>
-                            </span>
-                        </td>
-                        <td>
-                            <form method="post" style="display:inline;">
-                                <input type="hidden" name="request_id" value="<?php echo htmlspecialchars($request['id']); ?>">
-                                <button type="submit" name="validate_request">Validate</button>
-                            </form>
-                            <form method="post" style="display:inline;">
-                                <input type="hidden" name="request_id" value="<?php echo htmlspecialchars($request['id']); ?>">
-                                <button type="submit" name="delete_request" onclick="return confirm('Are you sure you want to delete this request?');">Delete</button>
-                            </form>
-                        </td>
+                        <th>Request ID</th>
+                        <th>User Email</th>
+                        <th>Contact Email</th>
+                        <th>Phone</th>
+                        <th>Category</th>
+                        <th>Subcategory</th>
+                        <th>Condition</th>
+                        <th>Photo</th>
+                        <th>Pickup Option</th>
+                        <th>Submitted At</th>
+                        <th>Status</th>
+                        <th>Actions</th>
                     </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    <?php foreach ($pending_requests as $request) : ?>
+                        <tr>
+                            <td><?php echo htmlspecialchars($request['id']); ?></td>
+                            <td><?php echo htmlspecialchars($request['user_email']); ?></td>
+                            <td><?php echo htmlspecialchars($request['email']); ?></td>
+                            <td><?php echo htmlspecialchars($request['phone']); ?></td>
+                            <td><?php echo htmlspecialchars($request['category_id']); ?></td>
+                            <td><?php echo htmlspecialchars($request['subcategory_id']); ?></td>
+                            <td><?php echo htmlspecialchars($request['component_condition']); ?></td>
+                            <td><img src="<?php echo htmlspecialchars($request['photo']); ?>" 
+                                     alt="Item Photo" 
+                                     onclick="openModal('<?php echo htmlspecialchars($request['photo']); ?>')"></td>
+                            <td><?php echo htmlspecialchars($request['pickup_option']); ?></td>
+                            <td><?php echo htmlspecialchars($request['submitted_at']); ?></td>
+                            <td>
+                                <span class="status-badge <?php echo $request['status'] === 'validated' ? 'status-validated' : 'status-pending'; ?>">
+                                    <?php echo htmlspecialchars($request['status'] ?? 'pending'); ?>
+                                </span>
+                            </td>
+                            <td>
+                                <div class="actions">
+                                    <form method="post" style="display:inline;">
+                                        <input type="hidden" name="request_id" value="<?php echo htmlspecialchars($request['id']); ?>">
+                                        <button type="submit" name="validate_request" class="btn-validate">Validate</button>
+                                    </form>
+                                    <form method="post" style="display:inline;">
+                                        <input type="hidden" name="request_id" value="<?php echo htmlspecialchars($request['id']); ?>">
+                                        <button type="submit" name="delete_request" class="btn-delete" onclick="return confirm('Are you sure you want to delete this request?');">Delete</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
 
-        <h3>Validated Requests</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Request ID</th>
-                    <th>User Email</th>
-                    <th>Contact Email</th>
-                    <th>Phone</th>
-                    <th>Category</th>
-                    <th>Subcategory</th>
-                    <th>Condition</th>
-                    <th>Photo</th>
-                    <th>Pickup Option</th>
-                    <th>Submitted At</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($validated_requests as $request) : ?>
+        <h3 class="section-title">Validated Requests</h3>
+        <div class="table-container">
+            <table>
+                <thead>
                     <tr>
-                        <td><?php echo htmlspecialchars($request['id']); ?></td>
-                        <td><?php echo htmlspecialchars($request['user_email']); ?></td>
-                        <td><?php echo htmlspecialchars($request['email']); ?></td>
-                        <td><?php echo htmlspecialchars($request['phone']); ?></td>
-                        <td><?php echo htmlspecialchars($request['category_id']); ?></td>
-                        <td><?php echo htmlspecialchars($request['subcategory_id']); ?></td>
-                        <td><?php echo htmlspecialchars($request['component_condition']); ?></td>
-                        <td><img src="<?php echo htmlspecialchars($request['photo']); ?>" 
-                                 alt="Item Photo" 
-                                 style="max-width: 100px; cursor: pointer;" 
-                                 onclick="openModal('<?php echo htmlspecialchars($request['photo']); ?>')"></td>
-                        <td><?php echo htmlspecialchars($request['pickup_option']); ?></td>
-                        <td><?php echo htmlspecialchars($request['submitted_at']); ?></td>
+                        <th>Request ID</th>
+                        <th>User Email</th>
+                        <th>Contact Email</th>
+                        <th>Phone</th>
+                        <th>Category</th>
+                        <th>Subcategory</th>
+                        <th>Condition</th>
+                        <th>Photo</th>
+                        <th>Pickup Option</th>
+                        <th>Submitted At</th>
                     </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    <?php foreach ($validated_requests as $request) : ?>
+                        <tr>
+                            <td><?php echo htmlspecialchars($request['id']); ?></td>
+                            <td><?php echo htmlspecialchars($request['user_email']); ?></td>
+                            <td><?php echo htmlspecialchars($request['email']); ?></td>
+                            <td><?php echo htmlspecialchars($request['phone']); ?></td>
+                            <td><?php echo htmlspecialchars($request['category_id']); ?></td>
+                            <td><?php echo htmlspecialchars($request['subcategory_id']); ?></td>
+                            <td><?php echo htmlspecialchars($request['component_condition']); ?></td>
+                            <td><img src="<?php echo htmlspecialchars($request['photo']); ?>" 
+                                     alt="Item Photo" 
+                                     onclick="openModal('<?php echo htmlspecialchars($request['photo']); ?>')"></td>
+                            <td><?php echo htmlspecialchars($request['pickup_option']); ?></td>
+                            <td><?php echo htmlspecialchars($request['submitted_at']); ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; <?php echo date('Y'); ?> Lokpix. All rights reserved.</p>
+    </footer>
+
+    <!-- Modal for image preview -->
+    <div id="imageModal" class="modal" onclick="closeModal()">
+        <span class="close">&times;</span>
+        <img class="modal-content" id="modalImage">
     </div>
 
-    <!-- Add this modal div before closing body tag -->
-    <div id="imageModal" class="modal" style="display: none;" onclick="closeModal()">
-        <span class="close" style="cursor: pointer;">&times;</span>
-        <img class="modal-content" id="modalImage" style="max-width: 100%; height: auto;">
-    </div>
-
-    <!-- Add this script before closing body tag -->
     <script>
         const modal = document.getElementById('imageModal');
         const modalImg = document.getElementById('modalImage');
 
         function openModal(imgSrc) {
-            modal.style.display = "flex"; // Ensure modal is displayed as flex
-            modalImg.src = imgSrc; // Set the image source
+            modal.style.display = "flex";
+            modalImg.src = imgSrc;
         }
 
         function closeModal() {
-            modal.style.display = "none"; // Hide the modal
+            modal.style.display = "none";
         }
 
         // Close modal when pressing Escape key

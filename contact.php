@@ -1,5 +1,18 @@
 <?php
+// Start session first, before any output
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Then check login status
+if (!isset($_SESSION['loggedin'])) {
+    header('Location: login.php');
+    exit;
+}
+
+// Include header after session management
 include 'header.php';
+
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
@@ -519,6 +532,141 @@ include 'db_connect.php';
     .submit-btn:hover {
         background: #0056b3;
     }
+
+    /* Add these new styles for NextGen Studio section */
+    .team-header {
+        text-align: center;
+        padding: 60px 20px;
+        background: linear-gradient(135deg,rgb(145, 33, 176),rgb(126, 1, 126));
+        color: white;
+        border-radius: 15px;
+        margin-bottom: 60px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .team-name {
+        font-size: 3.5rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .team-logo {
+        width: 180px;
+        height: 180px;
+        margin: 0 auto;
+        background: white;
+        padding: 20px;
+        border-radius: 50%;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        position: relative;
+        z-index: 1;
+    }
+
+    .team-logo img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+
+    /* Animated background elements */
+    .team-header::before,
+    .team-header::after {
+        content: '';
+        position: absolute;
+        width: 300px;
+        height: 300px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.1);
+        z-index: 0;
+    }
+
+    .team-header::before {
+        top: -100px;
+        left: -100px;
+        animation: float 6s infinite ease-in-out;
+    }
+
+    .team-header::after {
+        bottom: -100px;
+        right: -100px;
+        animation: float 8s infinite ease-in-out reverse;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translate(0, 0); }
+        50% { transform: translate(20px, 20px); }
+    }
+
+    /* Update the about-developer cards */
+    .about-developer {
+        background: white;
+        padding: 30px;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .about-developer::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 5px;
+        background: linear-gradient(90deg, #2193b0, #6dd5ed);
+    }
+
+    .about-developer:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+    }
+
+    .about-developer img {
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+        margin-bottom: 25px;
+        object-fit: cover;
+        border: 5px solid #f8f9fa;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .about-developer h3 {
+        color: #2193b0;
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+        font-weight: 600;
+    }
+
+    .about-developer p {
+        color: #666;
+        margin-bottom: 20px;
+        font-size: 1.1rem;
+    }
+
+    .about-developer a {
+        display: inline-block;
+        margin: 5px;
+        padding: 8px 20px;
+        background: linear-gradient(135deg, #2193b0, #6dd5ed);
+        color: white;
+        text-decoration: none;
+        border-radius: 25px;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+
+    .about-developer a:hover {
+        background: linear-gradient(135deg, #6dd5ed, #2193b0);
+        transform: translateY(-2px);
+    }
  </style>
 
 <script>
@@ -546,166 +694,187 @@ include 'db_connect.php';
 </script>
 </head>
 <body>
-    <div class="about-page">
-        <main>
-            <section class="about-section">
-                <div class="about-container">
+<div class="about-page">
+    <main>
+        <section class="about-section">
+            <div class="about-container">
+                <!-- Team Name and Logo Section -->
+                <div class="team-header">
+                    <h1 class="team-name">NextGen Studio</h1>
+                    <div class="team-logo">
+                        <img src="team.png" alt="NextGen Studio Logo">
+                    </div>
+                </div>
+
+                <!-- Developer Profiles -->
                 <div class="about-profile">
-    <div class="about-developer">
-        <img src="https://b.top4top.io/p_3272e9f641.jpg" alt="Developer 1">
-        <h3>LOKMANE MESSABHIA</h3>
-        <p>Backend Developer</p>
-        <a href="https://www.instagram.com/lokmen_messabhia" target="_blank">Instagram</a>
-        
-        <a href="mailto:lokmen16.messabhia@gmail.com">Email</a>
-    </div>
-    <div class="about-developer">
-        <img src="https://j.top4top.io/p_3277n6dv61.jpg" alt="Developer 2">
-        <h3>Saiffi Med Ali Zakaria</h3>
-        <p>Frontend Developer</p>
-        <a href="https://www.instagram.com/sf.zakaria__" target="_blank">Instagram</a>
-        
-        <a href="mailto:saiffizakaria56@gmail.com">Email</a>
-    </div>
-    <div class="about-developer">
-        <img src="https://c.top4top.io/p_3273yb3z20.jpg" alt="Developer 3">
-        <h3>Hammoudi   Wajdi</h3>
-        <p>UI/UX Designer</p>
-        <a href="https://www.instagram.com/wajdi2.0" target="_blank">Instagram</a>
-      
-        <a href="mailto:amine@example.com">Email</a>
-    </div>
-</div>
-
-<div class="contact-info-section">
-    <div class="contact-grid">
-        <div class="contact-info-left">
-            <h2>Contact Information</h2>
-            <div class="info-list">
-                <div class="info-item">
-                    <div class="info-icon">
-                        <i class="fas fa-map-marker-alt"></i>
+                    <div class="about-developer">
+                        <img src="https://b.top4top.io/p_3272e9f641.jpg" alt="Developer 1">
+                        <h3>LOKMANE MESSABHIA</h3>
+                        <p>Backend Developer</p>
+                        <a href="https://www.linkedin.com/in/lokmen-messabhia-5b511a265/?original_referer=https%3A%2F%2Fwww%2Egoogle%2Ecom%2F&originalSubdomain=dz" target="_blank">Linkedin</a>
+                        <a href="mailto:lokmen16.messabhia@gmail.com">Email</a>
                     </div>
-                    <div class="info-content">
-                        <h3>Address</h3>
-                        <p>Route Nationale N-16, Souk Ahras, Algeria</p>
+                    <div class="about-developer">
+                        <img src="https://j.top4top.io/p_3277n6dv61.jpg" alt="Developer 2">
+                        <h3>Saiffi Med Ali Zakaria</h3>
+                        <p>Frontend Developer</p>
+                        <a href="https://www.instagram.com/sf.zakaria__" target="_blank">Instagram</a>
+                        <a href="mailto:saiffizakaria56@gmail.com">Email</a>
+                    </div>
+                    <div class="about-developer">
+                        <img src="https://c.top4top.io/p_3273yb3z20.jpg" alt="Developer 3">
+                        <h3>Hammoudi Wajdi</h3>
+                        <p>Security and Model View Controller</p>
+                        <a href="https://www.instagram.com/wajdi2.0" target="_blank">Instagram</a>
+                        <a href="mailto:amine@example.com">Email</a>
+                    </div>
+                    <div class="about-developer">
+                        <img src="https://g.top4top.io/p_3344zxhrx1.jpg" alt="Developer 2">
+                        <h3>Remadnia Raouf</h3>
+                        <p>UI/UX Designer</p>
+                        <a href="https://www.instagram.com/westerllund" target="_blank">Instagram</a>
+                        <a href="mailto:saiffizakaria56@gmail.com">Email</a>
+                    </div>
+                    <div class="about-developer">
+                        <img src="https://j.top4top.io/p_33444dqdd1.jpg" alt="Developer 3">
+                        <h3>Saoudi Ahmad</h3>
+                        <p>Tester and Model View Controller</p>
+                        <a href="https://www.instagram.com/magentuos" target="_blank">Instagram</a>
+                        <a href="mailto:amine@example.com">Email</a>
                     </div>
                 </div>
 
-                <div class="info-item">
-                    <div class="info-icon">
-                        <i class="fas fa-phone"></i>
-                    </div>
-                    <div class="info-content">
-                        <h3>Phone</h3>
-                        <p>+213 794159854</p>
+                <!-- Contact Information Section -->
+                <div class="contact-info-section">
+                    <div class="contact-grid">
+                        <div class="contact-info-left">
+                            <h2>Contact Information</h2>
+                            <div class="info-list">
+                                <div class="info-item">
+                                    <div class="info-icon">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                    </div>
+                                    <div class="info-content">
+                                        <h3>Address</h3>
+                                        <p>Route Nationale N-16, Souk Ahras, Algeria</p>
+                                    </div>
+                                </div>
+
+                                <div class="info-item">
+                                    <div class="info-icon">
+                                        <i class="fas fa-phone"></i>
+                                    </div>
+                                    <div class="info-content">
+                                        <h3>Phone</h3>
+                                        <p>+213 794159854</p>
+                                    </div>
+                                </div>
+
+                                <div class="info-item">
+                                    <div class="info-icon">
+                                        <i class="fas fa-envelope"></i>
+                                    </div>
+                                    <div class="info-content">
+                                        <h3>Email</h3>
+                                        <p>lokmen13.messabhia@gmail.com</p>
+                                    </div>
+                                </div>
+
+                                <div class="info-item">
+                                    <div class="info-icon">
+                                        <i class="fas fa-clock"></i>
+                                    </div>
+                                    <div class="info-content">
+                                        <h3>Working Hours</h3>
+                                        <p>Mon - Sat: 9:00 AM - 8:00 PM</p>
+                                    </div>
+                                </div>
+
+                                <div class="social-links">
+                                    <a href="#" class="facebook"><i class="fab fa-facebook-f"></i></a>
+                                    <a href="#" class="twitter"><i class="fab fa-twitter"></i></a>
+                                    <a href="#" class="instagram"><i class="fab fa-instagram"></i></a>
+                                    <a href="#" class="linkedin"><i class="fab fa-linkedin-in"></i></a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="contact-info-right">
+                            <h2>Send Us a Message</h2>
+                            <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Full Name</label>
+                                        <input type="text" name="name" required class="form-control">
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label>Email</label>
+                                        <input type="email" name="email" required class="form-control">
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label>Phone Number</label>
+                                        <input type="tel" name="phone" class="form-control">
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>Subject</label>
+                                    <input type="text" name="subject" class="form-control">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>Message</label>
+                                    <textarea name="message" required class="form-control"></textarea>
+                                </div>
+                                
+                                <button type="submit" class="submit-btn">Send Message</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
 
-                <div class="info-item">
-                    <div class="info-icon">
-                        <i class="fas fa-envelope"></i>
-                    </div>
-                    <div class="info-content">
-                        <h3>Email</h3>
-                        <p>lokmen13.messabhia@gmail.com</p>
-                    </div>
-                </div>
+                <!-- About EcoTech Section -->
+                <div class="about-text">
+                    <h1>About EcoTech</h1>
+                    <p>Welcome to EcoTech, your premier destination for sustainable technology solutions and responsible electronics recycling. We are dedicated to providing high-quality computer hardware, software, and accessories while promoting environmental responsibility through our recycling initiatives.</p>
+                    
+                    <h2>Our Story</h2>
+                    <p>Founded in 2024, EcoTech emerged from a vision to combine technology retail with environmental stewardship. What began as a small local store has evolved into a comprehensive platform that not only offers top-tier computer products but also leads the way in electronics recycling and sustainability efforts in our region.</p>
+                    
+                    <h2>Our Mission</h2>
+                    <p>Our dual mission is to make cutting-edge technology accessible while promoting responsible electronics disposal and recycling. We believe in creating a sustainable future where technology and environmental consciousness go hand in hand.</p>
 
-                <div class="info-item">
-                    <div class="info-icon">
-                        <i class="fas fa-clock"></i>
-                    </div>
-                    <div class="info-content">
-                        <h3>Working Hours</h3>
-                        <p>Mon - Sat: 9:00 AM - 8:00 PM</p>
-                    </div>
-                </div>
+                    <h2>Our Recycling Initiative</h2>
+                    <p>At EcoTech, we're committed to reducing electronic waste through our comprehensive recycling program:</p>
+                    <ul>
+                        <li>Free electronics recycling drop-off service for all customers</li>
+                        <li>Proper disposal of hazardous materials found in electronics</li>
+                        <li>Data destruction and privacy protection services</li>
+                        <li>Trade-in programs for upgrading to newer, energy-efficient devices</li>
+                        <li>Educational resources on sustainable technology practices</li>
+                    </ul>
 
-                <div class="social-links">
-                    <a href="#" class="facebook"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#" class="twitter"><i class="fab fa-twitter"></i></a>
-                    <a href="#" class="instagram"><i class="fab fa-instagram"></i></a>
-                    <a href="#" class="linkedin"><i class="fab fa-linkedin-in"></i></a>
+                    <h2>Why Choose EcoTech?</h2>
+                    <ul>
+                        <li>Environmentally conscious technology solutions and products</li>
+                        <li>Expert guidance on sustainable tech choices</li>
+                        <li>Competitive pricing with eco-friendly options</li>
+                        <li>Responsible recycling services for old electronics</li>
+                        <li>Community-focused environmental initiatives</li>
+                    </ul>
+
+                    <h2>Our Team</h2>
+                    <p>Our team consists of both tech enthusiasts and environmental specialists who are passionate about creating a sustainable future. We stay current with both technological advances and environmental best practices to provide you with the most sustainable solutions possible.</p>
+
+                    <p>We're committed to making a positive impact on both technology and the environment. If you have any questions about our products or recycling services, please don't hesitate to contact us.</p>
                 </div>
             </div>
-        </div>
-
-        <div class="contact-info-right">
-            <h2>Send Us a Message</h2>
-            <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Full Name</label>
-                        <input type="text" name="name" required class="form-control">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Email</label>
-                        <input type="email" name="email" required class="form-control">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Phone Number</label>
-                        <input type="tel" name="phone" class="form-control">
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label>Subject</label>
-                    <input type="text" name="subject" class="form-control">
-                </div>
-                
-                <div class="form-group">
-                    <label>Message</label>
-                    <textarea name="message" required class="form-control"></textarea>
-                </div>
-                
-                <button type="submit" class="submit-btn">Send Message</button>
-            </form>
-        </div>
-    </div>
+        </section>
+    </main>
 </div>
-
-                    <div class="about-text">
-                        <h1>About EcoTech</h1>
-                        <p>Welcome to EcoTech, your premier destination for sustainable technology solutions and responsible electronics recycling. We are dedicated to providing high-quality computer hardware, software, and accessories while promoting environmental responsibility through our recycling initiatives.</p>
-                        
-                        <h2>Our Story</h2>
-                        <p>Founded in 2024, EcoTech emerged from a vision to combine technology retail with environmental stewardship. What began as a small local store has evolved into a comprehensive platform that not only offers top-tier computer products but also leads the way in electronics recycling and sustainability efforts in our region.</p>
-                        
-                        <h2>Our Mission</h2>
-                        <p>Our dual mission is to make cutting-edge technology accessible while promoting responsible electronics disposal and recycling. We believe in creating a sustainable future where technology and environmental consciousness go hand in hand.</p>
-
-                        <h2>Our Recycling Initiative</h2>
-                        <p>At EcoTech, we're committed to reducing electronic waste through our comprehensive recycling program:</p>
-                        <ul>
-                            <li>Free electronics recycling drop-off service for all customers</li>
-                            <li>Proper disposal of hazardous materials found in electronics</li>
-                            <li>Data destruction and privacy protection services</li>
-                            <li>Trade-in programs for upgrading to newer, energy-efficient devices</li>
-                            <li>Educational resources on sustainable technology practices</li>
-                        </ul>
-
-                        <h2>Why Choose EcoTech?</h2>
-                        <ul>
-                            <li>Environmentally conscious technology solutions and products</li>
-                            <li>Expert guidance on sustainable tech choices</li>
-                            <li>Competitive pricing with eco-friendly options</li>
-                            <li>Responsible recycling services for old electronics</li>
-                            <li>Community-focused environmental initiatives</li>
-                        </ul>
-
-                        <h2>Our Team</h2>
-                        <p>Our team consists of both tech enthusiasts and environmental specialists who are passionate about creating a sustainable future. We stay current with both technological advances and environmental best practices to provide you with the most sustainable solutions possible.</p>
-
-                        <p>We're committed to making a positive impact on both technology and the environment. If you have any questions about our products or recycling services, please don't hesitate to contact us.</p>
-                    </div>
-                </div>
-            </section>
-         
-
-        </main>
 
         
         <?php

@@ -156,7 +156,24 @@ $items = $stmt->fetchAll();
             background: rgba(255, 255, 255, 0.2);
             transform: translateY(-2px);
         }
+        .back-button {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.875rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+            background-color: var(--bg);
+        }
 
+        .back-button:hover {
+            background-color: var(--primary-light);
+            color: white;
+        }
         .admin-container {
             max-width: 100%;
             margin: 2rem auto;
@@ -658,16 +675,115 @@ $items = $stmt->fetchAll();
                 grid-template-columns: 1fr;
             }
         }
+
+        /* Top Navigation */
+        .top-nav {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            padding: 0.85rem 1.75rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 40;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* Nav brand and menu */
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            min-width: max-content;
+        }
+
+        .nav-brand h1 {
+            background: linear-gradient(45deg, var(--primary), var(--primary-light));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin: 0;
+            letter-spacing: -0.5px;
+        }
+
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex: 1;
+        }
+
+        .nav-menu a {
+            color: var(--text);
+            text-decoration: none;
+            padding: 0.6rem 0.9rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+
+        .nav-menu a:hover, .nav-menu a.active {
+            background: var(--bg);
+            color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .nav-menu a.active {
+            background-color: rgba(67, 97, 238, 0.1);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .nav-end {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            min-width: max-content;
+        }
+
+        /* Add CSS variables if not already defined */
+        :root {
+            --bg-card: #ffffff;
+            --border: #e5e7eb;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --primary: #4361ee;
+            --primary-light: #818cf8;
+            --text: #4b5563;
+            --bg: #f9fafb;
+            --radius-sm: 0.375rem;
+            --transition: all 0.3s ease;
+        }
+
+        /* Add margin-top to admin-container to account for fixed header */
+        .admin-container {
+            margin-top: 5rem !important;
+        }
+
+        /* Remove old header styles */
+        header {
+            display: none !important;
+        }
     </style>
 </head>
 <body>
-    <header style="display: flex; justify-content: space-between; align-items: center; padding: 1rem;">
-        <h1 style="font-size: 2rem;">Manage Marketplace</h1>
-        <a href="dashboard.php" style="text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; color: white; background: rgba(255, 255, 255, 0.1); padding: 0.5rem 1rem; border-radius: 8px; backdrop-filter: blur(10px); transition: all 0.3s ease;">
-            <img src="back.png" alt="Back" style="width: 20px; height: 20px;">
-            <span style="font-size: 16px;">Back to Dashboard</span>
-        </a>
-    </header>
+    <div class="top-nav">
+        <div class="nav-brand">
+            <h1>EcoTech Admin</h1>
+        </div>
+        <div class="nav-menu">
+            <a href="#" class="active">Manage Marketplace</a>
+        </div>
+        <div class="nav-end">
+            <a href="dashboard.php" class="back-button">← Back to Dashboard</a>
+        </div>
+    </div>
 
     <div class="admin-container">
         <div class="filters">

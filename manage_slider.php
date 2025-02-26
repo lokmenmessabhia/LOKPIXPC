@@ -81,48 +81,107 @@ try {
             --text-secondary: #64748b;
         }
 
+        /* Add new top-nav styles */
+        .top-nav {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            padding: 0.85rem 1.75rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 40;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* Nav brand and menu */
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            min-width: max-content;
+        }
+
+        .nav-brand h1 {
+            background: linear-gradient(45deg, var(--primary), var(--primary-light));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin: 0;
+            letter-spacing: -0.5px;
+        }
+
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex: 1;
+        }
+
+        .nav-menu a {
+            color: var(--text);
+            text-decoration: none;
+            padding: 0.6rem 0.9rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+
+        .nav-menu a:hover, .nav-menu a.active {
+            background: var(--bg);
+            color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .nav-menu a.active {
+            background-color: rgba(67, 97, 238, 0.1);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .nav-end {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            min-width: max-content;
+        }
+
+        /* Add CSS variables if not already defined */
+        :root {
+            --bg-card: #ffffff;
+            --border: #e5e7eb;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --primary: #4361ee;
+            --primary-light: #818cf8;
+            --text: #4b5563;
+            --bg: #f9fafb;
+            --radius-sm: 0.375rem;
+            --transition: all 0.3s ease;
+        }
+
+        /* Add margin-top to main-content to account for fixed header */
+        .main-content {
+            margin-top: 5rem;
+        }
+
+        /* Remove the old header styles */
+        header {
+            display: none;
+        }
+
         body {
             font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
             line-height: 1.6;
             background-color: var(--background-color);
             color: var(--text-primary);
             min-height: 100vh;
-        }
-
-        /* Header Styles */
-        header {
-            background: var(--primary-gradient);
-            color: white;
-            padding: 2rem;
-            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.2);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        header h1 {
-            font-size: 2rem;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-            margin-bottom: 0.5rem;
-        }
-
-        header a {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: white;
-            text-decoration: none;
-            padding: 0.5rem 1rem;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
-        }
-
-        header a:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateY(-2px);
         }
 
         /* Main Content Styles */
@@ -212,7 +271,24 @@ try {
             border-top: 1px solid #e2e8f0;
             margin-top: 4rem;
         }
+        .back-button {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.875rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+            background-color: var(--bg);
+        }
 
+        .back-button:hover {
+            background-color: var(--primary-light);
+            color: white;
+        }
         /* Animations */
         @keyframes fadeIn {
             from {
@@ -238,10 +314,6 @@ try {
 
         /* Responsive Design */
         @media (max-width: 768px) {
-            header {
-                padding: 1.5rem;
-            }
-            
             .content {
                 padding: 0 1rem;
             }
@@ -331,49 +403,118 @@ try {
         .slider-list .actions a:hover {
             color: var(--secondary-gradient);
         }
+
+        /* File Input Container */
+        .file-input-container {
+            margin-bottom: 1.5rem;
+        }
+
+        /* File Input Styling */
+        input[type="file"] {
+            width: 0.1px;
+            height: 0.1px;
+            opacity: 0;
+            overflow: hidden;
+            position: absolute;
+            z-index: -1;
+        }
+
+        input[type="file"] + label {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.2);
+        }
+
+        input[type="file"] + label:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        /* File name display */
+        .file-name {
+            display: inline-block;
+            margin-left: 1rem;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            padding: 0.5rem;
+            background-color: #f8fafc;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+        }
     </style>
 </head>
 <body>
-     <header>
-        <h1 style="position: left;">Manage Products</h1>
-        <a href="dashboard.php" style="text-decoration: none;">
-            <img src="back.png" alt="Back" style="width: 30px; height: 30px; vertical-align: middle;">
-            <span style="color: #fff; font-size: 18px; vertical-align: middle;">Back to Dashboard</span>
-        </a>
-    </header>
+<div class="top-nav">
+    <div class="nav-brand">
+        <h1>EcoTech</h1>
+    </div>
+    <div class="nav-menu">
+        <a href="#" class="active">Recycling Requests</a>
+    </div>
+    <div class="nav-end">
+        <a href="dashboard.php" class="back-button">← Back to Dashboard</a>
+    </div>
+</div>
 
+<div class="main-content">
+    <h2 class="page-title">Manage Slider</h2>
 
-    <main>
-        <h1>Manage Slider Photos</h1>
+    <!-- Form to upload new photo -->
+    <form action="manage_slider.php" method="post" enctype="multipart/form-data">
+        <div class="file-input-container">
+            <input type="file" id="photo" name="photo" accept="image/*" required>
+            <label for="photo">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2z"/>
+                </svg>
+                Choose Photo
+            </label>
+            <span class="file-name">No file chosen</span>
+        </div>
 
-        <!-- Form to upload new photo -->
-        <form action="manage_slider.php" method="post" enctype="multipart/form-data">
-            <label for="photo">Upload Slider Photo:</label>
-            <input type="file" id="photo" name="photo" required>
-
+        <div class="input-group">
             <label for="caption">Caption:</label>
             <input type="text" id="caption" name="caption">
+        </div>
 
-            <button type="submit" name="action" value="add">Add Photo</button>
-        </form>
+        <button type="submit" name="action" value="add">Add Photo</button>
+    </form>
 
-        <!-- List of existing slider photos -->
-        <h2>Existing Slider Photos</h2>
-        <ul class="slider-list">
-            <?php foreach ($slider_photos as $photo): ?>
-                <li>
-                    <img src="<?php echo htmlspecialchars($photo['photo_url']); ?>" alt="<?php echo htmlspecialchars($photo['caption']); ?>">
-                    <div class="caption"><?php echo htmlspecialchars($photo['caption']); ?></div>
-                    <div class="actions">
-                        <a href="manage_slider.php?action=delete&id=<?php echo $photo['id']; ?>">Delete</a>
-                    </div>
-                </li>
-            <?php endforeach; ?>
-        </ul>
-    </main>
+    <!-- List of existing slider photos -->
+    <h2>Existing Slider Photos</h2>
+    <ul class="slider-list">
+        <?php foreach ($slider_photos as $photo): ?>
+            <li>
+                <img src="<?php echo htmlspecialchars($photo['photo_url']); ?>" alt="<?php echo htmlspecialchars($photo['caption']); ?>">
+                <div class="caption"><?php echo htmlspecialchars($photo['caption']); ?></div>
+                <div class="actions">
+                    <a href="manage_slider.php?action=delete&id=<?php echo $photo['id']; ?>">Delete</a>
+                </div>
+            </li>
+        <?php endforeach; ?>
+    </ul>
+</div>
 
     <footer>
         <p>&copy; 2024 Lokpix. All rights reserved.</p>
     </footer>
+
+    <script>
+        document.getElementById('photo').addEventListener('change', function(e) {
+            const fileName = e.target.files[0]?.name || 'No file selected';
+            const fileNameSpan = document.querySelector('.file-name');
+            fileNameSpan.textContent = fileName;
+        });
+    </script>
 </body>
 </html>
